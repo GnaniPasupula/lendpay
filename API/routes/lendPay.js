@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require('../Models/User'); 
 const Transaction = require('../Models/Transaction'); 
 
-router.get('/dashboard/', async (req, res) => {
+router.get('/dashboard', async (req, res) => {
   const userId=req.user._id;
 
   const userDetails = await User.findById(userId);
