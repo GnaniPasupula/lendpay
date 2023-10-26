@@ -17,6 +17,15 @@ router.post('/signup', async (req, res) => {
     const newUser = new User({ email, password: hashedPassword });
     await newUser.save();
 
+    const payLoad = {
+      userId: newUser._id,
+      userEmail: newUser.email
+    };
+
+    const authToken = jwt.sign(payLoad, process.env.SECRET_KEY);
+
+    res.cookie('authToken', authToken, { httpOnly: true }); 
+
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     console.error('Error:', error);
@@ -25,38 +34,35 @@ router.post('/signup', async (req, res) => {
 });
 
 router.post('/signin', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-    
-      const user = await User.findOne({ email });
-  
-      if (!user) {
-        return res.status(401).json({ message: 'User doesn\'t exist' });
-      }
+  try {
+    const { email, password } = req.body;
 
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-  
-      if (!isPasswordValid) {
-        return res.status(401).json({ message: 'Invalid email or password' });
-      }
+    const user = await User.findOne({ email });
 
-      const payLoad={
-        userId:user._id,
-        userEmail:user.email
-      }
-
-      // console.log("Payload"+payLoad);
-
-      const authToken = jwt.sign(payLoad, process.env.SECRET_KEY);
-
-      // console.log(authToken);
-  
-      res.status(200).json({ message: 'Signin successful', token: authToken });
-
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ message: 'An error occurred' });
+    if (!user) {
+      return res.status(401).json({ message: 'User doesn\'t exist' });
     }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    const payLoad = {
+      userId: user._id,
+      userEmail: user.email
+    };
+
+    const authToken = jwt.sign(payLoad, process.env.SECRET_KEY);
+
+    res.cookie('authToken', authToken, { httpOnly: true }); 
+
+    res.status(200).json({ message: 'Signin successful', token: authToken });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
 });
-  
+
 module.exports = router;
