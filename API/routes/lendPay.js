@@ -30,6 +30,42 @@ router.get('/dashboard', async (req, res) => {
     });
 
     // Get the transaction with the least adjusted date
+    // const leastTransaction = allTransactions[0];
+
+    res.status(200).json(allTransactions);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+});
+
+router.get('/dashboard/urgent', async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const user = await User.findById(userId)
+      .populate('creditTransactions debitTransactions');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const allTransactions = [...user.creditTransactions, ...user.debitTransactions];
+
+    // Sort transactions by the adjusted date in ascending order
+    allTransactions.sort((a, b) => {
+      // Convert transactionDate to a single unit (e.g., hours)
+      const dateA = a.date.getTime(); // Date in milliseconds
+      const dateB = b.date.getTime(); // Date in milliseconds
+
+      // Add interest period to the adjusted date
+      const adjustedDateA = dateA + a.interestPeriod * 30 * 24 * 60 * 60 * 1000; // Assuming 30 days in a month
+      const adjustedDateB = dateB + b.interestPeriod * 30 * 24 * 60 * 60 * 1000; // Assuming 30 days in a month
+
+      return adjustedDateA - adjustedDateB;
+    });
+
+    // Get the transaction with the least adjusted date
     const leastTransaction = allTransactions[0];
 
     res.status(200).json(leastTransaction);
@@ -54,12 +90,14 @@ router.post('/transfer', async (req, res) => {
     }
 
     const transaction = new Transaction({
-      sender: sender._id, 
-      receiver: receiver._id, 
+      sender: senderEmail, 
+      receiver: receiverEmail, 
       amount,
       interestRate,
       interestPeriod,
     });
+
+    // console.log(transaction);
 
     sender.creditTransactions.push(transaction._id);
     sender.totalCredit += amount;
@@ -93,8 +131,8 @@ router.post('/request', async (req, res) => {
     }
 
     const transaction = new Transaction({
-      sender: sender._id, 
-      receiver: receiver._id, 
+      sender: senderEmail, 
+      receiver: receiverEmail, 
       amount,
       interestRate,
       interestPeriod,

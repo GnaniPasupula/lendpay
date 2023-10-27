@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         }),      
       ),
       routes: {
-        '/': (ctx) => Dashboard(), // Auth route
+        '/': (ctx) => AuthScreen(), // Auth route
         '/dashboard': (ctx) => Dashboard(), // Credit card screen route
       },
     );

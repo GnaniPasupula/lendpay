@@ -71,7 +71,7 @@ class _AuthScreenState extends State<AuthScreen> {
           final authToken = responseData['token'];
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('authToken', authToken);
-          Navigator.of(context).pushReplacementNamed('/dashboard'); // Navigate to credit_card_screen.dart screen
+          Navigator.of(context).pushReplacementNamed('/dashboard'); 
         } else {
           final responseBody = json.decode(response.body);
           final errorMessage = responseBody['message'];
