@@ -32,7 +32,7 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     double cardHeight = MediaQuery.of(context).size.height * 0.25; // Card height
-
+    double insideCardHeight=cardHeight/3.25;
     double iconSize = cardHeight * 0.25; // Adjust the icon size proportionally
 
     return Scaffold(
@@ -186,18 +186,24 @@ class _DashboardState extends State<Dashboard> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: Colors.orange,
-                                child: Icon(Icons.person, color: Colors.white),
+                            child: SizedBox(
+                              height: insideCardHeight, // Set the individual card's height
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.orange,
+                                  child: Icon(Icons.person, color: Colors.white,size:insideCardHeight*0.75),
+                                ),
+                                title: Text(
+                                  transaction.receiver,
+                                  style: TextStyle(fontSize: insideCardHeight * 0.325),
+                                ),
+                                subtitle: Row(
+                                  children: [
+                                    Text(formattedDate,style: TextStyle(fontSize: insideCardHeight * 0.225)),
+                                  ],
+                                ),
+                                trailing: Text(transaction.amount.toString(),style: TextStyle(fontSize: insideCardHeight * 0.3)),
                               ),
-                              title: Text(transaction.receiver), 
-                              subtitle: Row(
-                                children: [
-                                  Text(formattedDate), 
-                                ],
-                              ),
-                              trailing: Text(transaction.amount.toString()), 
                             ),
                           ),
                         );
@@ -205,7 +211,7 @@ class _DashboardState extends State<Dashboard> {
                     ),
                   ),
                 ),
-          )
+          ),
         ],
       ),
     );
