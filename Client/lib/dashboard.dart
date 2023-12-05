@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'api_helper.dart';
 import 'package:intl/intl.dart';
+import 'request.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -102,6 +103,7 @@ class _DashboardState extends State<Dashboard> {
                               icon: Icon(Icons.request_page, color: Color(0xFF999999), size: iconSize * 0.6),
                               onPressed: () {
                                 // Handle Transfer Money button click
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>Request()));
                               },
                             ),
                           ),

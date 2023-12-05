@@ -155,4 +155,37 @@ router.post('/request', async (req, res) => {
   }
 });
 
+router.get('/users/:email/transactions',async (req,res)=>{
+
+  try {
+
+    const email = req.params.email;
+
+    const otherUser = await User.findOne({email:email});
+    const activeUser = req.user.userEmail;
+
+    // console.log(activeUser+" userId="+email);
+
+    if (!otherUser || otherUser===activeUser) {
+      return res.status(404).json({ message: 'Sender or receiver not found' });
+    }
+
+    const transactions = await Transaction.find({
+      $or: [
+        { sender: activeUser, receiver: email },
+        { sender: email, receiver: activeUser },
+      ],
+    });
+
+    res.json({ transactions });
+
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+
+})
+
+router.get('/users/')
+
 module.exports = router; 
