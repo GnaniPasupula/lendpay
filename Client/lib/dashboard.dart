@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/Transaction.dart';
+import 'package:lendpay/Providers/transaction_provider.dart';
+import 'package:provider/provider.dart';
 import 'api_helper.dart';
 import 'package:intl/intl.dart';
 import 'request.dart';
@@ -21,9 +23,11 @@ class _DashboardState extends State<Dashboard> {
   Future<void> _fetchTransactions() async {
     try {
       final List<Transaction> transactions = await ApiHelper.fetchTransactions();
+      Provider.of<TransactionsProvider>(context, listen: false).setAllTransactions(transactions);
       setState(() {
-        allTransactions = transactions;
+        allTransactions = Provider.of<TransactionsProvider>(context).allTransactions;
       });
+      
     } catch (e) {
       print(e);
       // Handle error and show a proper error message to the user

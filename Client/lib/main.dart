@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:lendpay/Providers/transaction_provider.dart';
 import 'package:lendpay/dashboard.dart';
+import 'package:provider/provider.dart';
 import './auth_screen.dart'; 
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(create: (context)=>TransactionsProvider(),
+    child: MyApp(),)
+  );
 }
 
   final List<Color> gradientColor = [

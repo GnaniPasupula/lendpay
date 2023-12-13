@@ -25,4 +25,15 @@ class Transaction {
       interestPeriod: json['interestPeriod'],
     );
   }
+
+    Map<String, dynamic> toJson() {
+    return {
+      'sender': sender,
+      'receiver': receiver,
+      'amount': amount,
+      'date': date,
+      'interestRate': interestRate,
+      'interestPeriod': interestPeriod,
+    };
+  }
 }

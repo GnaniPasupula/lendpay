@@ -177,7 +177,7 @@ router.get('/users/:email/transactions',async (req,res)=>{
       ],
     });
 
-    res.json({ transactions });
+    res.status(200).json(transactions);
 
   } catch (error) {
     console.error('Error:', error);
@@ -186,6 +186,22 @@ router.get('/users/:email/transactions',async (req,res)=>{
 
 })
 
-router.get('/users/')
+router.get('/users/:email', async (req,res)=>{
+  try {
+    const email = req.params.email;
+    const otherUser = await User.findOne({email:email});
+    const activeUser = req.user.userEmail;
+
+    if (!otherUser || email===activeUser) {
+      return res.status(404).json({ message: 'Sender or receiver not found' });
+    }
+
+    res.status(200).json(otherUser);
+
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+})
 
 module.exports = router; 

@@ -1,7 +1,6 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/Transaction.dart';
+import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/api_helper.dart';
 
 class Request extends StatefulWidget{
@@ -10,26 +9,45 @@ class Request extends StatefulWidget{
 }
 
 class _RequestState extends State<Request>{
+
   TextEditingController searchController = TextEditingController();
-  List<Transaction> allTransactions=[];
+
+  List<Transaction> allTransactionsUser=[];
+  bool foundUser = false;
+
   late String username;
 
   void handleSearch(){
     username=searchController.text;
-    print(username);
-    _fetchTransactions();
+    // print(username);
+    verifyUser();
   }
 
   Future<void> _fetchTransactions() async {
     try {
       final List<Transaction> transactions = await ApiHelper.fetchUserTransactions(username);
       setState(() {
-        allTransactions = transactions;
+        allTransactionsUser = transactions;
       });
-      print(allTransactions);
+      print(allTransactionsUser);
     } catch (e) {
       print(e);
       // Handle error and show a proper error message to the user
+    }
+  }
+
+  Future<void> verifyUser() async{
+    final User? searchedUser = await ApiHelper.fetchUser(username);
+    try{
+      setState(() {
+        if(searchedUser==null){
+          foundUser=true;
+        }else{
+          foundUser=false;
+        }
+      }); 
+    }catch(e){
+      print(e);
     }
   }
 
