@@ -5,6 +5,7 @@ class User {
   List<String> debitTransactions;
   double totalCredit;
   double totalDebit;
+  List<User> previousUsers;
   
 
   User({
@@ -14,6 +15,7 @@ class User {
     required this.debitTransactions,
     required this.totalCredit,
     required this.totalDebit,
+    required this.previousUsers
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -24,6 +26,7 @@ class User {
       debitTransactions: List<String>.from(json['debitTransactions']),
       totalCredit: json['totalCredit'].toDouble(),
       totalDebit: json['totalDebit'].toDouble(),
+      previousUsers: List<User>.from(json['previousUsers'])
     );
   }
 
@@ -35,6 +38,7 @@ class User {
       'debitTransactions': debitTransactions,
       'totalCredit': totalCredit,
       'totalDebit': totalDebit,
+      'previousUsers': previousUsers
     };
   }
 }

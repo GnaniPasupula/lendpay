@@ -192,11 +192,39 @@ router.get('/users/:email', async (req,res)=>{
     const otherUser = await User.findOne({email:email});
     const activeUser = req.user.userEmail;
 
+    const currentUser = await User.findOne({email:activeUser});
+
     if (!otherUser || email===activeUser) {
       return res.status(404).json({ message: 'Sender or receiver not found' });
+    }else{
+      const previousUserIds = new Set(currentUser.previousUsers.map(user => user.toString()));
+
+      if (!previousUserIds.has(otherUser._id.toString())) {
+        currentUser.previousUsers.push(otherUser);
+      }
+      await currentUser.save();
+      res.status(200).json(otherUser);
     }
 
-    res.status(200).json(otherUser);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+})
+
+router.get('/user/request', async (req,res)=>{
+  try {
+    const userId = req.user.userId;
+
+    const users=await User.findById(userId).populate('previousUsers');
+
+    if (!users) {
+      return res.status(404).json({ message: 'Users not found' });
+    }
+
+    const allUsers = [...users.previousUsers];
+
+    res.status(200).json(allUsers);
 
   } catch (error) {
     console.error('Error:', error);

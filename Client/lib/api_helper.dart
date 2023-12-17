@@ -8,7 +8,7 @@ import 'package:lendpay/Models/Transaction.dart';
 class ApiHelper {
   static final String baseUrl = 'http://localhost:3000/lendpay';
 
-  static Future<User?> fetchUser(String email) async {
+  static Future<User?> verifyUser(String email) async {
     final url = '$baseUrl/users/$email';
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -20,8 +20,8 @@ class ApiHelper {
       );
 
       if (response.statusCode == 200) {
-        final dynamic user = json.decode(response.body);
-        log(response.body);
+        final dynamic jsonData = json.decode(response.body);
+        final User user = User.fromJson(jsonData);
         
         return user;
         
@@ -34,6 +34,32 @@ class ApiHelper {
       }
     } catch (e) {
       throw Exception('Error fetching user: $e');
+    }
+  }
+
+  static Future<List<User>> fetchUsers() async{
+    final url='$baseUrl/user/request';
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $authToken'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        log(response.body);
+        final List<User> users = jsonData
+            .map((data) => User.fromJson(data))
+            .toList();
+        return users;
+      } else {
+        throw Exception('Failed to load users');
+      }
+    } catch (e) {
+      throw Exception('Error fetching users: $e');
     }
   }
 

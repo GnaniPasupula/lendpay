@@ -25,9 +25,9 @@ class _DashboardState extends State<Dashboard> {
       final List<Transaction> transactions = await ApiHelper.fetchTransactions();
       Provider.of<TransactionsProvider>(context, listen: false).setAllTransactions(transactions);
       setState(() {
-        allTransactions = Provider.of<TransactionsProvider>(context).allTransactions;
+        allTransactions=transactions;
       });
-      
+      // print('all transactions = ${allTransactions}');
     } catch (e) {
       print(e);
       // Handle error and show a proper error message to the user

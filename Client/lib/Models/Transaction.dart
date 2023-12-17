@@ -26,7 +26,7 @@ class Transaction {
     );
   }
 
-    Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson() {
     return {
       'sender': sender,
       'receiver': receiver,
