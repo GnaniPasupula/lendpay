@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/api_helper.dart';
+import 'package:lendpay/transactions.dart';
 
 class Request extends StatefulWidget{
   @override
@@ -15,7 +14,6 @@ class _RequestState extends State<Request>{
 
   List<User> searchedUsers = [];
 
-  List<Transaction> allTransactionsUser=[];
   bool foundUser = false;
 
   late String username;
@@ -34,18 +32,6 @@ class _RequestState extends State<Request>{
     verifyUser();
   }
 
-  Future<void> _fetchTransactions() async {
-    try {
-      final List<Transaction> transactions = await ApiHelper.fetchUserTransactions(username);
-      setState(() {
-        allTransactionsUser = transactions;
-      });
-      print(allTransactionsUser);
-    } catch (e) {
-      print(e);
-      // Handle error and show a proper error message to the user
-    }
-  }
 
   Future<void> fetchUsers() async{
     try {
@@ -103,7 +89,7 @@ class _RequestState extends State<Request>{
   }
 
 
-  @override
+@override
 Widget build(BuildContext context) {
   double cardHeight = MediaQuery.of(context).size.height * 0.25; // Card height
   double insideCardHeight = cardHeight / 3.25;
@@ -156,20 +142,23 @@ Widget build(BuildContext context) {
                       child: SizedBox(
                         height: insideCardHeight, // Set the individual card's height
                         child: ListTile(
+                          onTap: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>TransactionsPage(user: user)));
+                          },
                           leading: CircleAvatar(
                             backgroundColor: Colors.orange,
                             child: Icon(Icons.person, color: Colors.white, size: insideCardHeight * 0.75),
                           ),
                           title: Text(
-                            "User name",
+                            user.email,
                             style: TextStyle(fontSize: insideCardHeight * 0.325),
                           ),
                           subtitle: Row(
                             children: [
-                              Text("UID", style: TextStyle(fontSize: insideCardHeight * 0.225)),
+                              Text(user.email, style: TextStyle(fontSize: insideCardHeight * 0.225)),
                             ],
                           ),
-                          trailing: Text("Three dot icon", style: TextStyle(fontSize: insideCardHeight * 0.3)),
+                          trailing: Icon(Icons.more_vert, color: const Color.fromARGB(255, 0, 0, 0), size: insideCardHeight * 0.5),
                         ),
                       ),
                     ),

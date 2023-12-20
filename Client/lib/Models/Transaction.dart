@@ -5,6 +5,7 @@ class Transaction {
   final DateTime date;
   final double interestRate;
   final double interestPeriod; 
+  final String note;
 
   Transaction({
     required this.sender,
@@ -13,6 +14,7 @@ class Transaction {
     required this.date,
     required this.interestRate,
     required this.interestPeriod,
+    required this.note
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class Transaction {
       date: DateTime.parse(json['date']),
       interestRate: json['interestRate'],
       interestPeriod: json['interestPeriod'],
+      note: json['note']
     );
   }
 
@@ -34,6 +37,7 @@ class Transaction {
       'date': date,
       'interestRate': interestRate,
       'interestPeriod': interestPeriod,
+      'note': note
     };
   }
 }

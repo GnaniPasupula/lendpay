@@ -6,7 +6,8 @@ const transactionSchema = new mongoose.Schema({
   amount: { type: Number, required: true },
   date: { type: Date, default: Date.now },
   interestRate: { type: Number, required: true , default:0}, 
-  interestPeriod: { type: Number, required: true , default:0}, 
+  interestPeriod: { type: Number, required: true , default:0},
+  note:{type: String, default:""} 
 });
 
 const Transaction = mongoose.model('Transaction', transactionSchema);

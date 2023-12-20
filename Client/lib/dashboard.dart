@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Providers/transaction_provider.dart';
+import 'package:lendpay/singleTransaction.dart';
 import 'package:provider/provider.dart';
 import 'api_helper.dart';
 import 'package:intl/intl.dart';
@@ -195,6 +196,9 @@ class _DashboardState extends State<Dashboard> {
                             child: SizedBox(
                               height: insideCardHeight, // Set the individual card's height
                               child: ListTile(
+                                onTap: (){
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleTransactionsPage(transaction:transaction)));
+                                },
                                 leading: CircleAvatar(
                                   backgroundColor: Colors.orange,
                                   child: Icon(Icons.person, color: Colors.white,size:insideCardHeight*0.75),
