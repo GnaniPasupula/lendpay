@@ -131,7 +131,7 @@ Widget build(BuildContext context) {
               child: ListView.builder(
                 itemCount: searchedUsers.length,
                 itemBuilder: (context, index) {
-                  final user = searchedUsers.elementAt(index);
+                  final otheruser = searchedUsers.elementAt(index);
 
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
@@ -143,19 +143,19 @@ Widget build(BuildContext context) {
                         height: insideCardHeight, // Set the individual card's height
                         child: ListTile(
                           onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>TransactionsPage(user: user)));
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>TransactionsPage(otheruser: otheruser)));
                           },
                           leading: CircleAvatar(
                             backgroundColor: Colors.orange,
                             child: Icon(Icons.person, color: Colors.white, size: insideCardHeight * 0.75),
                           ),
                           title: Text(
-                            user.email,
+                            otheruser.email,
                             style: TextStyle(fontSize: insideCardHeight * 0.325),
                           ),
                           subtitle: Row(
                             children: [
-                              Text(user.email, style: TextStyle(fontSize: insideCardHeight * 0.225)),
+                              Text(otheruser.email, style: TextStyle(fontSize: insideCardHeight * 0.225)),
                             ],
                           ),
                           trailing: Icon(Icons.more_vert, color: const Color.fromARGB(255, 0, 0, 0), size: insideCardHeight * 0.5),

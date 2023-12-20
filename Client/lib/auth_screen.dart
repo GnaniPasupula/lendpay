@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:lendpay/Models/User.dart';
+import 'package:lendpay/Providers/activeUser_provider.dart';
+import 'package:lendpay/api_helper.dart';
+import 'package:lendpay/dashboard.dart';
+import 'package:provider/provider.dart';
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -71,7 +75,9 @@ class _AuthScreenState extends State<AuthScreen> {
           final authToken = responseData['token'];
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('authToken', authToken);
-          Navigator.of(context).pushReplacementNamed('/dashboard'); 
+          final User activeUser = await ApiHelper.getActiveUser();
+          Provider.of<UserProvider>(context, listen: false).setActiveUser(activeUser);
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>Dashboard()));
         } else {
           final responseBody = json.decode(response.body);
           final errorMessage = responseBody['message'];

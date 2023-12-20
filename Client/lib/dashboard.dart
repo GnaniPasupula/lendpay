@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/Transaction.dart';
+import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Providers/transaction_provider.dart';
 import 'package:lendpay/singleTransaction.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,8 @@ import 'package:intl/intl.dart';
 import 'request.dart';
 
 class Dashboard extends StatefulWidget {
+
+  Dashboard();
   @override
   _DashboardState createState() => _DashboardState();
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Providers/transaction_provider.dart';
 import 'package:lendpay/dashboard.dart';
 import 'package:provider/provider.dart';
@@ -6,8 +7,14 @@ import './auth_screen.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(create: (context)=>TransactionsProvider(),
-    child: MyApp(),)
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => TransactionsProvider()),
+        ChangeNotifierProvider(create: (context) => UserProvider()),
+        // Add more providers if needed
+      ],
+      child: MyApp(),
+    ),
   );
 }
 

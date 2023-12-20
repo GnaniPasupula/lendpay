@@ -1,6 +1,7 @@
 class User {
   String email;
   String password;
+  String name;
   List<String> creditTransactions;
   List<String> debitTransactions;
   double totalCredit;
@@ -11,6 +12,7 @@ class User {
   User({
     required this.email,
     required this.password,
+    required this.name,
     required this.creditTransactions,
     required this.debitTransactions,
     required this.totalCredit,
@@ -22,6 +24,7 @@ class User {
     return User(
       email: json['email'],
       password: json['password'],
+      name: json['name'],
       creditTransactions: List<String>.from(json['creditTransactions']),
       debitTransactions: List<String>.from(json['debitTransactions']),
       totalCredit: json['totalCredit'].toDouble(),
@@ -34,6 +37,7 @@ class User {
     return {
       'email': email,
       'password': password,
+      'name': name,
       'creditTransactions': creditTransactions,
       'debitTransactions': debitTransactions,
       'totalCredit': totalCredit,

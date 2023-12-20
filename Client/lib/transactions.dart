@@ -3,13 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
+import 'package:lendpay/agreementPage.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/singleTransaction.dart';
 
 class TransactionsPage extends StatefulWidget {
-  final User user;
+  final User otheruser;
 
-  TransactionsPage({required this.user});
+  TransactionsPage({required this.otheruser});
 
   @override
   _TransactionsState createState() => _TransactionsState();
@@ -22,7 +23,7 @@ class _TransactionsState extends State<TransactionsPage> {
   Future<void> _fetchTransactions() async {
     try {
       final List<Transaction> transactions =
-          await ApiHelper.fetchUserTransactions(widget.user.email);
+          await ApiHelper.fetchUserTransactions(widget.otheruser.email);
       setState(() {
         allTransactionsUser = transactions;
       });
@@ -50,7 +51,7 @@ class _TransactionsState extends State<TransactionsPage> {
         title: Row(
           children: [
             Expanded(
-              child: Text(widget.user.email),
+              child: Text(widget.otheruser.email),
             ),
           ],
         ),
@@ -87,7 +88,7 @@ class _TransactionsState extends State<TransactionsPage> {
                 IconButton(
                   icon: Icon(Icons.send),
                   onPressed: () {
-                    // Handle sending the message
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>AgreementPage(amount:int.parse(messageController.text),otheruser:widget.otheruser)));
                   },
                 ),
               ],
@@ -99,7 +100,7 @@ class _TransactionsState extends State<TransactionsPage> {
   }
 
   Widget buildTransactionItem(Transaction transaction) {
-    bool isCredit = transaction.sender == widget.user.email;
+    bool isCredit = transaction.sender == widget.otheruser.email;
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => SingleTransactionsPage(transaction: transaction)));
