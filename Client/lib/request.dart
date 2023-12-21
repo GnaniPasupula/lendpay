@@ -45,8 +45,8 @@ class _RequestState extends State<Request>{
   }
 
   Future<void> verifyUser() async{
-    final User? searchedUser = await ApiHelper.verifyUser(username);
     try{
+      final User? searchedUser = await ApiHelper.verifyUser(username);
       setState(() {
         if(searchedUser==null){
           foundUser=false;

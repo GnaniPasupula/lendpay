@@ -70,14 +70,15 @@ class _AuthScreenState extends State<AuthScreen> {
         headers: {'Content-Type': 'application/json'},
       );
 
-    if (response.statusCode == 200) {
+      if (response.statusCode == 200) {
           final responseData = json.decode(response.body);
           final authToken = responseData['token'];
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('authToken', authToken);
-          final User activeUser = await ApiHelper.getActiveUser();
-          Provider.of<UserProvider>(context, listen: false).setActiveUser(activeUser);
+
+          await getActiveUserDetails();
           Navigator.push(context, MaterialPageRoute(builder: (context)=>Dashboard()));
+
         } else {
           final responseBody = json.decode(response.body);
           final errorMessage = responseBody['message'];
@@ -88,6 +89,15 @@ class _AuthScreenState extends State<AuthScreen> {
     catch (error) {
       print('Error during HTTP request: $error');
     }  
+  }
+
+  Future<void> getActiveUserDetails() async{
+    try{
+      final User? activeUser = await ApiHelper.getActiveUser();
+      Provider.of<UserProvider>(context, listen: false).setActiveUser(activeUser!);
+    }catch(e){ 
+      print('Error fetching active user details: $e');
+    }
   }
 
   void _showSuccessDialog(String message) {

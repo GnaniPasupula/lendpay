@@ -1,4 +1,5 @@
 class Transaction {
+  // final String id;
   final String sender;
   final String receiver;
   final double amount;
@@ -8,6 +9,7 @@ class Transaction {
   final String note;
 
   Transaction({
+    // required this.id,
     required this.sender,
     required this.receiver,
     required this.amount,
@@ -19,6 +21,7 @@ class Transaction {
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
+      // id:json['_id'],
       sender: json['sender'],
       receiver: json['receiver'],
       amount: json['amount'],
@@ -31,6 +34,7 @@ class Transaction {
 
   Map<String, dynamic> toJson() {
     return {
+      // '_id': id,
       'sender': sender,
       'receiver': receiver,
       'amount': amount,

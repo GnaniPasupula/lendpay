@@ -1,4 +1,5 @@
 class User {
+  // final String id;
   String email;
   String password;
   String name;
@@ -8,8 +9,8 @@ class User {
   double totalDebit;
   List<User> previousUsers;
   
-
   User({
+    // required this.id,
     required this.email,
     required this.password,
     required this.name,
@@ -22,6 +23,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
+      // id:json['_id'],
       email: json['email'],
       password: json['password'],
       name: json['name'],
@@ -35,6 +37,7 @@ class User {
 
   Map<String, dynamic> toJson() {
     return {
+      // '_id': id,
       'email': email,
       'password': password,
       'name': name,
