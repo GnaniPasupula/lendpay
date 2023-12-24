@@ -76,7 +76,7 @@ class _AuthScreenState extends State<AuthScreen> {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('authToken', authToken);
 
-          await getActiveUserDetails();
+          // await getActiveUserDetails();
           Navigator.push(context, MaterialPageRoute(builder: (context)=>Dashboard()));
 
         } else {

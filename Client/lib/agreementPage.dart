@@ -1,98 +1,287 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:lendpay/Models/User.dart';
-import 'package:lendpay/Providers/activeUser_provider.dart';
-import 'package:provider/provider.dart';
 
 class AgreementPage extends StatefulWidget {
   final int amount;
   final User otheruser;
 
-  AgreementPage({required this.amount,required this.otheruser});
+  AgreementPage({required this.amount, required this.otheruser});
 
   @override
   _AgreementPageState createState() => _AgreementPageState();
 }
 
 class _AgreementPageState extends State<AgreementPage> {
-  late double rateOfInterest;
+  late int loanAmount;
   late int period;
-  late DateTime startDate;
-  late DateTime endDate;
-  late String paymentPeriod;
+  late int interest;
+  late int cycle;
+  late double totalAmount;
+  late double interestAmount;
+  late double breakdownAmount;
+  late TextEditingController _loanAmountController;
+  late TextEditingController _periodAmountController;
+  late TextEditingController _interestAmountController;
+  late TextEditingController _cycleAmountController;
+
 
   @override
   void initState() {
     super.initState();
-    // Set default values or initialize the necessary variables here
-    rateOfInterest = 0.0;
-    period = 0;
-    startDate = DateTime.now();
-    endDate = DateTime.now();
-    paymentPeriod = 'Monthly';
+    loanAmount = widget.amount;
+    totalAmount=loanAmount as double;
+    _loanAmountController = TextEditingController(text: loanAmount.toString());
+    _periodAmountController = TextEditingController(text: "12");
+    _interestAmountController = TextEditingController(text: "12");
+    _cycleAmountController = TextEditingController(text: "1");
   }
 
   @override
   Widget build(BuildContext context) {
-    User fromUser = Provider.of<UserProvider>(context).activeUser;
+    DateTime today = DateTime.now();
+    String todayDate = DateFormat('dd-MM-yyyy').format(today);
+
+    period = int.tryParse(_periodAmountController.text) ?? 0;
+    DateTime endDate = today.add(Duration(days: period * 30));
+    String endDateFormatted = DateFormat('dd-MM-yyyy').format(endDate);
+
+    interest = int.tryParse(_interestAmountController.text) ?? 0;
+
+    cycle = int.tryParse(_cycleAmountController.text) ?? 0;
+    interestAmount = loanAmount*interest*period/(12*100);
+    interestAmount = double.parse(interestAmount.toStringAsFixed(2));
+    breakdownAmount = double.parse((totalAmount/period).toStringAsFixed(2));
+
+    totalAmount=loanAmount+interestAmount;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Agreement'),
+        title: const Text('Agreement'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'Amount: \$${widget.amount}',
-              style: TextStyle(fontSize: 16.0),
+            const Text(
+              'Loan Details',
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 16.0),
-            Text(
-              'Rate of Interest: ${rateOfInterest.toStringAsFixed(2)}%',
-              style: TextStyle(fontSize: 16.0),
+            const SizedBox(height: 8.0),
+            const Text(
+              'Customize your loan and EMI details',
+              style: TextStyle(fontSize: 16.0, color: Colors.grey),
             ),
-            SizedBox(height: 16.0),
-            Text(
-              'Period: $period months',
-              style: TextStyle(fontSize: 16.0),
+            const SizedBox(height: 16.0),
+            const Row(
+              children: [
+                Text(
+                  'Select Loan Amount',
+                  style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
-            SizedBox(height: 16.0),
-            Text(
-              'Start Date: ${DateFormat('dd/MM/yyyy').format(startDate)}',
-              style: TextStyle(fontSize: 16.0),
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              'End Date: ${DateFormat('dd/MM/yyyy').format(endDate)}',
-              style: TextStyle(fontSize: 16.0),
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              'Payment Period: $paymentPeriod',
-              style: TextStyle(fontSize: 16.0),
-            ),
-            Spacer(),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 IconButton(
-                  icon: Icon(Icons.close, color: Colors.red),
+                  icon: const Icon(Icons.remove),
                   onPressed: () {
-                    // Handle X button press
+                    setState(() {
+                      loanAmount = (loanAmount - 1000).clamp(0, double.infinity).toInt();
+                      _loanAmountController.text = loanAmount.toString();
+                    });
                   },
                 ),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: TextFormField(
+                      keyboardType: TextInputType.number,
+                      controller: _loanAmountController,
+                      onChanged: (value) {
+                        setState(() {
+                          loanAmount = int.tryParse(value) ?? 0;
+                        });
+                      },
+                      style: const TextStyle(fontSize: 64.0),
+                      textAlign: TextAlign.center,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                ),
                 IconButton(
-                  icon: Icon(Icons.check, color: Colors.green),
+                  icon: const Icon(Icons.add),
                   onPressed: () {
-                    // Handle Check Mark button press
+                    setState(() {
+                      loanAmount = (loanAmount + 1000).clamp(0, double.infinity).toInt();
+                      _loanAmountController.text = loanAmount.toString();
+                    });
                   },
                 ),
               ],
             ),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Choose tenor', style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
+                Text('Payment cycle', style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
+                Text('Choose interest', style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            const SizedBox(height: 8.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildFormBox(_periodAmountController, "Months", "period"),
+                _buildFormBox(_cycleAmountController, "Months", "cycle"),
+                _buildFormBox(_interestAmountController, "Interest", "interest")
+              ],
+            ),
+            const SizedBox(height: 16.0),
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade200),
+                borderRadius: BorderRadius.circular(0.0),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildTextRow("From", "abc"),
+                  const SizedBox(height: 8.0),
+                  _buildTextRow("To", widget.otheruser.email),
+                  const SizedBox(height: 8.0),
+                  _buildTextRow("Start Date", todayDate),
+                  const SizedBox(height: 8.0),
+                  _buildTextRow("End Date", endDateFormatted),
+                  const SizedBox(height: 8.0),
+                  _buildTextRow("Amount", loanAmount),
+                  const SizedBox(height: 8.0),
+                  _buildTextRow("Interest", "$interest%"),
+                  const SizedBox(height: 8.0),
+                  _buildTextRow("Payment cycle", "$cycle Months"),
+                  const SizedBox(height: 8.0),
+                  _buildTextRow("Loan Period", "$period Months"),
+                  const SizedBox(height: 8.0),
+                  _buildTextRow("Total interest amount",interestAmount),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(children: [
+                  Text("\$ $totalAmount ", style: const TextStyle(fontSize: 16.0,color: Colors.black,fontWeight: FontWeight.bold),),
+                  Text("( \$ $breakdownAmount/Month)", style: const TextStyle(fontSize: 12.0,color: Colors.black),),
+                  ],),
+                SizedBox(
+                  width: 150,
+                  height: 30,
+                  child: TextButton(
+                    onPressed: () {
+                      
+                    },
+                    child: const Text("Request", style: TextStyle(color: Colors.white)),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                    ),
+                  ),
+                )
+              ],
+            )
           ],
+          
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextRow(String label, dynamic value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14.0,
+            color: Colors.black,
+          ),
+        ),
+        const Spacer(),
+        Flexible(
+          child: Text(
+            value.toString(),
+            style: const TextStyle(
+              fontSize: 14.0,
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFormBox(TextEditingController controller, String label, String variable){
+    return  SizedBox(
+      width: 100.0,
+      height: 80.0,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(0.0),
+          border: Border.all(color: Colors.grey.shade200),
+          color: Colors.grey[100],
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: TextFormField(
+                  controller: controller,
+                    onChanged: (value) {
+                      setState(() {
+                        switch (variable) {
+                          case "period":
+                            period = int.tryParse(value) ?? 0;
+                            break;
+                          case "cycle":
+                            cycle = int.tryParse(value) ?? 0;
+                            break;
+                          case "interest":
+                            interest = int.tryParse(value) ?? 0;
+                            break;
+                        }
+                      });
+                    },
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(3),
+                  ],
+                  style: const TextStyle(fontSize: 16.0, color: Colors.black),
+                  textAlign: TextAlign.center,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 16.0,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
