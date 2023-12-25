@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/Transaction.dart';
-import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Providers/transaction_provider.dart';
+import 'package:lendpay/allAgreementsPage.dart';
 import 'package:lendpay/singleTransaction.dart';
 import 'package:provider/provider.dart';
 import 'api_helper.dart';
@@ -10,7 +10,7 @@ import 'request.dart';
 
 class Dashboard extends StatefulWidget {
 
-  Dashboard();
+  const Dashboard();
   @override
   _DashboardState createState() => _DashboardState();
 }
@@ -46,12 +46,12 @@ class _DashboardState extends State<Dashboard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Dashboard"),
+        title: const Text("Dashboard"),
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 20.0), // Add right padding to the notifications button
+            padding: const EdgeInsets.only(right: 20.0), // Add right padding to the notifications button
             child: IconButton(
-              icon: Icon(Icons.notifications),
+              icon: const Icon(Icons.notifications),
               onPressed: () {
                 // Handle notifications button click
               },
@@ -60,9 +60,9 @@ class _DashboardState extends State<Dashboard> {
         ],
         backgroundColor: Colors.black, // Black background for the top bar
         leading: Padding(
-          padding: EdgeInsets.only(left: 20.0), // Add left padding to the logout button
+          padding: const EdgeInsets.only(left: 20.0), // Add left padding to the logout button
           child: IconButton(
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
             onPressed: () {
               // Handle logout button click
             },
@@ -78,7 +78,7 @@ class _DashboardState extends State<Dashboard> {
             child: Column(
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
                   child: Card(
                     color: Colors.orange,
                     shape: RoundedRectangleBorder(
@@ -87,7 +87,7 @@ class _DashboardState extends State<Dashboard> {
                     child: SizedBox(
                       width: double.infinity,
                       height: cardHeight,
-                      child: Center(
+                      child: const Center(
                         child: Text("Your Card Content"),
                       ),
                     ),
@@ -97,48 +97,72 @@ class _DashboardState extends State<Dashboard> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround, 
                   children: [
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Column(
                         children: [
                           Container(
                             width: iconSize,
                             height: iconSize,
                             decoration: BoxDecoration(
-                              color: Color(0xFF2E2E2E),
+                              color: const Color(0xFF2E2E2E),
                               borderRadius: BorderRadius.circular(iconSize / 2),
                             ),
                             child: IconButton(
-                              icon: Icon(Icons.request_page, color: Color(0xFF999999), size: iconSize * 0.6),
+                              icon: Icon(Icons.request_page, color: const Color(0xFF999999), size: iconSize * 0.6),
                               onPressed: () {
                                 // Handle Transfer Money button click
                                 Navigator.push(context, MaterialPageRoute(builder: (context)=>Request()));
                               },
                             ),
                           ),
-                          SizedBox(height: 1.0), 
+                          const SizedBox(height: 1.0), 
                           Text("Request", style: TextStyle(color: Colors.white,fontSize: iconSize * 0.25,)), 
                         ],
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Column(
                         children: [
                           Container(
                             width: iconSize,
                             height: iconSize,
                             decoration: BoxDecoration(
-                              color: Color(0xFF2E2E2E),
+                              color: const Color(0xFF2E2E2E),
                               borderRadius: BorderRadius.circular(iconSize / 2),
                             ),
                             child: IconButton(
-                              icon: Icon(Icons.attach_money, color: Color(0xFF999999), size: iconSize * 0.6),
+                              icon: Icon(Icons.handshake, color: const Color(0xFF999999), size: iconSize * 0.6),
+                              onPressed: () {
+                                // Handle Transfer Money button click
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>AllAgreementsPage()));
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 1.0), 
+                          Text("Loans", style: TextStyle(color: Colors.white,fontSize: iconSize * 0.25,)), 
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: iconSize,
+                            height: iconSize,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2E2E2E),
+                              borderRadius: BorderRadius.circular(iconSize / 2),
+                            ),
+                            child: IconButton(
+                              icon: Icon(Icons.attach_money, color: const Color(0xFF999999), size: iconSize * 0.6),
                               onPressed: () {
                                 // Handle Transfer Money button click
                               },
                             ),
                           ),
-                          SizedBox(height: 1.0), 
+                          const SizedBox(height: 1.0), 
                           Text("Transfer", style: TextStyle(color: Colors.white,fontSize: iconSize * 0.25)), 
                         ],
                       ),
@@ -149,12 +173,12 @@ class _DashboardState extends State<Dashboard> {
               ],
             ),
           ),
-          Padding(padding: EdgeInsets.only(bottom: 10)),
+          const Padding(padding: EdgeInsets.only(bottom: 10)),
           Expanded(
             child: allTransactions.isEmpty
-                ? Center(child: Text('No transactions available.'))
+                ? const Center(child: Text('No transactions available.'))
                 : ClipRRect(
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(24.0), // Top left corner
                     topRight: Radius.circular(24.0), // Top right corner
                   ),
@@ -191,7 +215,7 @@ class _DashboardState extends State<Dashboard> {
                               DateFormat.jm().format(transactionDate);
                         }
                         return Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
                           child: Card(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),

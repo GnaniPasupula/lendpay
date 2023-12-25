@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:lendpay/Models/User.dart';
+import 'package:lendpay/api_helper.dart';
 
 class AgreementPage extends StatefulWidget {
   final int amount;
@@ -25,7 +26,6 @@ class _AgreementPageState extends State<AgreementPage> {
   late TextEditingController _periodAmountController;
   late TextEditingController _interestAmountController;
   late TextEditingController _cycleAmountController;
-
 
   @override
   void initState() {
@@ -184,9 +184,34 @@ class _AgreementPageState extends State<AgreementPage> {
                   width: 150,
                   height: 30,
                   child: TextButton(
-                    onPressed: () {
-                      
-                    },
+                  onPressed: () {
+                    // Show a confirmation dialog
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Confirm Transaction Request"),
+                          content: const Text("Are you sure you want to send the transaction request?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); 
+                              },
+                              child: const Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                // Perform the transaction request here
+                                ApiHelper.sendTransactionRequest(receiverEmail: widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text("Confirm"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                     child: const Text("Request", style: TextStyle(color: Colors.white)),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(Colors.black),

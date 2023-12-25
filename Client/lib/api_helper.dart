@@ -123,4 +123,52 @@ class ApiHelper {
       throw Exception('Error fetching transactions: $e');
     }
   }
+
+  static Future<void> sendTransactionRequest({
+    required String receiverEmail,
+    required int amount,
+    required String startDate,
+    required String endDate,
+    required int interestRate,
+    required int paymentCycle,
+    required double subAmount,
+    required int loanPeriod,
+    required double interestAmount,
+    required double totalAmount,
+  }) async {
+    final url = '$baseUrl/user/request';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $authToken'},
+        body: jsonEncode({
+          'receiverEmail': receiverEmail,
+          'amount': amount,
+          'startDate': startDate,
+          'endDate': endDate,
+          'interestRate': interestRate,
+          'paymentCycle': paymentCycle,
+          'subAmount': subAmount,
+          'loanPeriod': loanPeriod,
+          'interestAmount': interestAmount,
+          'totalAmount': totalAmount,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        log('Transaction request sent successfully');
+      } else if (response.statusCode == 404) {
+        log('Sender or receiver not found');
+        throw Exception('Sender or receiver not found');
+      } else {
+        throw Exception('Failed to send transaction request');
+      }
+    } catch (e) {
+      throw Exception('Error sending transaction request: $e');
+    }
+  }
 }

@@ -18,13 +18,11 @@ router.get('/dashboard', async (req, res) => {
 
     // Sort transactions by the adjusted date in ascending order
     allTransactions.sort((a, b) => {
-      // Convert transactionDate to a single unit (e.g., hours)
-      const dateA = a.date.getTime(); // Date in milliseconds
-      const dateB = b.date.getTime(); // Date in milliseconds
+      const dateA = a.date.getTime();
+      const dateB = b.date.getTime(); 
 
-      // Add interest period to the adjusted date
-      const adjustedDateA = dateA + a.interestPeriod * 30 * 24 * 60 * 60 * 1000; // Assuming 30 days in a month
-      const adjustedDateB = dateB + b.interestPeriod * 30 * 24 * 60 * 60 * 1000; // Assuming 30 days in a month
+      const adjustedDateA = dateA + a.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
+      const adjustedDateB = dateB + b.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
 
       return adjustedDateA - adjustedDateB;
     });
@@ -70,15 +68,13 @@ router.get('/dashboard/urgent', async (req, res) => {
 
     const allTransactions = [...user.creditTransactions, ...user.debitTransactions];
 
-    // Sort transactions by the adjusted date in ascending order
     allTransactions.sort((a, b) => {
-      // Convert transactionDate to a single unit (e.g., hours)
-      const dateA = a.date.getTime(); // Date in milliseconds
-      const dateB = b.date.getTime(); // Date in milliseconds
 
-      // Add interest period to the adjusted date
-      const adjustedDateA = dateA + a.interestPeriod * 30 * 24 * 60 * 60 * 1000; // Assuming 30 days in a month
-      const adjustedDateB = dateB + b.interestPeriod * 30 * 24 * 60 * 60 * 1000; // Assuming 30 days in a month
+      const dateA = a.date.getTime(); 
+      const dateB = b.date.getTime(); 
+
+      const adjustedDateA = dateA + a.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
+      const adjustedDateB = dateB + b.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
 
       return adjustedDateA - adjustedDateB;
     });
@@ -136,7 +132,19 @@ router.post('/transfer', async (req, res) => {
 
 router.post('/request', async (req, res) => {
   try {
-    const {receiverEmail, amount, interestRate, interestPeriod } = req.body;
+    const {
+      receiverEmail,
+      amount,
+      startDate,
+      endDate,
+      interestRate,
+      paymentCycle,
+      subAmount,
+      loanPeriod,
+      interestAmount,
+      totalAmount,
+    } = req.body;    
+
     const senderEmail = req.user.userEmail;
     // console.dir(req.user, { depth: null });
 
@@ -152,8 +160,14 @@ router.post('/request', async (req, res) => {
       sender: senderEmail, 
       receiver: receiverEmail, 
       amount,
+      startDate,
+      endDate,
       interestRate,
-      interestPeriod,
+      paymentCycle,
+      subAmount,
+      loanPeriod,
+      interestAmount,
+      totalAmount,
     });
 
     sender.debitTransactions.push(transaction._id);
