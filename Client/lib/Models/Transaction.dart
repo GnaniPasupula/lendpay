@@ -2,10 +2,15 @@ class Transaction {
   // final String id;
   final String sender;
   final String receiver;
-  final double amount;
-  final DateTime date;
-  final double interestRate;
-  final double interestPeriod; 
+  final int amount;
+  final DateTime startDate;
+  final DateTime endDate;
+  final int interestRate;
+  final int paymentCycle; 
+  final double subAmount;
+  final int loanPeriod; 
+  final double interestAmount;
+  final double totalAmount;
   final String note;
 
   Transaction({
@@ -13,22 +18,32 @@ class Transaction {
     required this.sender,
     required this.receiver,
     required this.amount,
-    required this.date,
+    required this.startDate,
+    required this.endDate,
     required this.interestRate,
-    required this.interestPeriod,
+    required this.paymentCycle,
+    required this.subAmount,
+    required this.loanPeriod,
+    required this.interestAmount,
+    required this.totalAmount,
     required this.note
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
-      // id:json['_id'],
+      // id: json['_id'],
       sender: json['sender'],
       receiver: json['receiver'],
       amount: json['amount'],
-      date: DateTime.parse(json['date']),
+      startDate: DateTime.parse(json['startDate']),
+      endDate: DateTime.parse(json['endDate']),
       interestRate: json['interestRate'],
-      interestPeriod: json['interestPeriod'],
-      note: json['note']
+      paymentCycle: json['paymentCycle'],
+      subAmount: json['subAmount'],
+      loanPeriod: json['loanPeriod'],
+      interestAmount: json['interestAmount'],
+      totalAmount: json['totalAmount'],
+      note: json['note'],
     );
   }
 
@@ -38,9 +53,14 @@ class Transaction {
       'sender': sender,
       'receiver': receiver,
       'amount': amount,
-      'date': date,
+      'startDate': startDate,
+      'endDate': endDate,
       'interestRate': interestRate,
-      'interestPeriod': interestPeriod,
+      'paymentCycle': paymentCycle,
+      'subAmount': subAmount,
+      'loanPeriod': loanPeriod,
+      'interestAmount': interestAmount,
+      'totalAmount': totalAmount,
       'note': note
     };
   }

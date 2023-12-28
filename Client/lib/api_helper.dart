@@ -36,7 +36,6 @@ class ApiHelper {
       throw Exception('Error fetching user: $e');
     }
   }
-
   static Future<User?> getActiveUser() async {
     final url = '$baseUrl/dashboard/user';
     try {
@@ -73,6 +72,8 @@ class ApiHelper {
         headers: {'Authorization': 'Bearer $authToken'},
       );
 
+      // print(response.body);
+
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
         log(response.body);
@@ -100,6 +101,7 @@ class ApiHelper {
   }
 
   static Future<List<Transaction>> _fetchTransactionsByUrl(String url) async {
+    
     try {
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('authToken');
@@ -121,6 +123,33 @@ class ApiHelper {
       }
     } catch (e) {
       throw Exception('Error fetching transactions: $e');
+    }
+  }
+
+   static Future<List<Transaction>> fetchUserRequests() async {
+    final url = '$baseUrl/requests/';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $authToken'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        log(response.body);
+        final List<Transaction> transactions = jsonData
+            .map((data) => Transaction.fromJson(data))
+            .toList();
+        return transactions;
+      } else {
+        throw Exception('Failed to load requests');
+      }
+    } catch (e) {
+      throw Exception('Error fetching requests: $e');
     }
   }
 

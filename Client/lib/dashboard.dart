@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Providers/transaction_provider.dart';
 import 'package:lendpay/allAgreementsPage.dart';
+import 'package:lendpay/incomingRequestPage.dart';
 import 'package:lendpay/singleTransaction.dart';
 import 'package:provider/provider.dart';
 import 'api_helper.dart';
@@ -49,11 +50,20 @@ class _DashboardState extends State<Dashboard> {
         title: const Text("Dashboard"),
         actions: [
           Padding(
+            padding: const EdgeInsets.only(right: 0.0), // Add right padding to the notifications button
+            child: IconButton(
+              icon: const Icon(Icons.chat),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>IncomingRequestPage()));
+              },
+            ),
+          ),
+          Padding(
             padding: const EdgeInsets.only(right: 20.0), // Add right padding to the notifications button
             child: IconButton(
               icon: const Icon(Icons.notifications),
               onPressed: () {
-                // Handle notifications button click
+
               },
             ),
           ),
@@ -189,7 +199,7 @@ class _DashboardState extends State<Dashboard> {
                       itemBuilder: (context, index) {
                         final transaction = allTransactions[index];
 
-                        final transactionDate = transaction.date;
+                        final transactionDate = transaction.startDate;
                         String formattedDate;
                         final now = DateTime.now();
 

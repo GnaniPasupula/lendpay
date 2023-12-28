@@ -13,6 +13,7 @@ const transactionSchema = new mongoose.Schema({
   loanPeriod: { type: Number, required: true , default:0},
   interestAmount: { type: Number, required: true , default:0},
   totalAmount: { type: Number, required: true , default:0},
+  note: { type: String, required: false , default:""},
 });
 
 const Transaction = mongoose.model('Transaction', transactionSchema);

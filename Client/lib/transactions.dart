@@ -75,7 +75,7 @@ class _TransactionsState extends State<TransactionsPage> {
                 Expanded(
                   child: TextField(
                     controller: messageController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'Enter amount',
                       border: OutlineInputBorder(),
                     ),
@@ -86,7 +86,7 @@ class _TransactionsState extends State<TransactionsPage> {
                   )
                 ),
                 IconButton(
-                  icon: Icon(Icons.send),
+                  icon: const Icon(Icons.send),
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>AgreementPage(amount:int.parse(messageController.text),otheruser:widget.otheruser)));
                   },
@@ -112,8 +112,8 @@ class _TransactionsState extends State<TransactionsPage> {
             maxWidth: MediaQuery.of(context).size.width * 0.7, // Adjust the percentage as needed
           ),
           child: Container(
-            padding: EdgeInsets.all(8.0),
-            margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+            padding: const EdgeInsets.all(8.0),
+            margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
             decoration: BoxDecoration(
               color: isCredit ? Colors.green : Colors.blue,
               borderRadius: BorderRadius.circular(8.0),
@@ -123,33 +123,33 @@ class _TransactionsState extends State<TransactionsPage> {
               children: [
                 Text(
                   '${isCredit ? "Credit" : "Debit"}: \$${transaction.amount}',
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 Container(
                   height: 1.0,
                   color: Colors.white, // Adjust the color as needed
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: Text(
                         'Note: ${transaction.note}',
-                        style: TextStyle(fontSize: 16.0, color: Colors.white),
+                        style: const TextStyle(fontSize: 16.0, color: Colors.white),
                       ),
                     ),
-                    Icon(Icons.arrow_forward, color: Colors.white),
+                    const Icon(Icons.arrow_forward, color: Colors.white),
                   ],
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      '${DateFormat('hh:mm a').format(transaction.date)}',
-                      style: TextStyle(fontSize: 12.0, color: Colors.white),
+                      DateFormat('hh:mm a').format(transaction.startDate),
+                      style: const TextStyle(fontSize: 12.0, color: Colors.white),
                     ),
                   ],
                 ),

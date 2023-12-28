@@ -1,33 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/api_helper.dart';
 
 class IncomingRequest extends StatefulWidget {
 
-  final User otheruser;
-  final int loanAmount;
-  final int period;
-  final int interest;
-  final int cycle;
-  final double totalAmount;
-  final double interestAmount;
-  final double breakdownAmount;
-  final String todayDate;
-  final String endDateFormatted;
+  final Transaction requestTransaction;
 
   IncomingRequest({
-    required this.otheruser,
-    required this.loanAmount,
-    required this.period,
-    required this.interest,
-    required this.cycle,
-    required this.totalAmount,
-    required this.interestAmount,
-    required this.breakdownAmount,
-    required this.todayDate,
-    required this.endDateFormatted
+    required this.requestTransaction,
   });
 
   @override
@@ -44,6 +27,9 @@ class _IncomingRequestState extends State<IncomingRequest> {
 
   @override
   Widget build(BuildContext context) {
+    String endDateFormatted = DateFormat('dd-MM-yyyy').format(widget.requestTransaction.endDate);
+
+    String startDateFormatted = DateFormat('dd-MM-yyyy').format(widget.requestTransaction.startDate);
 
     return Scaffold(
       appBar: AppBar(
@@ -71,21 +57,21 @@ class _IncomingRequestState extends State<IncomingRequest> {
                 children: [
                   _buildTextRow("From", "abc"),
                   const SizedBox(height: 8.0),
-                  _buildTextRow("To", widget.otheruser.email),
+                  _buildTextRow("To", widget.requestTransaction.receiver),
                   const SizedBox(height: 8.0),
-                  _buildTextRow("Start Date", widget.todayDate),
+                  _buildTextRow("Start Date", widget.requestTransaction.startDate),
                   const SizedBox(height: 8.0),
-                  _buildTextRow("End Date", widget.endDateFormatted),
+                  _buildTextRow("End Date", widget.requestTransaction.endDate),
                   const SizedBox(height: 8.0),
-                  _buildTextRow("Amount", widget.loanAmount),
+                  _buildTextRow("Amount", widget.requestTransaction.amount),
                   const SizedBox(height: 8.0),
-                  _buildTextRow("Interest", "$widget.interest%"),
+                  _buildTextRow("Interest", "${widget.requestTransaction.interestRate}%"),
                   const SizedBox(height: 8.0),
-                  _buildTextRow("Payment cycle", "${widget.cycle} Months"),
+                  _buildTextRow("Payment cycle", "${widget.requestTransaction.paymentCycle} Months"),
                   const SizedBox(height: 8.0),
-                  _buildTextRow("Loan Period", "${widget.period} Months"),
+                  _buildTextRow("Loan Period", "${widget.requestTransaction.loanPeriod} Months"),
                   const SizedBox(height: 8.0),
-                  _buildTextRow("Total interest amount",widget.interestAmount),
+                  _buildTextRow("Total interest amount",widget.requestTransaction.interestAmount),
                 ],
               ),
             ),
@@ -94,8 +80,8 @@ class _IncomingRequestState extends State<IncomingRequest> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(children: [
-                  Text("\$ ${widget.totalAmount} ", style: const TextStyle(fontSize: 16.0,color: Colors.black,fontWeight: FontWeight.bold),),
-                  Text("( \$ ${widget.breakdownAmount}/Month)", style: const TextStyle(fontSize: 12.0,color: Colors.black),),
+                  Text("\$ ${widget.requestTransaction.totalAmount} ", style: const TextStyle(fontSize: 16.0,color: Colors.black,fontWeight: FontWeight.bold),),
+                  Text("( \$ ${widget.requestTransaction.subAmount}/Month)", style: const TextStyle(fontSize: 12.0,color: Colors.black),),
                   ],),
                 SizedBox(
                   width: 150,
@@ -118,7 +104,7 @@ class _IncomingRequestState extends State<IncomingRequest> {
                             TextButton(
                               onPressed: () {
                                 // Perform the transaction request here
-                                ApiHelper.sendTransactionRequest(receiverEmail: widget.otheruser.email, amount: widget.loanAmount, startDate: widget.todayDate, endDate: widget.endDateFormatted, interestRate: widget.interest, paymentCycle: widget.cycle, subAmount: widget.breakdownAmount, loanPeriod: widget.period, interestAmount: widget.interestAmount, totalAmount: widget.totalAmount);
+                                ApiHelper.sendTransactionRequest(receiverEmail: widget.requestTransaction.receiver, amount: widget.requestTransaction.amount, startDate: startDateFormatted, endDate: endDateFormatted, interestRate: widget.requestTransaction.interestRate, paymentCycle: widget.requestTransaction.paymentCycle, subAmount: widget.requestTransaction.subAmount, loanPeriod: widget.requestTransaction.loanPeriod, interestAmount: widget.requestTransaction.interestAmount, totalAmount: widget.requestTransaction.totalAmount);
                                 Navigator.of(context).pop();
                               },
                               child: const Text("Confirm"),

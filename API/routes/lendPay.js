@@ -37,6 +37,40 @@ router.get('/dashboard', async (req, res) => {
   }
 });
 
+router.get('/requests', async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const user = await User.findById(userId)
+      .populate('requests');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const allRequestTransactions = [...user.requests];
+
+    // Sort transactions by the adjusted date in ascending order
+    allRequestTransactions.sort((a, b) => {
+      const dateA = a.date.getTime();
+      const dateB = b.date.getTime(); 
+
+      const adjustedDateA = dateA + a.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
+      const adjustedDateB = dateB + b.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
+
+      return adjustedDateA - adjustedDateB;
+    });
+
+    // Get the transaction with the least adjusted date
+    // const leastTransaction = allTransactions[0];
+
+    res.status(200).json(allRequestTransactions);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+});
+
 router.get('/dashboard/user', async (req, res) => {
   const userId = req.user.userId;
 
@@ -170,11 +204,74 @@ router.post('/request', async (req, res) => {
       totalAmount,
     });
 
-    sender.debitTransactions.push(transaction._id);
-    sender.totalDebit += amount;
+    // sender.debitTransactions.push(transaction._id);
+    // sender.totalDebit += amount;
 
-    receiver.creditTransactions.push(transaction._id);
-    receiver.totalCredit += amount;
+    // receiver.creditTransactions.push(transaction._id);
+    // receiver.totalCredit += amount;
+
+    sender.requests.push(transaction._id);
+    receiver.requests.push(transaction._id);
+
+    await transaction.save();
+    await sender.save();
+    await receiver.save();
+
+    res.status(200).json({ message: 'Request sent successfully' });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+});
+
+router.post('/requestaccept', async (req, res) => {
+  try {
+    const {
+      receiverEmail,
+      amount,
+      startDate,
+      endDate,
+      interestRate,
+      paymentCycle,
+      subAmount,
+      loanPeriod,
+      interestAmount,
+      totalAmount,
+    } = req.body;    
+
+    const senderEmail = req.user.userEmail;
+    // console.dir(req.user, { depth: null });
+
+    const sender = await User.findOne({ email: senderEmail });
+    const receiver = await User.findOne({ email: receiverEmail });
+    // console.log("sender"+sender+",receiver"+receiver);
+
+    if (!sender || !receiver || senderEmail===receiverEmail) {
+      return res.status(404).json({ message: 'Sender or receiver not found' });
+    }
+
+    const transaction = new Transaction({
+      sender: senderEmail, 
+      receiver: receiverEmail, 
+      amount,
+      startDate,
+      endDate,
+      interestRate,
+      paymentCycle,
+      subAmount,
+      loanPeriod,
+      interestAmount,
+      totalAmount,
+    });
+
+    // sender.debitTransactions.push(transaction._id);
+    // sender.totalDebit += amount;
+
+    // receiver.creditTransactions.push(transaction._id);
+    // receiver.totalCredit += amount;
+
+    sender.requests.push(transaction._id);
+    receiver.requests.push(transaction._id);
 
     await transaction.save();
     await sender.save();
