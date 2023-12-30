@@ -104,7 +104,7 @@ class _IncomingRequestState extends State<IncomingRequest> {
                             TextButton(
                               onPressed: () {
                                 // Perform the transaction request here
-                                ApiHelper.sendTransactionRequest(receiverEmail: widget.requestTransaction.receiver, amount: widget.requestTransaction.amount, startDate: startDateFormatted, endDate: endDateFormatted, interestRate: widget.requestTransaction.interestRate, paymentCycle: widget.requestTransaction.paymentCycle, subAmount: widget.requestTransaction.subAmount, loanPeriod: widget.requestTransaction.loanPeriod, interestAmount: widget.requestTransaction.interestAmount, totalAmount: widget.requestTransaction.totalAmount);
+                                ApiHelper.acceptTransactionRequest(receiverEmail: widget.requestTransaction.receiver, amount: widget.requestTransaction.amount, startDate: startDateFormatted, endDate: endDateFormatted, interestRate: widget.requestTransaction.interestRate, paymentCycle: widget.requestTransaction.paymentCycle, subAmount: widget.requestTransaction.subAmount, loanPeriod: widget.requestTransaction.loanPeriod, interestAmount: widget.requestTransaction.interestAmount, totalAmount: widget.requestTransaction.totalAmount);
                                 Navigator.of(context).pop();
                               },
                               child: const Text("Confirm"),

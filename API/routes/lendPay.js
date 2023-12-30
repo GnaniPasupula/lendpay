@@ -205,12 +205,6 @@ router.post('/request', async (req, res) => {
       totalAmount,
     });
 
-    // sender.debitTransactions.push(transaction._id);
-    // sender.totalDebit += amount;
-
-    // receiver.creditTransactions.push(transaction._id);
-    // receiver.totalCredit += amount;
-
     sender.requests.push(transaction._id);
     receiver.requests.push(transaction._id);
 
@@ -225,7 +219,7 @@ router.post('/request', async (req, res) => {
   }
 });
 
-router.post('/requestaccept', async (req, res) => {
+router.post('/acceptrequest', async (req, res) => {
   try {
     const {
       receiverEmail,
@@ -263,16 +257,14 @@ router.post('/requestaccept', async (req, res) => {
       loanPeriod,
       interestAmount,
       totalAmount,
+      type:"notReq"
     });
 
-    // sender.debitTransactions.push(transaction._id);
-    // sender.totalDebit += amount;
+    sender.debitTransactions.push(transaction._id);
+    sender.totalDebit += amount;
 
-    // receiver.creditTransactions.push(transaction._id);
-    // receiver.totalCredit += amount;
-
-    sender.requests.push(transaction._id);
-    receiver.requests.push(transaction._id);
+    receiver.creditTransactions.push(transaction._id);
+    receiver.totalCredit += amount;
 
     await transaction.save();
     await sender.save();
