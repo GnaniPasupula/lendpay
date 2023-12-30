@@ -126,7 +126,7 @@ class ApiHelper {
     }
   }
 
-   static Future<List<Transaction>> fetchUserRequests() async {
+  static Future<List<Transaction>> fetchUserRequests() async {
     final url = '$baseUrl/requests/';
 
     try {
@@ -165,7 +165,7 @@ class ApiHelper {
     required double interestAmount,
     required double totalAmount,
   }) async {
-    final url = '$baseUrl/user/request';
+    final url = '$baseUrl/request';
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -173,7 +173,7 @@ class ApiHelper {
 
       final response = await http.post(
         Uri.parse(url),
-        headers: {'Authorization': 'Bearer $authToken'},
+        headers: {'Authorization': 'Bearer $authToken', 'Content-Type': 'application/json',},
         body: jsonEncode({
           'receiverEmail': receiverEmail,
           'amount': amount,

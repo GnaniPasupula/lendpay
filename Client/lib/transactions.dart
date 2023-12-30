@@ -101,6 +101,8 @@ class _TransactionsState extends State<TransactionsPage> {
 
   Widget buildTransactionItem(Transaction transaction) {
     bool isCredit = transaction.sender == widget.otheruser.email;
+    bool isReq = transaction.type == "req";
+
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => SingleTransactionsPage(transaction: transaction)));
@@ -122,7 +124,7 @@ class _TransactionsState extends State<TransactionsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${isCredit ? "Credit" : "Debit"}: \$${transaction.amount}',
+                  '${isReq ? "Request":(isCredit ? "Credit" : "Debit")}: \$${transaction.amount}',
                   style: const TextStyle(color: Colors.white),
                 ),
                 const SizedBox(height: 8.0),
@@ -148,7 +150,7 @@ class _TransactionsState extends State<TransactionsPage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      DateFormat('hh:mm a').format(transaction.startDate),
+                      DateFormat('hh:mm a').format(transaction.time),
                       style: const TextStyle(fontSize: 12.0, color: Colors.white),
                     ),
                   ],

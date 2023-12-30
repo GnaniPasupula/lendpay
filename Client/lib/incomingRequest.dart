@@ -55,13 +55,13 @@ class _IncomingRequestState extends State<IncomingRequest> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildTextRow("From", "abc"),
+                  _buildTextRow("From", "gnani"),
                   const SizedBox(height: 8.0),
                   _buildTextRow("To", widget.requestTransaction.receiver),
                   const SizedBox(height: 8.0),
-                  _buildTextRow("Start Date", widget.requestTransaction.startDate),
+                  _buildTextRow("Start Date", startDateFormatted),
                   const SizedBox(height: 8.0),
-                  _buildTextRow("End Date", widget.requestTransaction.endDate),
+                  _buildTextRow("End Date", endDateFormatted),
                   const SizedBox(height: 8.0),
                   _buildTextRow("Amount", widget.requestTransaction.amount),
                   const SizedBox(height: 8.0),
@@ -114,7 +114,7 @@ class _IncomingRequestState extends State<IncomingRequest> {
                       },
                     );
                   },
-                    child: const Text("Request", style: TextStyle(color: Colors.white)),
+                    child: const Text("Confirm", style: TextStyle(color: Colors.white)),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
                     ),

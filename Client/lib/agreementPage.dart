@@ -152,7 +152,7 @@ class _AgreementPageState extends State<AgreementPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildTextRow("From", "abc"),
+                  _buildTextRow("From", "gnani"),
                   const SizedBox(height: 8.0),
                   _buildTextRow("To", widget.otheruser.email),
                   const SizedBox(height: 8.0),
@@ -202,7 +202,7 @@ class _AgreementPageState extends State<AgreementPage> {
                             TextButton(
                               onPressed: () {
                                 // Perform the transaction request here
-                                ApiHelper.sendTransactionRequest(receiverEmail: widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
+                                ApiHelper.sendTransactionRequest(receiverEmail:widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
                                 Navigator.of(context).pop();
                               },
                               child: const Text("Confirm"),

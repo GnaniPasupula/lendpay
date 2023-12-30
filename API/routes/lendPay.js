@@ -181,6 +181,7 @@ router.post('/request', async (req, res) => {
 
     const senderEmail = req.user.userEmail;
     // console.dir(req.user, { depth: null });
+    // console.dir(req.body, { depth: null });
 
     const sender = await User.findOne({ email: senderEmail });
     const receiver = await User.findOne({ email: receiverEmail });

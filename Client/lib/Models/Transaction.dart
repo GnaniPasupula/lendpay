@@ -1,8 +1,11 @@
+import 'package:intl/intl.dart';
+
 class Transaction {
   // final String id;
   final String sender;
   final String receiver;
   final int amount;
+  final DateTime time;
   final DateTime startDate;
   final DateTime endDate;
   final int interestRate;
@@ -12,12 +15,14 @@ class Transaction {
   final double interestAmount;
   final double totalAmount;
   final String note;
+  final String type;
 
   Transaction({
     // required this.id,
     required this.sender,
     required this.receiver,
     required this.amount,
+    required this.time,
     required this.startDate,
     required this.endDate,
     required this.interestRate,
@@ -26,17 +31,23 @@ class Transaction {
     required this.loanPeriod,
     required this.interestAmount,
     required this.totalAmount,
-    required this.note
+    required this.note,
+    required this.type
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
+
+    final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
+    final DateFormat timeFormat = DateFormat('HH:mm');
+
     return Transaction(
       // id: json['_id'],
       sender: json['sender'],
       receiver: json['receiver'],
       amount: json['amount'],
-      startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.parse(json['endDate']),
+      time:timeFormat.parse(json['time']),
+      startDate: dateFormat.parse(json['startDate']),
+      endDate: dateFormat.parse(json['endDate']),
       interestRate: json['interestRate'],
       paymentCycle: json['paymentCycle'],
       subAmount: json['subAmount'],
@@ -44,6 +55,7 @@ class Transaction {
       interestAmount: json['interestAmount'],
       totalAmount: json['totalAmount'],
       note: json['note'],
+      type: json['type']
     );
   }
 
@@ -53,6 +65,7 @@ class Transaction {
       'sender': sender,
       'receiver': receiver,
       'amount': amount,
+      'time': time,
       'startDate': startDate,
       'endDate': endDate,
       'interestRate': interestRate,
@@ -61,7 +74,8 @@ class Transaction {
       'loanPeriod': loanPeriod,
       'interestAmount': interestAmount,
       'totalAmount': totalAmount,
-      'note': note
+      'note': note,
+      'type': type
     };
   }
 }

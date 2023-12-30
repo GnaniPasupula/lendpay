@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/api_helper.dart';
@@ -94,9 +95,9 @@ Widget build(BuildContext context) {
       ),
     ),
     body: requestTransactions.isEmpty
-        ? Center(child: Text('No Users available.'))
+        ? Center(child: Text('No requests available.'))
         : ClipRRect(
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24.0), // Top left corner
               topRight: Radius.circular(24.0), // Top right corner
             ),
@@ -115,7 +116,6 @@ Widget build(BuildContext context) {
                         height: insideCardHeight, // Set the individual card's height
                         child: ListTile(
                           onTap: (){
-                            
                             Navigator.push(context, MaterialPageRoute(builder: (context)=>IncomingRequest(requestTransaction: requestTransactions[index],)));
                           },
                           leading: CircleAvatar(
@@ -123,12 +123,12 @@ Widget build(BuildContext context) {
                             child: Icon(Icons.person, color: Colors.white, size: insideCardHeight * 0.75),
                           ),
                           title: Text(
-                            "otheruser.email",
+                            requestTransactions[index].receiver,
                             style: TextStyle(fontSize: insideCardHeight * 0.325),
                           ),
                           subtitle: Row(
                             children: [
-                              Text("otheruser.email", style: TextStyle(fontSize: insideCardHeight * 0.225)),
+                              Text(DateFormat('dd-MM-yyyy').format(requestTransactions[index].startDate),style: TextStyle(fontSize: insideCardHeight * 0.225)),
                             ],
                           ),
                           trailing: Icon(Icons.more_vert, color: const Color.fromARGB(255, 0, 0, 0), size: insideCardHeight * 0.5),
