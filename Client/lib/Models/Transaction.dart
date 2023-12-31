@@ -14,6 +14,7 @@ class Transaction {
   final int loanPeriod; 
   final double interestAmount;
   final double totalAmount;
+  final double amountPaid;
   final String note;
   final String type;
 
@@ -31,6 +32,7 @@ class Transaction {
     required this.loanPeriod,
     required this.interestAmount,
     required this.totalAmount,
+    required this.amountPaid,
     required this.note,
     required this.type
   });
@@ -54,6 +56,7 @@ class Transaction {
       loanPeriod: json['loanPeriod'],
       interestAmount: json['interestAmount'],
       totalAmount: json['totalAmount'],
+      amountPaid: json['amountPaid'],
       note: json['note'],
       type: json['type']
     );
@@ -74,6 +77,7 @@ class Transaction {
       'loanPeriod': loanPeriod,
       'interestAmount': interestAmount,
       'totalAmount': totalAmount,
+      'amountPaid': amountPaid,
       'note': note,
       'type': type
     };

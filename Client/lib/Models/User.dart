@@ -9,6 +9,7 @@ class User {
   double totalCredit;
   double totalDebit;
   List<User> previousUsers;
+  List<String> subTransactions;
   
   User({
     // required this.id,
@@ -20,7 +21,8 @@ class User {
     required this.requests,
     required this.totalCredit,
     required this.totalDebit,
-    required this.previousUsers
+    required this.previousUsers,
+    required this.subTransactions
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -34,7 +36,8 @@ class User {
       requests: List<String>.from(json['requests']),
       totalCredit: json['totalCredit'].toDouble(),
       totalDebit: json['totalDebit'].toDouble(),
-      previousUsers: List<User>.from(json['previousUsers'])
+      previousUsers: List<User>.from(json['previousUsers']),
+      subTransactions: List<String>.from(json['subTransactions']),
     );
   }
 
@@ -49,7 +52,8 @@ class User {
       'requests': requests,
       'totalCredit': totalCredit,
       'totalDebit': totalDebit,
-      'previousUsers': previousUsers
+      'previousUsers': previousUsers,
+      'subTransactions': subTransactions
     };
   }
 }

@@ -2,35 +2,29 @@ const express = require('express');
 const router = express.Router(); 
 const User = require('../Models/User'); 
 const Transaction = require('../Models/Transaction'); 
+const subTransactions = require('../Models/subTransactions');
 
 router.get('/dashboard', async (req, res) => {
   const userId = req.user.userId;
 
   try {
-    const user = await User.findById(userId)
-      .populate('creditTransactions debitTransactions');
+    const user = await User.findById(userId).populate('subTransactions');
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const allTransactions = [...user.creditTransactions, ...user.debitTransactions];
+    const allSubTransactions = [...user.subTransactions];
 
-    // Sort transactions by the adjusted date in ascending order
-    allTransactions.sort((a, b) => {
-      const dateA = a.date.getTime();
-      const dateB = b.date.getTime(); 
+    // Sort subTransactions by the adjusted date in ascending order
+    allSubTransactions.sort((a, b) => {
+      const dateA = new Date(a.time).getTime();
+      const dateB = new Date(b.time).getTime();
 
-      const adjustedDateA = dateA + a.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
-      const adjustedDateB = dateB + b.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
-
-      return adjustedDateA - adjustedDateB;
+      return dateA - dateB;
     });
 
-    // Get the transaction with the least adjusted date
-    // const leastTransaction = allTransactions[0];
-
-    res.status(200).json(allTransactions);
+    res.status(200).json(allSubTransactions);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'An error occurred' });
