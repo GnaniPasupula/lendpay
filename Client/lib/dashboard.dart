@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/Transaction.dart';
-import 'package:lendpay/Providers/transaction_provider.dart';
+import 'package:lendpay/Models/subTransactions.dart';
+import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/allAgreementsPage.dart';
 import 'package:lendpay/incomingRequestPage.dart';
 import 'package:lendpay/singleTransaction.dart';
@@ -17,7 +18,7 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  List<Transaction> allTransactions = [];
+  List<subTransactions> allsubTransactions = [];
 
   @override
   void initState() {
@@ -27,10 +28,10 @@ class _DashboardState extends State<Dashboard> {
 
   Future<void> _fetchTransactions() async {
     try {
-      final List<Transaction> transactions = await ApiHelper.fetchTransactions();
-      Provider.of<TransactionsProvider>(context, listen: false).setAllTransactions(transactions);
+      final List<subTransactions> transactions = await ApiHelper.fetchSubTransactions();
+      Provider.of<SubtransactionsProvider>(context, listen: false).setAllSubTransactions(transactions);
       setState(() {
-        allTransactions=transactions;
+        allsubTransactions=transactions;
       });
       // print('all transactions = ${allTransactions}');
     } catch (e) {
@@ -185,7 +186,7 @@ class _DashboardState extends State<Dashboard> {
           ),
           const Padding(padding: EdgeInsets.only(bottom: 10)),
           Expanded(
-            child: allTransactions.isEmpty
+            child: allsubTransactions.isEmpty
                 ? const Center(child: Text('No transactions available.'))
                 : ClipRRect(
                   borderRadius: const BorderRadius.only(
@@ -195,35 +196,35 @@ class _DashboardState extends State<Dashboard> {
                   child: Container(
                     color: Colors.white, // Set the background color to white
                     child: ListView.builder(
-                      itemCount: allTransactions.length,
+                      itemCount: allsubTransactions.length,
                       itemBuilder: (context, index) {
-                        final transaction = allTransactions[index];
+                        final transaction = allsubTransactions[index];
 
-                        final transactionDate = transaction.startDate;
+                        final transactionDate = transaction.date;
                         String formattedDate;
                         final now = DateTime.now();
 
-                        if (transactionDate.year == now.year &&
-                            transactionDate.month == now.month &&
-                            transactionDate.day == now.day) {
-                          // Show time in 12hr format along with the date if it's today
-                          formattedDate = DateFormat('d MMM h:mm a').format(transactionDate);
-                        } else if (transactionDate.year == now.year &&
-                            transactionDate.month == now.month &&
-                            transactionDate.day == now.day - 1) {
-                          // Show "Yesterday" along with the time if it's yesterday
-                          formattedDate = 'Yesterday ' + DateFormat.jm().format(transactionDate);
-                        } else if (transactionDate.year == now.year) {
-                          // Show date in the format "day Month" along with the time if it's this year
-                          formattedDate = DateFormat('d MMM').format(transactionDate) +
-                              ' ' +
-                              DateFormat.jm().format(transactionDate);
-                        } else {
-                          // Show date in the format "day Month Year" along with the time
-                          formattedDate = DateFormat('d MMM y').format(transactionDate) +
-                              ' ' +
-                              DateFormat.jm().format(transactionDate);
-                        }
+                        // if (transactionDate.year == now.year &&
+                        //     transactionDate.month == now.month &&
+                        //     transactionDate.day == now.day) {
+                        //   // Show time in 12hr format along with the date if it's today
+                        //   formattedDate = DateFormat('d MMM h:mm a').format(transactionDate);
+                        // } else if (transactionDate.year == now.year &&
+                        //     transactionDate.month == now.month &&
+                        //     transactionDate.day == now.day - 1) {
+                        //   // Show "Yesterday" along with the time if it's yesterday
+                        //   formattedDate = 'Yesterday ' + DateFormat.jm().format(transactionDate);
+                        // } else if (transactionDate.year == now.year) {
+                        //   // Show date in the format "day Month" along with the time if it's this year
+                        //   formattedDate = DateFormat('d MMM').format(transactionDate) +
+                        //       ' ' +
+                        //       DateFormat.jm().format(transactionDate);
+                        // } else {
+                        //   // Show date in the format "day Month Year" along with the time
+                        //   formattedDate = DateFormat('d MMM y').format(transactionDate) +
+                        //       ' ' +
+                        //       DateFormat.jm().format(transactionDate);
+                        // }
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
                           child: Card(
@@ -234,7 +235,7 @@ class _DashboardState extends State<Dashboard> {
                               height: insideCardHeight, // Set the individual card's height
                               child: ListTile(
                                 onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleTransactionsPage(transaction:transaction)));
+                                  // Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleTransactionsPage(transaction:transaction)));
                                 },
                                 leading: CircleAvatar(
                                   backgroundColor: Colors.orange,
@@ -246,7 +247,7 @@ class _DashboardState extends State<Dashboard> {
                                 ),
                                 subtitle: Row(
                                   children: [
-                                    Text(formattedDate,style: TextStyle(fontSize: insideCardHeight * 0.225)),
+                                    Text(transactionDate,style: TextStyle(fontSize: insideCardHeight * 0.225)),
                                   ],
                                 ),
                                 trailing: Text(transaction.amount.toString(),style: TextStyle(fontSize: insideCardHeight * 0.3)),

@@ -31,6 +31,33 @@ router.get('/dashboard', async (req, res) => {
   }
 });
 
+router.get('/user/loans', async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const user = await User.findById(userId).populate('creditTransaction debitTransactions');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const allTransactions = [...user.creditTransactions, ...user.debitTransactions];
+
+    // Sort subTransactions by the adjusted date in ascending order
+    allTransactions.sort((a, b) => {
+      const dateA = new Date(a.time).getTime();
+      const dateB = new Date(b.time).getTime();
+
+      return dateA - dateB;
+    });
+
+    res.status(200).json(allTransactions);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+});
+
 router.get('/requests', async (req, res) => {
   const userId = req.user.userId;
 

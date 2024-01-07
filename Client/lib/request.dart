@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/User.dart';
+import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/transactions.dart';
 
@@ -50,7 +51,7 @@ class _RequestState extends State<Request>{
       setState(() {
         if(searchedUser==null){
           foundUser=false;
-          _showErrorDialog("No user with that ID");
+          ErrorDialogWidget.show(context,"No user with that ID");
         }else{
           foundUser=true;
           bool userExists = searchedUsers.any((user) => user.email==searchedUser.email);
@@ -64,30 +65,10 @@ class _RequestState extends State<Request>{
         }
       }); 
     }catch(e){ 
-      _showErrorDialog("Error seaechiomg");
+      ErrorDialogWidget.show(context,"Error seaechiomg");
       print(e);
     }
   }
-
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Error', style: TextStyle(color: Colors.red)),
-        content: Text(message, style: TextStyle(color: Colors.black)),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-            child: Text('OK', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-        backgroundColor: Colors.yellow,
-      ),
-    );
-  }
-
 
 @override
 Widget build(BuildContext context) {

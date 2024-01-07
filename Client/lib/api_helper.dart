@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:lendpay/Models/User.dart';
+import 'package:lendpay/Models/subTransactions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lendpay/Models/Transaction.dart';
 
@@ -89,15 +90,43 @@ class ApiHelper {
     }
   }
 
+  static Future<List<subTransactions>> fetchSubTransactions() async {
 
+    final url = '$baseUrl/dashboard';
 
-  static Future<List<Transaction>> fetchTransactions() async {
-    return _fetchTransactionsByUrl('$baseUrl/dashboard');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $authToken'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        log(response.body);
+        final List<subTransactions> transactions = jsonData
+            .map((data) => subTransactions.fromJson(data))
+            .toList();
+        return transactions;
+      } else {
+        throw Exception('Failed to load transactions');
+      }
+    } catch (e) {
+      throw Exception('Error fetching transactions: $e');
+    }
+
   }
 
   static Future<List<Transaction>> fetchUserTransactions(String userEmail) async {
     final url = '$baseUrl/users/$userEmail';
     return _fetchTransactionsByUrl('$url/transactions');
+  }
+
+  static Future<List<Transaction>> fetchUserLoans() async {
+    final url = '$baseUrl/user/loans';
+    return _fetchTransactionsByUrl('$url');
   }
 
   static Future<List<Transaction>> _fetchTransactionsByUrl(String url) async {
