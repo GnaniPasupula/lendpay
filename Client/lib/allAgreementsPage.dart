@@ -4,6 +4,7 @@ import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Providers/transaction_provider.dart';
 import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/api_helper.dart';
+import 'package:lendpay/singleAgreementPage.dart';
 import 'package:provider/provider.dart';
 
 class AllAgreementsPage extends StatefulWidget {
@@ -122,7 +123,7 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
                         child: ListTile(
                           onTap: (){
                             
-                            // Navigator.push(context, MaterialPageRoute(builder: (context)=>TransactionsPage(otheruser: otheruser)));
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:allTransactions[index])));
                           },
                           leading: CircleAvatar(
                             backgroundColor: Colors.orange,

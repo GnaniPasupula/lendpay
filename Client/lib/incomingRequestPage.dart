@@ -116,7 +116,7 @@ Widget build(BuildContext context) {
                         height: insideCardHeight, // Set the individual card's height
                         child: ListTile(
                           onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>IncomingRequest(requestTransaction: requestTransactions[index],)));
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>IncomingRequest(requestTransaction: requestTransactions[index])));
                           },
                           leading: CircleAvatar(
                             backgroundColor: Colors.orange,

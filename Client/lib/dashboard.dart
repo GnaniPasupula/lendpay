@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/Transaction.dart';
+import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Models/subTransactions.dart';
+import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/allAgreementsPage.dart';
 import 'package:lendpay/incomingRequestPage.dart';
@@ -24,6 +26,7 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     super.initState();
     _fetchTransactions();
+    _getActiveUser();
   }
 
   Future<void> _fetchTransactions() async {
@@ -37,6 +40,15 @@ class _DashboardState extends State<Dashboard> {
     } catch (e) {
       print(e);
       // Handle error and show a proper error message to the user
+    }
+  }
+
+  Future<void> _getActiveUser() async{
+    try{
+      final User activeUser = await ApiHelper.getActiveUser();
+      Provider.of<UserProvider>(context,listen: false).setActiveUser(activeUser);
+    }catch(e){
+      print(e);
     }
   }
 

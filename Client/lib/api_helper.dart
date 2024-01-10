@@ -37,7 +37,7 @@ class ApiHelper {
       throw Exception('Error fetching user: $e');
     }
   }
-  static Future<User?> getActiveUser() async {
+  static Future<User> getActiveUser() async {
     final url = '$baseUrl/dashboard/user';
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -54,9 +54,10 @@ class ApiHelper {
         final dynamic jsonData = json.decode(response.body);
         final User user = User.fromJson(jsonData);
         return user;
-      } 
+      } else{
+        throw Exception('Error fetching user data after login');
+      }
 
-      return null;
     } catch (e) {
       throw Exception('Error fetching user data after login: $e');
     }
@@ -231,6 +232,7 @@ class ApiHelper {
   }
 
   static Future<void> acceptTransactionRequest({
+    required String requestTransactionID,
     required String receiverEmail,
     required int amount,
     required String startDate,
@@ -252,6 +254,7 @@ class ApiHelper {
         Uri.parse(url),
         headers: {'Authorization': 'Bearer $authToken', 'Content-Type': 'application/json',},
         body: jsonEncode({
+          'requestTransactionID': requestTransactionID,
           'receiverEmail': receiverEmail,
           'amount': amount,
           'startDate': startDate,
@@ -275,6 +278,41 @@ class ApiHelper {
       }
     } catch (e) {
       throw Exception('Error accepting transaction request: $e');
+    }
+  }
+
+  static Future<void> rejectTransactionRequest({
+    required String requestTransactionID,
+    required String receiverEmail,
+
+  }) async {
+    final url = '$baseUrl/rejectrequest';
+    // print("requestTransactionID");
+    // print(requestTransactionID);
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $authToken', 'Content-Type': 'application/json',},
+        body: jsonEncode({
+          'requestTransactionID': requestTransactionID,
+          'receiverEmail': receiverEmail,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        log('Transaction request rejected successfully');
+      } else if (response.statusCode == 404) {
+        log('Sender or receiver not found');
+        throw Exception('Sender or receiver not found');
+      } else {
+        throw Exception('Failed to reject transaction request');
+      }
+    } catch (e) {
+      throw Exception('Error rejecting transaction request: $e');
     }
   }
 }

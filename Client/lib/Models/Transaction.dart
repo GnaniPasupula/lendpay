@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 
 class Transaction {
-  // final String id;
+  final String id;
   final String sender;
   final String receiver;
   final int amount;
@@ -19,7 +19,7 @@ class Transaction {
   final String type;
 
   Transaction({
-    // required this.id,
+    required this.id,
     required this.sender,
     required this.receiver,
     required this.amount,
@@ -43,7 +43,7 @@ class Transaction {
     final DateFormat timeFormat = DateFormat('HH:mm');
 
     return Transaction(
-      // id: json['_id'],
+      id: json['_id'],
       sender: json['sender'],
       receiver: json['receiver'],
       amount: json['amount'],
@@ -64,7 +64,7 @@ class Transaction {
 
   Map<String, dynamic> toJson() {
     return {
-      // '_id': id,
+      '_id': id,
       'sender': sender,
       'receiver': receiver,
       'amount': amount,

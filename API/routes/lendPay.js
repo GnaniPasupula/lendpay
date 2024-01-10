@@ -35,7 +35,7 @@ router.get('/user/loans', async (req, res) => {
   const userId = req.user.userId;
 
   try {
-    const user = await User.findById(userId).populate('creditTransaction debitTransactions');
+    const user = await User.findById(userId).populate('creditTransactions debitTransactions');
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -97,7 +97,7 @@ router.get('/dashboard/user', async (req, res) => {
 
   try {
     const user = await User.findById(userId);
-
+    // console.log(user);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }else{
@@ -243,6 +243,7 @@ router.post('/request', async (req, res) => {
 router.post('/acceptrequest', async (req, res) => {
   try {
     const {
+      requestTransactionID,
       receiverEmail,
       amount,
       startDate,
@@ -287,6 +288,10 @@ router.post('/acceptrequest', async (req, res) => {
     receiver.creditTransactions.push(transaction._id);
     receiver.totalCredit += amount;
 
+    await Transaction.findByIdAndDelete(requestTransactionID);
+    sender.requests.pull(requestTransactionID);
+    receiver.requests.pull(requestTransactionID);
+
     await transaction.save();
     await sender.save();
     await receiver.save();
@@ -297,6 +302,38 @@ router.post('/acceptrequest', async (req, res) => {
     res.status(500).json({ message: 'An error occurred' });
   }
 });
+
+router.post('/rejectrequest', async (req, res) => {
+  try {
+    const { requestTransactionID, receiverEmail } = req.body;
+    const senderEmail = req.user.userEmail;
+
+    const sender = await User.findOne({ email: senderEmail });
+    const receiver = await User.findOne({ email: receiverEmail });
+
+    if (!sender || !receiver || senderEmail === receiverEmail) {
+      return res.status(404).json({ message: 'Sender or receiver not found' });
+    }
+
+    // console.log(req.body);
+
+    // console.log(requestTransactionID);
+
+    sender.requests.pull(requestTransactionID);
+    receiver.requests.pull(requestTransactionID);
+
+    await Transaction.findByIdAndDelete(requestTransactionID);
+    
+    await sender.save();
+    await receiver.save();
+
+    res.status(200).json({ message: 'Request rejected successfully' });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+});
+
 
 router.get('/users/:email/transactions',async (req,res)=>{
 

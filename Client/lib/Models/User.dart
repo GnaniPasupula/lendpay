@@ -8,7 +8,7 @@ class User {
   List<String> requests;
   double totalCredit;
   double totalDebit;
-  List<User> previousUsers;
+  List<String> previousUsers;
   List<String> subTransactions;
   
   User({
@@ -36,7 +36,7 @@ class User {
       requests: List<String>.from(json['requests']),
       totalCredit: json['totalCredit'].toDouble(),
       totalDebit: json['totalDebit'].toDouble(),
-      previousUsers: List<User>.from(json['previousUsers']),
+      previousUsers: List<String>.from(json['previousUsers']),
       subTransactions: List<String>.from(json['subTransactions']),
     );
   }
