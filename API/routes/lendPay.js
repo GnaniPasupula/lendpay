@@ -73,8 +73,8 @@ router.get('/requests', async (req, res) => {
 
     // Sort transactions by the adjusted date in ascending order
     allRequestTransactions.sort((a, b) => {
-      const dateA = a.date.getTime();
-      const dateB = b.date.getTime(); 
+      const dateA = new Date(a.time).getTime();
+      const dateB = new Date(b.time).getTime();
 
       const adjustedDateA = dateA + a.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
       const adjustedDateB = dateB + b.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
@@ -86,6 +86,40 @@ router.get('/requests', async (req, res) => {
     // const leastTransaction = allTransactions[0];
 
     res.status(200).json(allRequestTransactions);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+});
+
+router.get('/paymentrequests', async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const user = await User.findById(userId)
+      .populate('paymentrequests');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const allPaymentRequestTransactions = [...user.paymentrequests];
+
+    // Sort transactions by the adjusted date in ascending order
+    allPaymentRequestTransactions.sort((a, b) => {
+      const dateA = new Date(a.time).getTime();
+      const dateB = new Date(b.time).getTime();
+
+      const adjustedDateA = dateA + a.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
+      const adjustedDateB = dateB + b.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
+
+      return adjustedDateA - adjustedDateB;
+    });
+
+    // Get the transaction with the least adjusted date
+    // const leastTransaction = allTransactions[0];
+
+    res.status(200).json(allPaymentRequestTransactions);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'An error occurred' });
@@ -244,7 +278,7 @@ router.post('/acceptrequest', async (req, res) => {
   try {
     const {
       requestTransactionID,
-      receiverEmail,
+      senderEmail,
       amount,
       startDate,
       endDate,
@@ -256,14 +290,14 @@ router.post('/acceptrequest', async (req, res) => {
       totalAmount,
     } = req.body;    
 
-    const senderEmail = req.user.userEmail;
+    const receiverEmail = req.user.userEmail;
     // console.dir(req.user, { depth: null });
 
     const sender = await User.findOne({ email: senderEmail });
     const receiver = await User.findOne({ email: receiverEmail });
     // console.log("sender"+sender+",receiver"+receiver);
 
-    if (!sender || !receiver || senderEmail===receiverEmail) {
+    if (!sender || !receiver) {
       return res.status(404).json({ message: 'Sender or receiver not found' });
     }
 
@@ -311,7 +345,7 @@ router.post('/rejectrequest', async (req, res) => {
     const sender = await User.findOne({ email: senderEmail });
     const receiver = await User.findOne({ email: receiverEmail });
 
-    if (!sender || !receiver || senderEmail === receiverEmail) {
+    if (!sender || !receiver) {
       return res.status(404).json({ message: 'Sender or receiver not found' });
     }
 
@@ -412,5 +446,70 @@ router.get('/user/request', async (req,res)=>{
   }
 })
 
+router.post('/requestpayment', async (req, res) => {
+  try {
+    const { transactionID, paidAmount} = req.body;
+
+    const transaction = await Transaction.findById(transactionID);
+
+    const receiverEmail = transaction.sender;
+    const senderEmail = transaction.receiver;
+    
+    const sender = await User.findOne({ email: senderEmail });
+    const receiver = await User.findOne({ email: receiverEmail });
+
+    const subTransaction = new subTransactions({
+      transactionID,
+      senderEmail,
+      receiverEmail,
+      paidAmount,
+    });
+
+    sender.paymentrequests.push(subTransaction);
+    receiver.paymentrequests.push(subTransaction);
+
+    await subTransaction.save();
+    await sender.save();
+    await receiver.save();
+
+    res.status(200).json({ message: 'Payment confirmed successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+router.post('/rejectrequestpayment', async (req, res) => {
+  try {
+    const { transactionID, paidAmount} = req.body;
+
+    const transaction = await Transaction.findById(transactionID);
+
+    const receiverEmail = transaction.sender;
+    const senderEmail = transaction.receiver;
+    
+    const sender = await User.findOne({ email: senderEmail });
+    const receiver = await User.findOne({ email: receiverEmail });
+
+    const subTransaction = new subTransactions({
+      transactionID,
+      senderEmail,
+      receiverEmail,
+      paidAmount,
+    });
+
+    sender.paymentrequests.push(subTransaction);
+    receiver.paymentrequests.push(subTransaction);
+
+    await subTransaction.save();
+    await sender.save();
+    await receiver.save();
+
+    res.status(200).json({ message: 'Payment confirmed successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 module.exports = router; 

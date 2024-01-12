@@ -64,9 +64,9 @@ class _IncomingRequestState extends State<IncomingRequest> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildTextRow("From", "gnani"),
+                  _buildTextRow("From", widget.requestTransaction.receiver),
                   const SizedBox(height: 8.0),
-                  _buildTextRow("To", widget.requestTransaction.receiver),
+                  _buildTextRow("To", widget.requestTransaction.sender),
                   const SizedBox(height: 8.0),
                   _buildTextRow("Start Date", startDateFormatted),
                   const SizedBox(height: 8.0),
@@ -132,7 +132,7 @@ class _IncomingRequestState extends State<IncomingRequest> {
                                             // Perform the transaction request here
                                             ApiHelper.acceptTransactionRequest(
                                               requestTransactionID: widget.requestTransaction.id,
-                                              receiverEmail: widget.requestTransaction.receiver,
+                                              senderEmail: widget.requestTransaction.sender,
                                               amount: widget.requestTransaction.amount,
                                               startDate: startDateFormatted,
                                               endDate: endDateFormatted,

@@ -6,6 +6,7 @@ class User {
   List<String> creditTransactions;
   List<String> debitTransactions;
   List<String> requests;
+  List<String> paymentrequests;
   double totalCredit;
   double totalDebit;
   List<String> previousUsers;
@@ -19,6 +20,7 @@ class User {
     required this.creditTransactions,
     required this.debitTransactions,
     required this.requests,
+    required this.paymentrequests,
     required this.totalCredit,
     required this.totalDebit,
     required this.previousUsers,
@@ -34,6 +36,7 @@ class User {
       creditTransactions: List<String>.from(json['creditTransactions']),
       debitTransactions: List<String>.from(json['debitTransactions']),
       requests: List<String>.from(json['requests']),
+      paymentrequests: List<String>.from(json['paymentrequests']),
       totalCredit: json['totalCredit'].toDouble(),
       totalDebit: json['totalDebit'].toDouble(),
       previousUsers: List<String>.from(json['previousUsers']),
@@ -50,6 +53,7 @@ class User {
       'creditTransactions': creditTransactions,
       'debitTransactions': debitTransactions,
       'requests': requests,
+      'paymentrequests': paymentrequests,
       'totalCredit': totalCredit,
       'totalDebit': totalDebit,
       'previousUsers': previousUsers,

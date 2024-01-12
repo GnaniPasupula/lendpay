@@ -167,30 +167,6 @@ class _DashboardState extends State<Dashboard> {
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Column(
-                        children: [
-                          Container(
-                            width: iconSize,
-                            height: iconSize,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF2E2E2E),
-                              borderRadius: BorderRadius.circular(iconSize / 2),
-                            ),
-                            child: IconButton(
-                              icon: Icon(Icons.attach_money, color: const Color(0xFF999999), size: iconSize * 0.6),
-                              onPressed: () {
-                                // Handle Transfer Money button click
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 1.0), 
-                          Text("Transfer", style: TextStyle(color: Colors.white,fontSize: iconSize * 0.25)), 
-                        ],
-                      ),
-                    ),
-
                   ],
                 ),
               ],
@@ -259,7 +235,7 @@ class _DashboardState extends State<Dashboard> {
                                 ),
                                 subtitle: Row(
                                   children: [
-                                    Text(transactionDate,style: TextStyle(fontSize: insideCardHeight * 0.225)),
+                                    Text(DateFormat('dd-MM-yyyy').format(transaction.date),style: TextStyle(fontSize: insideCardHeight * 0.225)),
                                   ],
                                 ),
                                 trailing: Text(transaction.amount.toString(),style: TextStyle(fontSize: insideCardHeight * 0.3)),

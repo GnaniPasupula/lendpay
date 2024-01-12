@@ -183,6 +183,33 @@ class ApiHelper {
     }
   }
 
+  static Future<List<subTransactions>> fetchUserPaymentRequests() async {
+    final url = '$baseUrl/paymentrequests/';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $authToken'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        log(response.body);
+        final List<subTransactions> transactions = jsonData
+            .map((data) => subTransactions.fromJson(data))
+            .toList();
+        return transactions;
+      } else {
+        throw Exception('Failed to load requests');
+      }
+    } catch (e) {
+      throw Exception('Error fetching requests: $e');
+    }
+  }
+
   static Future<void> sendTransactionRequest({
     required String receiverEmail,
     required int amount,
@@ -233,7 +260,7 @@ class ApiHelper {
 
   static Future<void> acceptTransactionRequest({
     required String requestTransactionID,
-    required String receiverEmail,
+    required String senderEmail,
     required int amount,
     required String startDate,
     required String endDate,
@@ -255,7 +282,7 @@ class ApiHelper {
         headers: {'Authorization': 'Bearer $authToken', 'Content-Type': 'application/json',},
         body: jsonEncode({
           'requestTransactionID': requestTransactionID,
-          'receiverEmail': receiverEmail,
+          'senderEmail': senderEmail,
           'amount': amount,
           'startDate': startDate,
           'endDate': endDate,
@@ -315,4 +342,37 @@ class ApiHelper {
       throw Exception('Error rejecting transaction request: $e');
     }
   }
+
+  static Future<void> sendTransactionPaymentRequest({
+    required String transactionID,
+    required double paidAmount,
+    }) async {
+    final url = '$baseUrl/requestpayment';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'transactionID': transactionID,
+          'paidAmount': paidAmount,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        log('Payment confirmed successfully');
+      } else {
+        throw Exception('Failed to confirm payment');
+      }
+    } catch (e) {
+      throw Exception('Error confirming payment: $e');
+    }
+  }
+
 }
