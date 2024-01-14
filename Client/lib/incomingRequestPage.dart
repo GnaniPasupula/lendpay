@@ -26,6 +26,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
   void initState() {
     super.initState();
     fetchLoanRequests();
+    fetchPaymentRequests();
   }
 
   void handleSearch() {

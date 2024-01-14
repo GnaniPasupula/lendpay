@@ -5,7 +5,7 @@ class subTransactions {
   final String sender;
   final String receiver;
   final double amount;
-  final String time;
+  final DateTime time;
   final DateTime date;
   final String type;
 
@@ -29,9 +29,9 @@ class subTransactions {
       sender: json['sender'],
       receiver: json['receiver'],
       amount: json['amount'],
-      time: json['time'],
-      date: json['date'],
-      type: json['type']
+      time: timeFormat.parse(json['time']),
+      date: dateFormat.parse(json['date']),
+      type: json['type'],
     );
   }
 

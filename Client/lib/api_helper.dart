@@ -195,9 +195,10 @@ class ApiHelper {
         headers: {'Authorization': 'Bearer $authToken'},
       );
 
+      log(response.body);
+
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
-        log(response.body);
         final List<subTransactions> transactions = jsonData
             .map((data) => subTransactions.fromJson(data))
             .toList();
@@ -346,6 +347,7 @@ class ApiHelper {
   static Future<void> sendTransactionPaymentRequest({
     required String transactionID,
     required double paidAmount,
+    required String date,
     }) async {
     final url = '$baseUrl/requestpayment';
 
@@ -362,6 +364,7 @@ class ApiHelper {
         body: jsonEncode({
           'transactionID': transactionID,
           'paidAmount': paidAmount,
+          'date': date
         }),
       );
 

@@ -7,7 +7,7 @@ const subTransactionSchema = new mongoose.Schema({
   receiver: { type: String, ref: 'User', required: true },
   amount: { type: Number, required: true },
   time: { type: String, default: () => new Date().toLocaleTimeString() , required: true},
-  Date: { type: String, default: Date.now , required: true},
+  date: { type: String, default: Date.now , required: true},
   type: { type: String, required: true , default:"req"},
 });
 

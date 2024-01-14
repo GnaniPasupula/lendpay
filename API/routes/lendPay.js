@@ -105,20 +105,6 @@ router.get('/paymentrequests', async (req, res) => {
 
     const allPaymentRequestTransactions = [...user.paymentrequests];
 
-    // Sort transactions by the adjusted date in ascending order
-    allPaymentRequestTransactions.sort((a, b) => {
-      const dateA = new Date(a.time).getTime();
-      const dateB = new Date(b.time).getTime();
-
-      const adjustedDateA = dateA + a.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
-      const adjustedDateB = dateB + b.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
-
-      return adjustedDateA - adjustedDateB;
-    });
-
-    // Get the transaction with the least adjusted date
-    // const leastTransaction = allTransactions[0];
-
     res.status(200).json(allPaymentRequestTransactions);
   } catch (error) {
     console.error('Error:', error);
@@ -448,7 +434,7 @@ router.get('/user/request', async (req,res)=>{
 
 router.post('/requestpayment', async (req, res) => {
   try {
-    const { transactionID, paidAmount} = req.body;
+    const { transactionID, paidAmount, date} = req.body;
 
     const transaction = await Transaction.findById(transactionID);
 
@@ -459,10 +445,11 @@ router.post('/requestpayment', async (req, res) => {
     const receiver = await User.findOne({ email: receiverEmail });
 
     const subTransaction = new subTransactions({
-      transactionID,
-      senderEmail,
-      receiverEmail,
-      paidAmount,
+      transactionID:transactionID,
+      sender:senderEmail,
+      receiver:receiverEmail,
+      amount:paidAmount,
+      date:date
     });
 
     sender.paymentrequests.push(subTransaction);

@@ -33,6 +33,8 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
 
     String startDateFormatted = DateFormat('dd-MM-yyyy').format(widget.viewAgreement.startDate);
 
+    String date=DateFormat('dd-MM-yyyy').format(DateTime.now());
+
     // print(widget.requestTransaction.toJson());
 
     UserProvider userProvider = Provider.of<UserProvider>(context);
@@ -122,7 +124,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      ApiHelper.sendTransactionPaymentRequest(transactionID:widget.viewAgreement.id,paidAmount:widget.viewAgreement.interestAmount);
+                                      ApiHelper.sendTransactionPaymentRequest(transactionID:widget.viewAgreement.id,paidAmount:widget.viewAgreement.interestAmount,date:date);
                                       Navigator.of(context).pop();
                                     },
                                     child: const Text("Confirm"),
