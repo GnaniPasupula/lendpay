@@ -29,7 +29,7 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
 
   @override
   Widget build(BuildContext context) {
-    String endDateFormatted = DateFormat('dd-MM-yyyy').format(widget.paymentrequestTransaction.date);
+    String date = DateFormat('dd-MM-yyyy').format(widget.paymentrequestTransaction.date);
 
     // print(widget.requestTransaction.toJson());
 
@@ -49,7 +49,7 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Loan Details',
+              'Payment',
               style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8.0),
@@ -66,7 +66,7 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                   const SizedBox(height: 8.0),
                   _buildTextRow("To", widget.paymentrequestTransaction.sender),
                   const SizedBox(height: 8.0),
-                  _buildTextRow("End Date", endDateFormatted),
+                  _buildTextRow("End Date", date),
                   const SizedBox(height: 8.0),
                   _buildTextRow("Amount", widget.paymentrequestTransaction.amount),
                   const SizedBox(height: 8.0),
@@ -97,7 +97,7 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                       width: 150,
                       height: 30,
                       child: TextButton(
-                        onPressed: activeUser.email == widget.paymentrequestTransaction.receiver
+                        onPressed: activeUser.email != widget.paymentrequestTransaction.receiver
                             ? () {
                                 showDialog(
                                   context: context,
@@ -115,7 +115,7 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                                         TextButton(
                                           onPressed: () {
                                             // Perform the transaction request here
-
+                                            ApiHelper.acceptTransactionPaymentRequest(transactionID: widget.paymentrequestTransaction.transactionID, date: date, subtransactionID: widget.paymentrequestTransaction.id, senderEmail: widget.paymentrequestTransaction.sender, receiverEmail: widget.paymentrequestTransaction.receiver);
                                             Navigator.of(context).pop();
                                           },
                                           child: const Text("Confirm"),
@@ -128,7 +128,7 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                             : null, // Set onPressed to null if condition is not met
                         child: const Text("Confirm", style: TextStyle(color: Colors.white)),
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(activeUser.email == widget.paymentrequestTransaction.receiver ? Colors.black : Colors.grey),
+                          backgroundColor: MaterialStateProperty.all<Color>(activeUser.email != widget.paymentrequestTransaction.receiver ? Colors.black : Colors.grey),
                           foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
                         ),
                       ),

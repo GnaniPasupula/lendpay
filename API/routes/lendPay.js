@@ -468,8 +468,6 @@ router.post('/requestpayment', async (req, res) => {
 router.post('/rejectrequestpayment', async (req, res) => {
   try {
     const { subtransactionID, senderEmail, receiverEmail} = req.body;
-
-    const subtransaction = await subTransactions.findById(subtransactionID);
     
     const sender = await User.findOne({ email: senderEmail });
     const receiver = await User.findOne({ email: receiverEmail });
@@ -479,6 +477,42 @@ router.post('/rejectrequestpayment', async (req, res) => {
     sender.paymentrequests.pull(subtransactionID);
     receiver.paymentrequests.pull(subtransactionID);
 
+    await sender.save();
+    await receiver.save();
+
+    res.status(200).json({ message: 'Payment confirmed successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+router.post('/acceptrequestpayment', async (req, res) => {
+  try {
+    const { transactionID, date,subtransactionID, senderEmail, receiverEmail} = req.body;
+    
+    const sender = await User.findOne({ email: senderEmail });
+    const receiver = await User.findOne({ email: receiverEmail });
+
+    const transaction = await Transaction.findById(transactionID);
+    transaction.amountPaid+=transaction.interestAmount;
+
+    await subTransactions.findByIdAndDelete(subtransactionID);
+    
+    const subTransaction = new subTransactions({
+      transactionID:transactionID,
+      sender:senderEmail,
+      receiver:receiverEmail,
+      amount:transaction.interestAmount,
+      date:date,
+      type:"notreq"
+    });
+
+    sender.paymentrequests.pull(subtransactionID);
+    receiver.paymentrequests.pull(subtransactionID);
+
+    await subTransaction.save();
+    await transaction.save();
     await sender.save();
     await receiver.save();
 

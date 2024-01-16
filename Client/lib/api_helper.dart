@@ -412,4 +412,42 @@ class ApiHelper {
     }
   }
 
+  static Future<void> acceptTransactionPaymentRequest({
+    required String transactionID,
+    required String date,
+    required String subtransactionID,
+    required String senderEmail,
+    required String receiverEmail,
+  }) async {
+    final url = '$baseUrl/acceptrequestpayment';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'transactionID': transactionID,
+          'date': date,
+          'subtransactionID': subtransactionID,
+          'senderEmail': senderEmail,
+          'receiverEmail': receiverEmail,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        log('Payment confirmed successfully');
+      } else {
+        throw Exception('Failed to confirm payment');
+      }
+    } catch (e) {
+      throw Exception('Error confirming payment: $e');
+    }
+  }
+
 }

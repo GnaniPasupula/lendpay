@@ -113,8 +113,8 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: const Text("Decline Transaction Request"),
-                                content: const Text("Are you sure you want to decline the transaction request?"),
+                                title: const Text('Pay Monthly Payment'),
+                                content: const Text("Are you sure you want to pay the transaction request?"),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
