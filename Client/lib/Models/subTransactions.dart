@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 
 class subTransactions {
+  final String id;
   final String transactionID;
   final String sender;
   final String receiver;
@@ -10,6 +11,7 @@ class subTransactions {
   final String type;
 
   subTransactions({
+    required this.id,
     required this.transactionID,
     required this.sender,
     required this.receiver,
@@ -25,6 +27,7 @@ class subTransactions {
     final DateFormat timeFormat = DateFormat('HH:mm');
 
     return subTransactions(
+      id: json['_id'],
       transactionID: json['transactionID'],
       sender: json['sender'],
       receiver: json['receiver'],
@@ -37,6 +40,7 @@ class subTransactions {
 
   Map<String, dynamic> toJson() {
     return {
+      '_id': id,
       'transactionID': transactionID,
       'sender': sender,
       'receiver': receiver,

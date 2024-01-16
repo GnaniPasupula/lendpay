@@ -153,7 +153,7 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                                   ),
                                   TextButton(
                                     onPressed: () {
-
+                                      ApiHelper.rejectTransactionPaymentRequest(subtransactionID: widget.paymentrequestTransaction.id, senderEmail: widget.paymentrequestTransaction.sender, receiverEmail: widget.paymentrequestTransaction.receiver);
                                       Navigator.of(context).pop();
                                     },
                                     child: const Text("Confirm"),

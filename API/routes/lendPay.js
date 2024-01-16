@@ -356,7 +356,6 @@ router.post('/rejectrequest', async (req, res) => {
 
 
 router.get('/users/:email/transactions',async (req,res)=>{
-
   try {
 
     const email = req.params.email;
@@ -468,27 +467,18 @@ router.post('/requestpayment', async (req, res) => {
 
 router.post('/rejectrequestpayment', async (req, res) => {
   try {
-    const { transactionID, paidAmount} = req.body;
+    const { subtransactionID, senderEmail, receiverEmail} = req.body;
 
-    const transaction = await Transaction.findById(transactionID);
-
-    const receiverEmail = transaction.sender;
-    const senderEmail = transaction.receiver;
+    const subtransaction = await subTransactions.findById(subtransactionID);
     
     const sender = await User.findOne({ email: senderEmail });
     const receiver = await User.findOne({ email: receiverEmail });
 
-    const subTransaction = new subTransactions({
-      transactionID,
-      senderEmail,
-      receiverEmail,
-      paidAmount,
-    });
+    await subTransactions.findByIdAndDelete(subtransactionID);
 
-    sender.paymentrequests.push(subTransaction);
-    receiver.paymentrequests.push(subTransaction);
+    sender.paymentrequests.pull(subtransactionID);
+    receiver.paymentrequests.pull(subtransactionID);
 
-    await subTransaction.save();
     await sender.save();
     await receiver.save();
 
