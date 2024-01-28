@@ -186,9 +186,9 @@ class _DashboardState extends State<Dashboard> {
                     child: ListView.builder(
                       itemCount: allsubTransactions.length,
                       itemBuilder: (context, index) {
-                        final transaction = allsubTransactions[index];
+                        final subTransaction = allsubTransactions[index];
 
-                        final transactionDate = transaction.date;
+                        final transactionDate = subTransaction.date;
                         String formattedDate;
                         final now = DateTime.now();
 
@@ -223,22 +223,22 @@ class _DashboardState extends State<Dashboard> {
                               height: insideCardHeight, // Set the individual card's height
                               child: ListTile(
                                 onTap: (){
-                                  // Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleTransactionsPage(transaction:transaction)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleTransactionsPage(subTransaction:subTransaction)));
                                 },
                                 leading: CircleAvatar(
                                   backgroundColor: Colors.orange,
                                   child: Icon(Icons.person, color: Colors.white,size:insideCardHeight*0.75),
                                 ),
                                 title: Text(
-                                  transaction.receiver,
+                                  subTransaction.receiver,
                                   style: TextStyle(fontSize: insideCardHeight * 0.325),
                                 ),
                                 subtitle: Row(
                                   children: [
-                                    Text(DateFormat('dd-MM-yyyy').format(transaction.date),style: TextStyle(fontSize: insideCardHeight * 0.225)),
+                                    Text(DateFormat('dd-MM-yyyy').format(subTransaction.date),style: TextStyle(fontSize: insideCardHeight * 0.225)),
                                   ],
                                 ),
-                                trailing: Text(transaction.amount.toString(),style: TextStyle(fontSize: insideCardHeight * 0.3)),
+                                trailing: Text(subTransaction.amount.toString(),style: TextStyle(fontSize: insideCardHeight * 0.3)),
                               ),
                             ),
                           ),

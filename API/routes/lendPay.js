@@ -495,7 +495,7 @@ router.post('/acceptrequestpayment', async (req, res) => {
     const receiver = await User.findOne({ email: receiverEmail });
 
     const transaction = await Transaction.findById(transactionID);
-    transaction.amountPaid+=transaction.interestAmount;
+    transaction.amountPaid+=transaction.subAmount;
 
     await subTransactions.findByIdAndDelete(subtransactionID);
     
@@ -503,13 +503,16 @@ router.post('/acceptrequestpayment', async (req, res) => {
       transactionID:transactionID,
       sender:senderEmail,
       receiver:receiverEmail,
-      amount:transaction.interestAmount,
+      amount:transaction.subAmount,
       date:date,
       type:"notreq"
     });
 
     sender.paymentrequests.pull(subtransactionID);
     receiver.paymentrequests.pull(subtransactionID);
+
+    sender.subTransactions.push(subTransaction);
+    receiver.subTransactions.push(subTransaction);
 
     await subTransaction.save();
     await transaction.save();
@@ -520,6 +523,35 @@ router.post('/acceptrequestpayment', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+router.post('/getLoan', async (req, res) => {
+  try {
+    const {transactionID} = req.body;
+
+    const transaction = await Transaction.findById(transactionID);
+
+    res.status(200).json(transaction);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+router.get('/subtransactions/:transactionID', async (req, res) => {
+  try {
+    const transactionID = req.params.transactionID;
+
+    const result = await subTransactions.find({
+      transactionID: transactionID,
+      type: 'notreq'
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 

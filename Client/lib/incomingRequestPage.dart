@@ -82,171 +82,186 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
     double cardHeight = MediaQuery.of(context).size.height * 0.25;
     double insideCardHeight = cardHeight / 3.25;
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: searchController,
-                decoration: const InputDecoration(
-                  hintText: 'Search user',
-                  prefixIcon: Icon(Icons.search),
+    return DefaultTabController(
+      length: 2, 
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: searchController,
+                  decoration: const InputDecoration(
+                    hintText: 'Search user',
+                    prefixIcon: Icon(Icons.search),
+                  ),
+                  cursorColor: Colors.white,
                 ),
-                cursorColor: Colors.white,
               ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.done),
-              onPressed: handleSearch,
-            )
+              IconButton(
+                icon: const Icon(Icons.done),
+                onPressed: handleSearch,
+              )
+            ],
+          ),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: 'Loan Requests'),
+              Tab(text: 'Payment Requests'),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            buildUserRequestsList(insideCardHeight),
+            buildPaymentRequestsList(insideCardHeight),
           ],
         ),
       ),
-      body: PageView(
-        controller: _pageController,
-        children: [
-          // Body 1
-          requestTransactions.isEmpty
-              ? Center(child: Text('No requests available.'))
-              : ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(24.0),
-                    topRight: Radius.circular(24.0),
-                  ),
-                  child: Container(
-                    color: Colors.white,
-                    child: ListView.builder(
-                      itemCount: requestTransactions.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20.0, vertical: 5.0),
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: SizedBox(
-                              height: insideCardHeight,
-                              child: ListTile(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => IncomingRequest(
-                                        requestTransaction:
-                                            requestTransactions[index],
-                                      ),
-                                    ),
-                                  );
-                                },
-                                leading: CircleAvatar(
-                                  backgroundColor: Colors.orange,
-                                  child: Icon(
-                                    Icons.person,
-                                    color: Colors.white,
-                                    size: insideCardHeight * 0.75,
-                                  ),
-                                ),
-                                title: Text(
-                                  requestTransactions[index].receiver,
-                                  style: TextStyle(
-                                      fontSize: insideCardHeight * 0.325),
-                                ),
-                                subtitle: Row(
-                                  children: [
-                                    Text(
-                                      DateFormat('dd-MM-yyyy').format(
-                                          requestTransactions[index].startDate),
-                                      style: TextStyle(
-                                          fontSize: insideCardHeight * 0.225),
-                                    ),
-                                  ],
-                                ),
-                                trailing: Icon(Icons.more_vert,
-                                    color: const Color.fromARGB(255, 0, 0, 0),
-                                    size: insideCardHeight * 0.5),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-          paymentrequestTransactions.isEmpty
-              ? Center(child: Text('No payment requests available.'))
-              : ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(24.0),
-                    topRight: Radius.circular(24.0),
-                  ),
-                  child: Container(
-                    color: Colors.white,
-                    child: ListView.builder(
-                      itemCount: paymentrequestTransactions.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20.0, vertical: 5.0),
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: SizedBox(
-                              height: insideCardHeight,
-                              child: ListTile(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => IncomingPaymentRequest(
-                                        paymentrequestTransaction:
-                                            paymentrequestTransactions[index],
-                                      ),
-                                    ),
-                                  );
-                                },
-                                leading: CircleAvatar(
-                                  backgroundColor: Colors.orange,
-                                  child: Icon(
-                                    Icons.person,
-                                    color: Colors.white,
-                                    size: insideCardHeight * 0.75,
-                                  ),
-                                ),
-                                title: Text(
-                                  requestTransactions[index].receiver,
-                                  style: TextStyle(
-                                      fontSize: insideCardHeight * 0.325),
-                                ),
-                                subtitle: Row(
-                                  children: [
-                                    Text(
-                                      DateFormat('dd-MM-yyyy').format(
-                                          requestTransactions[index].startDate),
-                                      style: TextStyle(
-                                          fontSize: insideCardHeight * 0.225),
-                                    ),
-                                  ],
-                                ),
-                                trailing: Icon(Icons.more_vert,
-                                    color: const Color.fromARGB(255, 0, 0, 0),
-                                    size: insideCardHeight * 0.5),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-        ],
-      ),
     );
+  }
+
+  Widget buildUserRequestsList(double insideCardHeight) {
+    return requestTransactions.isEmpty
+        ? Center(child: Text('No requests available.'))
+        : ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(24.0),
+              topRight: Radius.circular(24.0),
+            ),
+            child: Container(
+              color: Colors.white,
+              child: ListView.builder(
+                itemCount: requestTransactions.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 20.0, vertical: 5.0),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: SizedBox(
+                        height: insideCardHeight,
+                        child: ListTile(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => IncomingRequest(
+                                  requestTransaction:
+                                      requestTransactions[index],
+                                ),
+                              ),
+                            );
+                          },
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.orange,
+                            child: Icon(
+                              Icons.person,
+                              color: Colors.white,
+                              size: insideCardHeight * 0.75,
+                            ),
+                          ),
+                          title: Text(
+                            requestTransactions[index].receiver,
+                            style:
+                                TextStyle(fontSize: insideCardHeight * 0.325),
+                          ),
+                          subtitle: Row(
+                            children: [
+                              Text(
+                                DateFormat('dd-MM-yyyy').format(
+                                    requestTransactions[index].startDate),
+                                style:
+                                    TextStyle(fontSize: insideCardHeight * 0.225),
+                              ),
+                            ],
+                          ),
+                          trailing: Icon(Icons.more_vert,
+                              color: const Color.fromARGB(255, 0, 0, 0),
+                              size: insideCardHeight * 0.5),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+  }
+
+  Widget buildPaymentRequestsList(double insideCardHeight) {
+    return paymentrequestTransactions.isEmpty
+        ? Center(child: Text('No payment requests available.'))
+        : ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(24.0),
+              topRight: Radius.circular(24.0),
+            ),
+            child: Container(
+              color: Colors.white,
+              child: ListView.builder(
+                itemCount: paymentrequestTransactions.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 20.0, vertical: 5.0),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: SizedBox(
+                        height: insideCardHeight,
+                        child: ListTile(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => IncomingPaymentRequest(
+                                  paymentrequestTransaction:
+                                      paymentrequestTransactions[index],
+                                ),
+                              ),
+                            );
+                          },
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.orange,
+                            child: Icon(
+                              Icons.person,
+                              color: Colors.white,
+                              size: insideCardHeight * 0.75,
+                            ),
+                          ),
+                          title: Text(
+                            paymentrequestTransactions[index].receiver,
+                            style:
+                                TextStyle(fontSize: insideCardHeight * 0.325),
+                          ),
+                          subtitle: Row(
+                            children: [
+                              Text(
+                                DateFormat('dd-MM-yyyy').format(
+                                    paymentrequestTransactions[index].date),
+                                style:
+                                    TextStyle(fontSize: insideCardHeight * 0.225),
+                              ),
+                            ],
+                          ),
+                          trailing: Icon(Icons.more_vert,
+                              color: const Color.fromARGB(255, 0, 0, 0),
+                              size: insideCardHeight * 0.5),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
   }
 }

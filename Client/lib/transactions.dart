@@ -5,6 +5,7 @@ import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/agreementPage.dart';
 import 'package:lendpay/api_helper.dart';
+import 'package:lendpay/singleAgreementPage.dart';
 import 'package:lendpay/singleTransaction.dart';
 
 class TransactionsPage extends StatefulWidget {
@@ -105,7 +106,7 @@ class _TransactionsState extends State<TransactionsPage> {
 
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => SingleTransactionsPage(transaction: transaction)));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:transaction)));
       },
       child: Align(
         alignment: isCredit ? Alignment.centerLeft : Alignment.centerRight,

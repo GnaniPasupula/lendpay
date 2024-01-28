@@ -78,7 +78,7 @@ class ApiHelper {
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
-        log(response.body);
+        // log(response.body);
         final List<User> users = jsonData
             .map((data) => User.fromJson(data))
             .toList();
@@ -106,7 +106,7 @@ class ApiHelper {
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
-        log(response.body);
+        // log(response.body);
         final List<subTransactions> transactions = jsonData
             .map((data) => subTransactions.fromJson(data))
             .toList();
@@ -450,4 +450,61 @@ class ApiHelper {
     }
   }
 
+  static Future<Transaction> getLoan(String transactionID) async {
+    final url = '$baseUrl/getLoan';
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'transactionID': transactionID,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final dynamic jsonData = json.decode(response.body);
+        final Transaction loan = Transaction.fromJson(jsonData);
+        return loan;
+      } else {
+        throw Exception('Failed to fetch loan');
+      }
+    } catch (e) {
+      throw Exception('Error fetching loan: $e');
+    }
+  }
+
+  static Future<List<subTransactions>> fetchSubTransactionsOfTransaction(String transactionID) async {
+    final url = '$baseUrl/subtransactions/$transactionID';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+        }
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        final List<subTransactions> subTransactionss = jsonData
+            .map((dynamic item) => subTransactions.fromJson(item))
+            .toList();
+
+        return subTransactionss;
+      } else {
+        throw Exception('Failed to fetch subTransactions');
+      }
+    } catch (e) {
+      throw Exception('Error fetching subTransactions: $e');
+    }
+  }
 }
