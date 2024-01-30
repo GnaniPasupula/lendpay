@@ -44,14 +44,15 @@ router.post('/signin', async (req, res) => {
 
       const payLoad={
         userId:user._id,
-        userEmail:user.email
+        userEmail:user.email,
+        timestamp: new Date().getTime()
       }
 
       // console.log("Payload"+payLoad);
 
       const authToken = jwt.sign(payLoad, process.env.SECRET_KEY);
 
-      // console.log(authToken);
+      console.log(authToken);
   
       res.status(200).json({ message: 'Signin successful', token: authToken });
 

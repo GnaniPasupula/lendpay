@@ -4,6 +4,7 @@ import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/Providers/transaction_provider.dart';
 import 'package:lendpay/dashboard.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import './auth_screen.dart'; 
 
 void main() {
@@ -13,7 +14,6 @@ void main() {
         ChangeNotifierProvider(create: (context) => SubtransactionsProvider()),
         ChangeNotifierProvider(create: (context) => TransactionsProvider()),
         ChangeNotifierProvider(create: (context) => UserProvider()),
-        // Add more providers if needed
       ],
       child: MyApp(),
     ),
@@ -26,29 +26,35 @@ void main() {
   ];
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Your App Title',
       theme: ThemeData(
-        primarySwatch: MaterialColor(0xffef5454, <int, Color>{
-          50:  gradientColor[0],
-          100: gradientColor[0],
-          200: gradientColor[0],
-          300: gradientColor[0],
-          400: gradientColor[0],
-          500: gradientColor[0],
-          600: gradientColor[0],
-          700: gradientColor[0],
-          800: gradientColor[0],
-          900: gradientColor[0],
-        }),      
       ),
-      routes: {
-        '/': (ctx) => AuthScreen(), // Auth route
-        '/dashboard': (ctx) => Dashboard(), // Credit card screen route
-      },
+      home: FutureBuilder(
+        future: checkAuthToken(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.data == true) {
+              return Dashboard();
+            } else {
+              return AuthScreen();
+            }
+          } else {
+            return Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+        },
+      ),
     );
+  }
+
+  Future<bool> checkAuthToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final authToken = prefs.getString('authToken');
+
+    return authToken != null && authToken.isNotEmpty;
   }
 }
