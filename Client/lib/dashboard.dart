@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Models/subTransactions.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/allAgreementsPage.dart';
 import 'package:lendpay/incomingRequestPage.dart';
+import 'package:lendpay/profilePage.dart';
 import 'package:lendpay/singleTransaction.dart';
 import 'package:provider/provider.dart';
 import 'api_helper.dart';
@@ -72,7 +72,7 @@ class _DashboardState extends State<Dashboard> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 20.0), // Add right padding to the notifications button
+            padding: const EdgeInsets.only(right: 10.0), // Add right padding to the notifications button
             child: IconButton(
               icon: const Icon(Icons.notifications),
               onPressed: () {
@@ -83,11 +83,11 @@ class _DashboardState extends State<Dashboard> {
         ],
         backgroundColor: Colors.black, // Black background for the top bar
         leading: Padding(
-          padding: const EdgeInsets.only(left: 20.0), // Add left padding to the logout button
+          padding: const EdgeInsets.only(left: 10.0), // Add left padding to the logout button
           child: IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.person),
             onPressed: () {
-              // Handle logout button click
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfileScreen()));
             },
           ),
         ),
