@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   name:{type: String, required:true, default: "NoName"},
+  otp: { type: String },
   creditTransactions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction',required:true, default:[] }], 
   debitTransactions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction',required:true, default:[] }],
   requests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction',required:true, default:[] }],

@@ -19,9 +19,10 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController _signUpEmailController = TextEditingController();
   final TextEditingController _signUpPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController(); 
+  final TextEditingController _otpController = TextEditingController(); 
 
-  bool _isSignIn = true; // Initially set to Sign In
-  bool passwordsMatch = false; // Initialize passwordsMatch to false
+  bool _isSignIn = true; 
+  bool passwordsMatch = false;
 
    @override
   void initState() {
@@ -37,23 +38,27 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _signup() async {
-    const url = 'http://localhost:3000/auth/signup';
-    // const url = 'http://192.168.249.80:3000/auth/signup';
-    final response = await http.post(
-      Uri.parse(url),
-      body: json.encode({
-        'email': _signUpEmailController.text,
-        'password': _signUpPasswordController.text,
-      }),
-      headers: {'Content-Type': 'application/json'},
-    );
+    final url = 'http://localhost:3000/auth/signup';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: json.encode({
+          'email': _signUpEmailController.text,
+          'password': _signUpPasswordController.text,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 201) {
-      _showSuccessDialog('User registered successfully');
-    } else {
-      final responseBody = json.decode(response.body);
-      final errorMessage = responseBody['message'];
-      _showErrorDialog(errorMessage);
+      if (response.statusCode == 201) {
+        // Show OTP dialog after successful signup
+        _showOtpDialog();
+      } else {
+        final responseBody = json.decode(response.body);
+        final errorMessage = responseBody['message'];
+        _showErrorDialog(errorMessage);
+      }
+    } catch (error) {
+      print('Error during HTTP request: $error');
     }
   }
 
@@ -89,6 +94,57 @@ class _AuthScreenState extends State<AuthScreen> {
     catch (error) {
       print('Error during HTTP request: $error');
     }  
+  }
+
+  void _showOtpDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Enter OTP'),
+        content: Column(
+          children: [
+            TextField(
+              controller: _otpController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: 'OTP'),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop(); // Close OTP dialog
+              _validateOTP(); // Validate OTP
+            },
+            child: Text('Submit'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _validateOTP() async {
+    final url = 'http://localhost:3000/auth/verify-otp';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: json.encode({
+          'email': _signUpEmailController.text,
+          'otp': _otpController.text,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        _showSuccessDialog("Account created succesfully, sign in to continue");
+      } else {
+        final responseBody = json.decode(response.body);
+        final errorMessage = responseBody['message'];
+        _showErrorDialog(errorMessage);
+      }
+    } catch (error) {
+      print('Error during OTP validation: $error');
+    }
   }
 
   Future<void> getActiveUserDetails() async{
