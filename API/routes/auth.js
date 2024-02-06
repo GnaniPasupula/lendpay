@@ -117,5 +117,14 @@ router.post('/signin', async (req, res) => {
       res.status(500).json({ message: 'An error occurred' });
     }
 });
+
+router.post('/logout', async (req, res) => {
+  try {
+    res.status(200).json({ message: 'Logout successful' });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+});
   
 module.exports = router;

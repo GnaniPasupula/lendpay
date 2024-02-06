@@ -37,6 +37,10 @@ class _AuthScreenState extends State<AuthScreen> {
     });
   }
 
+  // Future<void> _logout() async {
+  //   await ApiHelper.logout(context);
+  // }
+
   Future<void> _signup() async {
     final url = 'http://localhost:3000/auth/signup';
     try {

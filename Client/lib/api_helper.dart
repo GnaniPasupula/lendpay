@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:html';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Models/subTransactions.dart';
+import 'package:lendpay/auth_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lendpay/Models/Transaction.dart';
 
@@ -507,4 +510,63 @@ class ApiHelper {
       throw Exception('Error fetching subTransactions: $e');
     }
   }
+
+static Future<void> changeName(String newName,String email) async {
+  final url = '$baseUrl/change-name';
+
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final authToken = prefs.getString('authToken');
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $authToken',
+      },
+      body: json.encode({'email': email, 'newName': newName}),
+    );
+
+    if (response.statusCode == 200) {
+      print('Name changed successfully');
+    } else {
+      final responseBody = json.decode(response.body);
+      final errorMessage = responseBody['message'];
+      print(errorMessage);
+    }
+  } catch (error) {
+    print('Error during HTTP request: $error');
+  }
+}
+
+
+  static Future<void> logout(BuildContext context) async {
+    const url = 'http://localhost:3000/auth/logout';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('authToken');
+        
+        // Navigate back to AuthScreen after logout
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => AuthScreen()),
+        );
+      } else {
+        final responseBody = json.decode(response.body);
+        final errorMessage = responseBody['message'];
+        print(errorMessage);
+        // _showErrorDialog(errorMessage);
+      }
+    } catch (error) {
+      print('Error during HTTP request: $error');
+    }
+  }
+
 }

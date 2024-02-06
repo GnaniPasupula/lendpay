@@ -555,4 +555,25 @@ router.get('/subtransactions/:transactionID', async (req, res) => {
   }
 });
 
+router.post('/change-name', async (req, res) => {
+  try {
+    const { email, newName } = req.body;
+
+    const user = await User.findOne({email:email});
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.name = newName;
+
+    await user.save();
+
+    res.status(200).json({ message: 'Name changed successfully' });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+});
+
 module.exports = router; 
