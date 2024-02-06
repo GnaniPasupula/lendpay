@@ -109,10 +109,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               TextButton(
                 onPressed: () {
-                  // Implement logic to change the password
                   if (newPassword == confirmNewPassword) {
-                    // Password change logic
-                    // You can call an API or update the state accordingly
+                    ApiHelper.changePassword(activeUser.email, oldPassword, newPassword);
                   }
                   Navigator.pop(context);
                 },

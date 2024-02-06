@@ -553,7 +553,6 @@ static Future<void> changeName(String newName,String email) async {
         final prefs = await SharedPreferences.getInstance();
         await prefs.remove('authToken');
         
-        // Navigate back to AuthScreen after logout
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => AuthScreen()),
@@ -566,6 +565,39 @@ static Future<void> changeName(String newName,String email) async {
       }
     } catch (error) {
       print('Error during HTTP request: $error');
+    }
+  }
+
+  static Future<void> changePassword(String email, String oldPassword, String newPassword) async {
+    final url = '$baseUrl/change-password'; 
+
+    try {
+
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $authToken',
+        },
+        body: jsonEncode({
+          'email': email,
+          'oldPassword': oldPassword,
+          'newPassword': newPassword,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Password changed successfully');
+      } else {
+        final responseBody = json.decode(response.body);
+        final errorMessage = responseBody['message'];
+        print('Error changing password: $errorMessage');
+      }
+    } catch (error) {
+      print('Error changing password: $error');
     }
   }
 
