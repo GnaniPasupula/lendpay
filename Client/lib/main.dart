@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/Providers/transaction_provider.dart';
@@ -20,17 +21,13 @@ void main() {
   );
 }
 
-  final List<Color> gradientColor = [
-    const Color(0xffffa31d),
-    const Color(0xffef5454),
-  ];
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Your App Title',
-      theme: ThemeData(
+      theme: ThemeData( 
+        fontFamily: GoogleFonts.inter().fontFamily,
       ),
       home: FutureBuilder(
         future: checkAuthToken(),
