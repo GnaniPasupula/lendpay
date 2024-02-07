@@ -72,83 +72,131 @@ class _RequestState extends State<Request>{
 
 @override
 Widget build(BuildContext context) {
-  double cardHeight = MediaQuery.of(context).size.height * 0.25; // Card height
+
+  double screenWidth = MediaQuery.of(context).size.width;
+  double screenHeight = MediaQuery.of(context).size.height;
+
+  double cardHeight = screenHeight * 0.25; 
   double insideCardHeight = cardHeight / 3.25;
 
+  // 375-260
+
+  double searchBarWidth=(screenWidth/375)*260;
+  double searchBarHeight=35;
+
+  
+  double textMultiplier = 1;
+  double widthMultiplier = 1;
+  // double textMultiplier = screenHeight/812;
+  // double widthMultiplier = screenWidth/375;
+  //H=812 , W=375
+
   return Scaffold(
+    backgroundColor: Color.fromRGBO(255, 255, 255, 1),
     appBar: AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: searchController,
-              decoration: const InputDecoration(
-                hintText: 'Search user',
-                prefixIcon: Icon(Icons.search),
-              ),
-              cursorColor: Colors.white,
-            ),
+      leadingWidth: (screenWidth-searchBarWidth-12)/2,
+      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+      elevation: 0,
+      iconTheme: IconThemeData(color: Colors.black),
+      title: 
+        Container(
+          width: searchBarWidth,
+          height: searchBarHeight,
+          decoration: BoxDecoration(
+            color: Color.fromRGBO(229, 229, 229, 1), 
+            borderRadius: BorderRadius.circular(5),
           ),
-          IconButton(
-            icon: const Icon(Icons.done),
-            onPressed: handleSearch,
-          )
-        ],
-      ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: searchController,
+                  style: TextStyle( 
+                    fontSize: textMultiplier * 12,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Search with email',
+                    hintStyle: TextStyle(
+                      fontSize: textMultiplier * 12,
+                      color: Color.fromRGBO(107, 114, 120, 1),
+                      fontWeight: FontWeight.w500,
+                    ),
+                    prefixIcon: Icon(Icons.search, color: Color.fromRGBO(0, 0, 0, 1)),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.done, color: Color.fromRGBO(0, 0, 0, 1)),
+                      onPressed: handleSearch,
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 7),
+                    border: InputBorder.none,
+                  ),
+                  cursorColor: Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
     ),
     body: searchedUsers.isEmpty
         ? Center(child: Text('No Users available.'))
-        : ClipRRect(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24.0), // Top left corner
-              topRight: Radius.circular(24.0), // Top right corner
-            ),
-            child: Container(
-              color: Colors.white, // Set the background color to white
-              child: ListView.builder(
-                itemCount: searchedUsers.length,
-                itemBuilder: (context, index) {
-                  final otheruser = searchedUsers.elementAt(index);
-
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: SizedBox(
-                        height: insideCardHeight, // Set the individual card's height
-                        child: ListTile(
-                          onTap: (){
-                            
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>TransactionsPage(otheruser: otheruser)));
-                          },
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.orange,
-                            child: Icon(Icons.person, color: Colors.white, size: insideCardHeight * 0.75),
+        : ListView.builder(
+              itemCount: searchedUsers.length,
+              itemBuilder: (context, index) {
+                final otheruser = searchedUsers.elementAt(index);
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 14.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Color.fromRGBO(229, 229, 229, 0.3),
+                    ),
+                    child: SizedBox(
+                      height: screenHeight * 0.07,
+                      width: screenWidth * 0.9,
+                      child:InkWell(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => TransactionsPage(otheruser: otheruser)));
+                        },
+                        child: Container(
+                          height: screenHeight * 0.07,
+                          width: screenWidth * 0.9,
+                          padding: EdgeInsets.symmetric(horizontal: 12), 
+                          decoration: BoxDecoration(
+                            color: Colors.transparent, 
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          title: Text(
-                            otheruser.email,
-                            style: TextStyle(fontSize: insideCardHeight * 0.325),
-                          ),
-                          subtitle: Row(
+                          child: Row(
                             children: [
-                              Text(otheruser.email, style: TextStyle(fontSize: insideCardHeight * 0.225)),
+                              CircleAvatar(
+                                radius: screenHeight * 0.07 * 0.75*0.5,
+                                backgroundColor: Color.fromRGBO(218, 218, 218, 1),
+                                child: Icon(Icons.person, color: const Color.fromARGB(255, 0, 0, 0), size: screenHeight * 0.07 * 0.75),
+                              ),
+                              SizedBox(width: 23*widthMultiplier), 
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    otheruser.name,
+                                    style: TextStyle(fontSize: textMultiplier * 14, color: Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
+                                  ),
+                                  Text(
+                                    otheruser.email,
+                                    style: TextStyle(fontSize: textMultiplier * 12, color: Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
-                          trailing: Icon(Icons.more_vert, color: const Color.fromARGB(255, 0, 0, 0), size: insideCardHeight * 0.5),
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
-          ),
-    );
+          );
   }
 }

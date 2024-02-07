@@ -136,7 +136,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: Color.fromRGBO(255, 255, 255, 1),
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.black),
-      
       ),
       body: Center(
         child: Container(
@@ -253,9 +252,8 @@ class ProfileOption extends StatelessWidget {
                     Icon(icon, size: 20 * textMultiplier, color: Color.fromRGBO(37, 113, 240, 1)),
                   ],
                 ),
-                SizedBox(width: 27 * widthMultiplier), 
+                SizedBox(width: 16 * widthMultiplier), 
                 Column(
-
                   mainAxisAlignment: (value != null && value.isNotEmpty) ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
