@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/User.dart';
+import 'package:lendpay/Providers/fetchUsers_provider.dart';
 import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/transactions.dart';
+import 'package:provider/provider.dart';
 
 class Request extends StatefulWidget{
   @override
@@ -13,16 +15,19 @@ class _RequestState extends State<Request>{
 
   TextEditingController searchController = TextEditingController();
 
-  List<User> searchedUsers = [];
-
   bool foundUser = false;
 
   late String username;
 
+  late FetchUserProvider fetchUserProvider;
+
   @override
   void initState() {
     super.initState();
-    fetchUsers();
+    fetchUserProvider = Provider.of<FetchUserProvider>(context, listen: false);
+    if (fetchUserProvider.users.isEmpty) {
+      fetchUserProvider.fetchUsers();
+    }
   }
 
   void handleSearch(){
@@ -31,18 +36,6 @@ class _RequestState extends State<Request>{
     });
     // print(username);
     verifyUser();
-  }
-
-
-  Future<void> fetchUsers() async{
-    try {
-      final List<User> users = await ApiHelper.fetchUsers();
-      setState(() {
-        searchedUsers=users;
-      });
-    } catch (e) {
-      print(e);
-    }
   }
 
   Future<void> verifyUser() async{
@@ -54,13 +47,13 @@ class _RequestState extends State<Request>{
           ErrorDialogWidget.show(context,"No user with that ID");
         }else{
           foundUser=true;
-          bool userExists = searchedUsers.any((user) => user.email==searchedUser.email);
+          bool userExists = fetchUserProvider.users.any((user) => user.email==searchedUser.email);
 
           if (!userExists) {
-            searchedUsers.add(searchedUser);
+            fetchUserProvider.users.add(searchedUser);
           } else {
-            searchedUsers.removeWhere((user) => user.email == searchedUser.email);
-            searchedUsers.add(searchedUser);
+            fetchUserProvider.users.removeWhere((user) => user.email == searchedUser.email);
+            fetchUserProvider.users.add(searchedUser);
           }
         }
       }); 
@@ -138,14 +131,14 @@ Widget build(BuildContext context) {
           ),
         ),
     ),
-    body: searchedUsers.isEmpty
+    body: fetchUserProvider.users.isEmpty
         ? Center(child: Text('No Users available.'))
         : ListView.builder(
-              itemCount: searchedUsers.length,
+              itemCount: fetchUserProvider.users.length,
               itemBuilder: (context, index) {
-                final otheruser = searchedUsers.elementAt(index);
+                final otheruser = fetchUserProvider.users.elementAt(fetchUserProvider.users.length-1-index);
                 return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 14.0),
+                  padding: EdgeInsets.only(left: 14,right: 14,bottom: 5*textMultiplier),
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
@@ -159,8 +152,6 @@ Widget build(BuildContext context) {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => TransactionsPage(otheruser: otheruser)));
                         },
                         child: Container(
-                          height: screenHeight * 0.07,
-                          width: screenWidth * 0.9,
                           padding: EdgeInsets.symmetric(horizontal: 12), 
                           decoration: BoxDecoration(
                             color: Colors.transparent, 
