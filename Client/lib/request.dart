@@ -1,12 +1,18 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/User.dart';
-import 'package:lendpay/Providers/fetchUsers_provider.dart';
+import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/transactions.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Request extends StatefulWidget{
+  final User activeUser;
+
+  Request({required this.activeUser});
+
   @override
   _RequestState createState() => _RequestState();
 }
@@ -16,19 +22,65 @@ class _RequestState extends State<Request>{
   TextEditingController searchController = TextEditingController();
 
   bool foundUser = false;
-
   late String username;
+  bool isLoading = true; 
 
-  late FetchUserProvider fetchUserProvider;
+  List<User> users = [];
+  late SharedPreferences prefs;
 
   @override
   void initState() {
     super.initState();
-    fetchUserProvider = Provider.of<FetchUserProvider>(context, listen: false);
-    if (fetchUserProvider.users.isEmpty) {
-      fetchUserProvider.fetchUsers();
+    fetchUsers();
+  }
+
+  Future<void> fetchUsers() async {
+    try {
+      prefs = await SharedPreferences.getInstance();
+      final List<String>? usersString = prefs.getStringList(widget.activeUser.email);
+      if (usersString != null) {
+        users = usersString.map((userString) => User.fromJson(jsonDecode(userString))).toList();
+      }
+      if (users.isEmpty) {
+        await fetchUsersFromAPI();
+      }
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ErrorDialogWidget.show(context, "Error fetching users");
+      print(e);
     }
   }
+
+  Future<void> fetchUsersFromAPI() async {
+    try {
+      // Fetch users from the API
+      final List<User> fetchedUsers = await ApiHelper.fetchUsers();
+      
+      // Update the local 'users' list
+      setState(() {
+        users = fetchedUsers;
+      });
+      
+      // Save the fetched users locally
+      saveUsersToPrefs();
+    } catch (e) {
+      // Handle error if API call fails
+      ErrorDialogWidget.show(context, "Error fetching users from API");
+      print(e);
+    }
+  }
+
+  Future<void> saveUsersToPrefs() async {
+    final List<String> usersString = users.map((user) => jsonEncode(user.toJson())).toList();
+    
+    await prefs.setStringList(widget.activeUser.email, usersString);
+  }
+
 
   void handleSearch(){
     setState(() {
@@ -38,27 +90,26 @@ class _RequestState extends State<Request>{
     verifyUser();
   }
 
-  Future<void> verifyUser() async{
-    try{
+  Future<void> verifyUser() async {
+    try {
       final User? searchedUser = await ApiHelper.verifyUser(username);
-      setState(() {
-        if(searchedUser==null){
-          foundUser=false;
-          ErrorDialogWidget.show(context,"No user with that ID");
-        }else{
-          foundUser=true;
-          bool userExists = fetchUserProvider.users.any((user) => user.email==searchedUser.email);
-
+      if (searchedUser == null) {
+        ErrorDialogWidget.show(context, "No user with that ID");
+      } else {
+        setState(() {
+          bool userExists = users.any((user) => user.email == searchedUser.email);
           if (!userExists) {
-            fetchUserProvider.users.add(searchedUser);
+            users.add(searchedUser);
+            saveUsersToPrefs();
           } else {
-            fetchUserProvider.users.removeWhere((user) => user.email == searchedUser.email);
-            fetchUserProvider.users.add(searchedUser);
+            users.removeWhere((user) => user.email == searchedUser.email);
+            users.add(searchedUser);
+            saveUsersToPrefs();
           }
-        }
-      }); 
-    }catch(e){ 
-      ErrorDialogWidget.show(context,"Error seaechiomg");
+        });
+      }
+    } catch (e) {
+      ErrorDialogWidget.show(context, "Error searching");
       print(e);
     }
   }
@@ -66,18 +117,22 @@ class _RequestState extends State<Request>{
 @override
 Widget build(BuildContext context) {
 
+  if (isLoading) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
   double screenWidth = MediaQuery.of(context).size.width;
   double screenHeight = MediaQuery.of(context).size.height;
-
-  double cardHeight = screenHeight * 0.25; 
-  double insideCardHeight = cardHeight / 3.25;
 
   // 375-260
 
   double searchBarWidth=(screenWidth/375)*260;
   double searchBarHeight=35;
 
-  
   double textMultiplier = 1;
   double widthMultiplier = 1;
   // double textMultiplier = screenHeight/812;
@@ -131,12 +186,12 @@ Widget build(BuildContext context) {
           ),
         ),
     ),
-    body: fetchUserProvider.users.isEmpty
+    body: users.isEmpty
         ? Center(child: Text('No Users available.'))
         : ListView.builder(
-              itemCount: fetchUserProvider.users.length,
+              itemCount: users.length,
               itemBuilder: (context, index) {
-                final otheruser = fetchUserProvider.users.elementAt(fetchUserProvider.users.length-1-index);
+                final otheruser = users.elementAt(users.length-1-index);
                 return Padding(
                   padding: EdgeInsets.only(left: 14,right: 14,bottom: 5*textMultiplier),
                   child: Container(
@@ -160,7 +215,7 @@ Widget build(BuildContext context) {
                           child: Row(
                             children: [
                               CircleAvatar(
-                                radius: screenHeight * 0.07 * 0.75*0.5,
+                                radius: screenHeight * 0.07 * 0.75 * 0.5,
                                 backgroundColor: Color.fromRGBO(218, 218, 218, 1),
                                 child: Icon(Icons.person, color: const Color.fromARGB(255, 0, 0, 0), size: screenHeight * 0.07 * 0.75),
                               ),

@@ -22,6 +22,8 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   List<subTransactions> allsubTransactions = [];
 
+  late User activeUserx;
+
   @override
   void initState() {
     super.initState();
@@ -47,6 +49,9 @@ class _DashboardState extends State<Dashboard> {
     try{
       final User activeUser = await ApiHelper.getActiveUser();
       Provider.of<UserProvider>(context,listen: false).setActiveUser(activeUser);
+      setState(() {
+        activeUserx=activeUser;
+      });
     }catch(e){
       print(e);
     }
@@ -134,7 +139,7 @@ class _DashboardState extends State<Dashboard> {
                               icon: Icon(Icons.request_page, color: const Color(0xFF999999), size: iconSize * 0.6),
                               onPressed: () {
                                 // Handle Transfer Money button click
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>Request()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>Request(activeUser:activeUserx)));
                               },
                             ),
                           ),

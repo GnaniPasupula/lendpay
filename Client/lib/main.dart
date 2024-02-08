@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
-import 'package:lendpay/Providers/fetchUsers_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/Providers/transaction_provider.dart';
 import 'package:lendpay/dashboard.dart';
@@ -16,7 +15,6 @@ void main() {
         ChangeNotifierProvider(create: (context) => SubtransactionsProvider()),
         ChangeNotifierProvider(create: (context) => TransactionsProvider()),
         ChangeNotifierProvider(create: (context) => UserProvider()),
-        ChangeNotifierProvider(create: (context) => FetchUserProvider())
       ],
       child: MyApp(),
     ),

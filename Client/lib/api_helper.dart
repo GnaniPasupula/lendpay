@@ -1,13 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Models/subTransactions.dart';
-import 'package:lendpay/Providers/fetchUsers_provider.dart';
 import 'package:lendpay/auth_screen.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lendpay/Models/Transaction.dart';
 
@@ -554,9 +551,6 @@ static Future<void> changeName(String newName,String email) async {
       if (response.statusCode == 200) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.remove('authToken');
-
-        final fetchuserProvider = Provider.of<FetchUserProvider>(context, listen: false);
-        fetchuserProvider.clearUsers();
 
         Navigator.pushReplacement(
           context,

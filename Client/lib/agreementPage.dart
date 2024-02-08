@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:lendpay/Models/User.dart';
+import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/api_helper.dart';
+import 'package:provider/provider.dart';
 
 class AgreementPage extends StatefulWidget {
   final int amount;
@@ -26,6 +28,7 @@ class _AgreementPageState extends State<AgreementPage> {
   late TextEditingController _periodAmountController;
   late TextEditingController _interestAmountController;
   late TextEditingController _cycleAmountController;
+
 
   @override
   void initState() {
@@ -56,12 +59,19 @@ class _AgreementPageState extends State<AgreementPage> {
 
     totalAmount=loanAmount+interestAmount;
 
+    UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
+
+
     return Scaffold(
+      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
       appBar: AppBar(
-        title: const Text('Agreement'),
+        title: Text('Profile', style: TextStyle(fontSize: 18,color: Color.fromRGBO(0, 0, 0, 1))),
+        backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.black),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal:16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -152,7 +162,7 @@ class _AgreementPageState extends State<AgreementPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildTextRow("From", "gnani"),
+                  _buildTextRow("From", userProvider.activeUser.email),
                   const SizedBox(height: 8.0),
                   _buildTextRow("To", widget.otheruser.email),
                   const SizedBox(height: 8.0),
@@ -180,44 +190,48 @@ class _AgreementPageState extends State<AgreementPage> {
                   Text("\$ $totalAmount ", style: const TextStyle(fontSize: 16.0,color: Colors.black,fontWeight: FontWeight.bold),),
                   Text("( \$ $breakdownAmount/Month)", style: const TextStyle(fontSize: 12.0,color: Colors.black),),
                   ],),
-                SizedBox(
-                  width: 150,
-                  height: 30,
-                  child: TextButton(
-                  onPressed: () {
-                    // Show a confirmation dialog
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text("Confirm Transaction Request"),
-                          content: const Text("Are you sure you want to send the transaction request?"),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop(); 
-                              },
-                              child: const Text("Cancel"),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                // Perform the transaction request here
-                                ApiHelper.sendTransactionRequest(receiverEmail:widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text("Confirm"),
-                            ),
-                          ],
+                  Container(
+                    width: 150,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        // Show a confirmation dialog
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Confirm Transaction Request"),
+                              content: const Text("Are you sure you want to send the transaction request?"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop(); 
+                                  },
+                                  child: const Text("Cancel"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    // Perform the transaction request here
+                                    ApiHelper.sendTransactionRequest(receiverEmail:widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text("Confirm"),
+                                ),
+                              ],
+                            );
+                          },
                         );
                       },
-                    );
-                  },
-                    child: const Text("Request", style: TextStyle(color: Colors.white)),
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                      child: const Text("Request", style: TextStyle(color: Colors.white)),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                      ),
                     ),
                   ),
-                )
+
               ],
             )
           ],
@@ -238,7 +252,6 @@ class _AgreementPageState extends State<AgreementPage> {
             color: Colors.black,
           ),
         ),
-        const Spacer(),
         Flexible(
           child: Text(
             value.toString(),
@@ -255,16 +268,16 @@ class _AgreementPageState extends State<AgreementPage> {
   Widget _buildFormBox(TextEditingController controller, String label, String variable){
     return  SizedBox(
       width: 100.0,
-      height: 80.0,
+      height: 70.0,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(0.0),
+          borderRadius: BorderRadius.circular(10.0),
           border: Border.all(color: Colors.grey.shade200),
           color: Colors.grey[100],
         ),
         child: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Flexible(
