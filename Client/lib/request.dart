@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/User.dart';
-import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/transactions.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Request extends StatefulWidget{
@@ -58,18 +56,14 @@ class _RequestState extends State<Request>{
 
   Future<void> fetchUsersFromAPI() async {
     try {
-      // Fetch users from the API
       final List<User> fetchedUsers = await ApiHelper.fetchUsers();
       
-      // Update the local 'users' list
       setState(() {
         users = fetchedUsers;
       });
       
-      // Save the fetched users locally
       saveUsersToPrefs();
     } catch (e) {
-      // Handle error if API call fails
       ErrorDialogWidget.show(context, "Error fetching users from API");
       print(e);
     }
@@ -118,7 +112,7 @@ class _RequestState extends State<Request>{
 Widget build(BuildContext context) {
 
   if (isLoading) {
-      return Scaffold(
+      return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
@@ -204,7 +198,7 @@ Widget build(BuildContext context) {
                       width: screenWidth * 0.9,
                       child:InkWell(
                         onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => TransactionsPage(otheruser: otheruser)));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => TransactionsPage(otheruser: otheruser,activeuser: widget.activeUser,)));
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 12), 

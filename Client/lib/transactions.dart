@@ -1,39 +1,33 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
+import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/agreementPage.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/singleAgreementPage.dart';
 import 'package:lendpay/singleTransaction.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TransactionsPage extends StatefulWidget {
   final User otheruser;
+  final User activeuser;
 
-  TransactionsPage({required this.otheruser});
+  TransactionsPage({required this.otheruser,required this.activeuser});
+  
 
   @override
   _TransactionsState createState() => _TransactionsState();
 }
 
 class _TransactionsState extends State<TransactionsPage> {
-  List<Transaction> allTransactionsUser = [];
   TextEditingController messageController = TextEditingController();
 
-  Future<void> _fetchTransactions() async {
-    try {
-      final List<Transaction> transactions =
-          await ApiHelper.fetchUserTransactions(widget.otheruser.email);
-      setState(() {
-        allTransactionsUser = transactions;
-      });
-      // print(allTransactionsUser);
-    } catch (e) {
-      print(e);
-      // Handle error and show a proper error message to the user
-    }
-  }
+  List<Transaction> allTransactionsUser = [];
+  late SharedPreferences prefs;
+
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -41,8 +35,79 @@ class _TransactionsState extends State<TransactionsPage> {
     _fetchTransactions();
   }
 
+  void updateTransactions(Transaction transaction) {
+    setState(() {
+      allTransactionsUser.insert(0, transaction); 
+    });
+    saveTransactionsToPrefs();
+  }
+
+  Future<void> _fetchTransactions() async {
+    try {
+      prefs = await SharedPreferences.getInstance();
+      final List<String>? transactionsString =
+          prefs.getStringList('${widget.otheruser.email}/transactions');
+
+      if (transactionsString != null) {
+        allTransactionsUser = transactionsString
+            .map((transactionString) =>
+                Transaction.fromJson(jsonDecode(transactionString)))
+            .toList();
+      }
+
+      if (allTransactionsUser.isEmpty) {
+        await fetchTransactionsFromAPI();
+      }
+
+      setState(() {
+        isLoading = false;
+      });
+
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ErrorDialogWidget.show(context, "Error fetching transactions");
+      print(e);
+    }
+  }
+
+
+  Future<void> fetchTransactionsFromAPI() async {
+    try {
+      final List<Transaction> fetchedTransactions = await ApiHelper.fetchUserTransactions(widget.otheruser.email);
+
+      setState(() {
+        allTransactionsUser = fetchedTransactions;
+      });
+
+      saveTransactionsToPrefs();
+    } catch (e) {
+      ErrorDialogWidget.show(context, "Error fetching transactions from API");
+      print(e);
+    }
+  }
+
+
+  Future<void> saveTransactionsToPrefs() async {
+    final List<String> transactionsString = allTransactionsUser
+        .map((transaction) => jsonEncode(transaction.toJson()))
+        .toList();
+
+    await prefs.setStringList('${widget.otheruser.email}/transactions', transactionsString);
+  }
+
+
   @override
   Widget build(BuildContext context) {
+
+      if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
