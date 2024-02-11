@@ -1,13 +1,21 @@
+import 'dart:convert';
+import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
-import 'package:lendpay/Providers/transaction_provider.dart';
+import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/singleAgreementPage.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:provider/provider.dart';
 
 class AllAgreementsPage extends StatefulWidget {
+  final User activeUser;
+
+  AllAgreementsPage({required this.activeUser});
+
   @override
   _AllAgreementsPageState createState() => _AllAgreementsPageState();
 }
@@ -16,24 +24,68 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
 
   List<Transaction> allTransactions = [];
 
+  late SharedPreferences prefs;
+  bool isLoading = true;
+
   @override
   void initState() {
     super.initState();
-    _fetchTransactions();
+    _fetchAllTransactions();
   }
 
-  Future<void> _fetchTransactions() async {
+  Future<void> _fetchAllTransactions() async {
     try {
-      final List<Transaction> transactions = await ApiHelper.fetchUserLoans();
-      Provider.of<TransactionsProvider>(context, listen: false).setAllTransactions(transactions);
+      prefs = await SharedPreferences.getInstance();
+      final List<String>? transactionsString =
+          prefs.getStringList('${widget.activeUser.email}/alltransactions');
+
+      if (transactionsString != null) {
+        allTransactions = transactionsString
+            .map((transactionString) =>
+                Transaction.fromJson(jsonDecode(transactionString)))
+            .toList();
+      }
+
+      if (allTransactions.isEmpty) {
+        await fetchAllTransactionsFromAPI();
+      }
+
       setState(() {
-        allTransactions=transactions;
+        isLoading = false;
       });
-      // print('all transactions = ${allTransactions}');
+
     } catch (e) {
-      print(e);
-      // Handle error and show a proper error message to the user
+      setState(() {
+        isLoading = false;
+      });
+      ErrorDialogWidget.show(context, "Error fetching transactions");
+      print("Error: Fetching transaction details from local storage ${e}");
     }
+  }
+
+
+  Future<void> fetchAllTransactionsFromAPI() async {
+    try {
+      final List<Transaction> fetchedTransactions = await ApiHelper.fetchUserLoans();
+
+      setState(() {
+        allTransactions = fetchedTransactions;
+      });
+
+      saveTransactionsToPrefs();
+    } catch (e) {
+      ErrorDialogWidget.show(context, "Error fetching transactions from API");
+      print(e);
+    }
+  }
+
+
+  Future<void> saveTransactionsToPrefs() async {
+    final List<String> transactionsString = allTransactions
+        .map((transaction) => jsonEncode(transaction.toJson()))
+        .toList();
+
+    await prefs.setStringList('${widget.activeUser.email}/alltransactions', transactionsString);
   }
 
   TextEditingController searchController = TextEditingController();
@@ -70,83 +122,129 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
 
   @override
   Widget build(BuildContext context) {
-    double cardHeight = MediaQuery.of(context).size.height * 0.25; // Card height
-    double insideCardHeight = cardHeight / 3.25;
+
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    // 375-260
+
+    double searchBarWidth=(screenWidth/375)*260;
+    double searchBarHeight=35;
+
+    double textMultiplier = 1;
+    double widthMultiplier = 1;
 
     return Scaffold(
     appBar: AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: searchController,
-              decoration: const InputDecoration(
-                hintText: 'Search user',
-                prefixIcon: Icon(Icons.search),
-              ),
-              cursorColor: Colors.white,
-            ),
+      leadingWidth: (screenWidth-searchBarWidth-12)/2,
+      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+      elevation: 0,
+      iconTheme: IconThemeData(color: Colors.black),
+      title: 
+        Container(
+          width: searchBarWidth,
+          height: searchBarHeight,
+          decoration: BoxDecoration(
+            color: Color.fromRGBO(229, 229, 229, 1), 
+            borderRadius: BorderRadius.circular(5),
           ),
-          IconButton(
-            icon: const Icon(Icons.done),
-            onPressed: handleSearch,
-          )
-        ],
-      ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: searchController,
+                  style: TextStyle( 
+                    fontSize: textMultiplier * 12,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Search with email',
+                    hintStyle: TextStyle(
+                      fontSize: textMultiplier * 12,
+                      color: Color.fromRGBO(107, 114, 120, 1),
+                      fontWeight: FontWeight.w500,
+                    ),
+                    prefixIcon: Icon(Icons.search, color: Color.fromRGBO(0, 0, 0, 1)),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.done, color: Color.fromRGBO(0, 0, 0, 1)),
+                      onPressed: handleSearch,
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 7),
+                    border: InputBorder.none,
+                  ),
+                  cursorColor: Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
     ),
     body: allTransactions.isEmpty
-        ? Center(child: Text('No Users available.'))
-        : ClipRRect(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24.0), // Top left corner
-              topRight: Radius.circular(24.0), // Top right corner
-            ),
-            child: Container(
-              color: Colors.white, // Set the background color to white
-              child: ListView.builder(
-                itemCount: allTransactions.length,
-                itemBuilder: (context, index) {
-                  final otheruser = allTransactions.elementAt(index);
-
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: SizedBox(
-                        height: insideCardHeight, // Set the individual card's height
-                        child: ListTile(
-                          onTap: (){
-                            
+        ? Center(child: Text('No Loans available.'))
+        : ListView.builder(
+              itemCount: allTransactions.length,
+              itemBuilder: (context, index) {
+                final otheruser = allTransactions.elementAt(allTransactions.length-1-index);
+                return Padding(
+                  padding: EdgeInsets.only(left: 14,right: 14,bottom: 5*textMultiplier),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Color.fromRGBO(229, 229, 229, 0.3),
+                    ),
+                    child: SizedBox(
+                      height: screenHeight * 0.07,
+                      width: screenWidth * 0.9,
+                      child:InkWell(
+                        onTap: () {
                             Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:allTransactions[index])));
-                          },
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.orange,
-                            child: Icon(Icons.person, color: Colors.white, size: insideCardHeight * 0.75),
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12), 
+                          decoration: BoxDecoration(
+                            color: Colors.transparent, 
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          title: Text(
-                            otheruser.sender,
-                            style: TextStyle(fontSize: insideCardHeight * 0.325),
-                          ),
-                          subtitle: Row(
+                          child: Row(
                             children: [
-                              Text(otheruser.sender, style: TextStyle(fontSize: insideCardHeight * 0.225)),
+                              CircleAvatar(
+                                radius: screenHeight * 0.07 * 0.75 * 0.5,
+                                backgroundColor: Color.fromRGBO(218, 218, 218, 1),
+                                child: Icon(Icons.person, color: const Color.fromARGB(255, 0, 0, 0), size: screenHeight * 0.07 * 0.75),
+                              ),
+                              SizedBox(width: 23*widthMultiplier), 
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    otheruser.sender,
+                                    style: TextStyle(fontSize: textMultiplier * 14, color: Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
+                                  ),
+                                  Text(
+                                    otheruser.receiver,
+                                    style: TextStyle(fontSize: textMultiplier * 12, color: Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
-                          trailing: Icon(Icons.more_vert, color: const Color.fromARGB(255, 0, 0, 0), size: insideCardHeight * 0.5),
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
-          ),
     );
   }
 }

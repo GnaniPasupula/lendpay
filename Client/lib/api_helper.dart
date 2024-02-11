@@ -151,10 +151,10 @@ class ApiHelper {
             .toList();
         return transactions;
       } else {
-        throw Exception('Failed to load transactions');
+        throw Exception('Failed to load User transactions');
       }
     } catch (e) {
-      throw Exception('Error fetching transactions: $e');
+      throw Exception('Error fetching User transactions: $e');
     }
   }
 

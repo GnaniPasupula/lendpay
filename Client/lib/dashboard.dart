@@ -162,8 +162,7 @@ class _DashboardState extends State<Dashboard> {
                             child: IconButton(
                               icon: Icon(Icons.handshake, color: const Color(0xFF999999), size: iconSize * 0.6),
                               onPressed: () {
-                                // Handle Transfer Money button click
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>AllAgreementsPage()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>AllAgreementsPage(activeUser:activeUserx)));
                               },
                             ),
                           ),
