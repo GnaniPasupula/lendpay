@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/api_helper.dart';
@@ -9,8 +10,9 @@ import 'package:provider/provider.dart';
 class AgreementPage extends StatefulWidget {
   final int amount;
   final User otheruser;
+  final void Function(Transaction) updateTransactions;
 
-  AgreementPage({required this.amount, required this.otheruser});
+  AgreementPage({required this.amount, required this.otheruser, required this.updateTransactions});
 
   @override
   _AgreementPageState createState() => _AgreementPageState();
@@ -213,9 +215,9 @@ class _AgreementPageState extends State<AgreementPage> {
                                   child: const Text("Cancel"),
                                 ),
                                 TextButton(
-                                  onPressed: () {
-                                    // Perform the transaction request here
-                                    ApiHelper.sendTransactionRequest(receiverEmail:widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
+                                  onPressed: () async {
+                                    Transaction newTransaction = await ApiHelper.sendTransactionRequest(receiverEmail:widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
+                                    widget.updateTransactions(newTransaction);
                                     Navigator.of(context).pop();
                                   },
                                   child: const Text("Confirm"),

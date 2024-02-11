@@ -68,7 +68,7 @@ class _TransactionsState extends State<TransactionsPage> {
         isLoading = false;
       });
       ErrorDialogWidget.show(context, "Error fetching transactions");
-      print(e);
+      print("Error: Fetching transaction details from local storage ${e}");
     }
   }
 
@@ -201,7 +201,7 @@ class _TransactionsState extends State<TransactionsPage> {
                       suffixIcon: IconButton(
                         icon: Icon(Icons.send, color: Color.fromRGBO(0, 0, 0, 1)),
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => AgreementPage(amount: int.parse(messageController.text), otheruser: widget.otheruser)));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => AgreementPage(amount: int.parse(messageController.text), otheruser: widget.otheruser, updateTransactions: updateTransactions)));
                         },
                       ),
                       contentPadding: EdgeInsets.symmetric(vertical: 7, horizontal: 8), 

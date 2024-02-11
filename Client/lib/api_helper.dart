@@ -213,7 +213,7 @@ class ApiHelper {
     }
   }
 
-  static Future<void> sendTransactionRequest({
+  static Future<Transaction> sendTransactionRequest({
     required String receiverEmail,
     required int amount,
     required String startDate,
@@ -249,7 +249,9 @@ class ApiHelper {
       );
 
       if (response.statusCode == 200) {
-        log('Transaction request sent successfully');
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final transaction = Transaction.fromJson(responseData['transaction']);
+        return transaction;
       } else if (response.statusCode == 404) {
         log('Sender or receiver not found');
         throw Exception('Sender or receiver not found');

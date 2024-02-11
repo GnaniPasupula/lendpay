@@ -63,14 +63,18 @@ class Transaction {
   }
 
   Map<String, dynamic> toJson() {
+
+    final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
+    final DateFormat timeFormat = DateFormat('HH:mm');
+
     return {
       '_id': id,
       'sender': sender,
       'receiver': receiver,
       'amount': amount,
-      'time': time,
-      'startDate': startDate,
-      'endDate': endDate,
+      'time': timeFormat.format(time),
+      'startDate': dateFormat.format(startDate),
+      'endDate': dateFormat.format(endDate),
       'interestRate': interestRate,
       'paymentCycle': paymentCycle,
       'subAmount': subAmount,
