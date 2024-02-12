@@ -34,7 +34,7 @@ class Transaction {
     required this.totalAmount,
     required this.amountPaid,
     required this.note,
-    required this.type
+    required this.type,
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
@@ -58,7 +58,7 @@ class Transaction {
       totalAmount: json['totalAmount'],
       amountPaid: json['amountPaid'],
       note: json['note'],
-      type: json['type']
+      type: json['type'],
     );
   }
 
@@ -83,7 +83,7 @@ class Transaction {
       'totalAmount': totalAmount,
       'amountPaid': amountPaid,
       'note': note,
-      'type': type
+      'type': type,
     };
   }
 }

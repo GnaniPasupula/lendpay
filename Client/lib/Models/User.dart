@@ -11,6 +11,7 @@ class User {
   double totalDebit;
   List<String> previousUsers;
   List<String> subTransactions;
+  String fCMToken;
   
   User({
     // required this.id,
@@ -24,7 +25,8 @@ class User {
     required this.totalCredit,
     required this.totalDebit,
     required this.previousUsers,
-    required this.subTransactions
+    required this.subTransactions,
+    required this.fCMToken
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,7 @@ class User {
       totalDebit: json['totalDebit'].toDouble(),
       previousUsers: List<String>.from(json['previousUsers']),
       subTransactions: List<String>.from(json['subTransactions']),
+      fCMToken: json['fCMToken']
     );
   }
 
@@ -57,7 +60,8 @@ class User {
       'totalCredit': totalCredit,
       'totalDebit': totalDebit,
       'previousUsers': previousUsers,
-      'subTransactions': subTransactions
+      'subTransactions': subTransactions,
+      'fCMToken': fCMToken
     };
   }
 }

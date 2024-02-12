@@ -42,7 +42,9 @@ class _AuthScreenState extends State<AuthScreen> {
   // }
 
   Future<void> _signup() async {
-    final url = 'http://localhost:3000/auth/signup';
+    // final url = 'http://localhost:3000/auth/signup';
+    const url = 'http://192.168.0.103:3000/auth/signup';
+
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -67,8 +69,8 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _signin() async {
-    final url = 'http://localhost:3000/auth/signin';
-    // const url = 'http://192.168.249.80:3000/auth/signin';
+    // final url = 'http://localhost:3000/auth/signin';
+    const url = 'http://192.168.0.103:3000/auth/signin';
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -128,7 +130,9 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _validateOTP() async {
-    final url = 'http://localhost:3000/auth/verify-otp';
+    //final url = 'http://localhost:3000/auth/verify-otp';
+    const url = 'http://192.168.0.103:3000/auth/verify-otp';
+
     try {
       final response = await http.post(
         Uri.parse(url),

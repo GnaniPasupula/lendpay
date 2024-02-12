@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:lendpay/API/firebase_api.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
+import 'package:lendpay/Providers/fCMToken_provider.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:provider/provider.dart';
 
@@ -62,7 +64,7 @@ class _AgreementPageState extends State<AgreementPage> {
     totalAmount=loanAmount+interestAmount;
 
     UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-
+    FCMTokenProvider fcmTokenProvider = Provider.of<FCMTokenProvider>(context,listen: false);
 
     return Scaffold(
       backgroundColor: Color.fromRGBO(255, 255, 255, 1),
@@ -218,6 +220,7 @@ class _AgreementPageState extends State<AgreementPage> {
                                   onPressed: () async {
                                     Transaction newTransaction = await ApiHelper.sendTransactionRequest(receiverEmail:widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
                                     widget.updateTransactions(newTransaction);
+                                    await FirebaseApi().sendNotificationToUser(receiverToken: fcmTokenProvider.fCMToken, title: "Loan", body: userProvider.activeUser.email);
                                     Navigator.of(context).pop();
                                   },
                                   child: const Text("Confirm"),

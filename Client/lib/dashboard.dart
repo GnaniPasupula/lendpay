@@ -1,7 +1,10 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:lendpay/API/firebase_api.dart';
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Models/subTransactions.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
+import 'package:lendpay/Providers/fCMToken_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/allAgreementsPage.dart';
 import 'package:lendpay/incomingRequestPage.dart';
@@ -51,7 +54,18 @@ class _DashboardState extends State<Dashboard> {
       Provider.of<UserProvider>(context,listen: false).setActiveUser(activeUser);
       setState(() {
         activeUserx=activeUser;
+        _getfCMToken();
       });
+    }catch(e){
+      print(e);
+    }
+  }
+
+  Future<void> _getfCMToken() async{
+    try{
+      String? fCMToken = await FirebaseApi().getfCMToken();
+      Provider.of<FCMTokenProvider>(context,listen: false).setfCMToken(fCMToken!);
+      await ApiHelper.storeFCMToken(activeUserx.email, fCMToken);
     }catch(e){
       print(e);
     }

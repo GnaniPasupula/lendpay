@@ -9,7 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lendpay/Models/Transaction.dart';
 
 class ApiHelper {
-  static final String baseUrl = 'http://localhost:3000/lendpay';
+  // static final String baseUrl = 'http://localhost:3000/lendpay';
+  static final String baseUrl = 'http://192.168.0.103:3000/lendpay';
 
   static Future<User?> verifyUser(String email) async {
     final url = '$baseUrl/users/$email';
@@ -62,6 +63,34 @@ class ApiHelper {
 
     } catch (e) {
       throw Exception('Error fetching user data after login: $e');
+    }
+  }
+
+  static Future<void> storeFCMToken(String email, String fCMToken) async {
+    final url = '$baseUrl/store-fcm-token';
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'email': email, 'fCMToken': fCMToken}),
+      );
+
+      if (response.statusCode == 200) {
+        print('FCM token stored successfully');
+      } else if (response.statusCode == 404) {
+        print('User not found');
+        throw Exception('User not found');
+      } else {
+        throw Exception('Failed to store FCM token');
+      }
+    } catch (e) {
+      throw Exception('Error storing FCM token: $e');
     }
   } 
 
@@ -542,7 +571,8 @@ static Future<void> changeName(String newName,String email) async {
 
 
   static Future<void> logout(BuildContext context) async {
-    const url = 'http://localhost:3000/auth/logout';
+    // const url = 'http://localhost:3000/auth/logout';
+    const url = 'http://192.168.0.103:3000/auth/logout';
 
     try {
       final response = await http.post(

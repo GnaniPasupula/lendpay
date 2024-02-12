@@ -606,4 +606,25 @@ router.post('/change-password', async (req, res) => {
   }
 });
 
+router.post('/store-fcm-token', async (req, res) => {
+  try {
+    const { email, fCMToken } = req.body;
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.fCMToken = fCMToken;
+    await user.save();
+
+    return res.status(200).json({ message: 'FCM token stored successfully' });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+});
+
 module.exports = router; 

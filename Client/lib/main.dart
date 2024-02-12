@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lendpay/API/firebase_api.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
+import 'package:lendpay/Providers/fCMToken_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/dashboard.dart';
 import 'package:lendpay/firebase_options.dart';
@@ -20,6 +21,7 @@ void main() async{
       providers: [
         ChangeNotifierProvider(create: (context) => SubtransactionsProvider()),
         ChangeNotifierProvider(create: (context) => UserProvider()),
+        ChangeNotifierProvider(create: (context) => FCMTokenProvider()),
       ],
       child: MyApp(),
     ),
