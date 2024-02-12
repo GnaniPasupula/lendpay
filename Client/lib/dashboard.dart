@@ -65,7 +65,7 @@ class _DashboardState extends State<Dashboard> {
     try{
       String? fCMToken = await FirebaseApi().getfCMToken();
       Provider.of<FCMTokenProvider>(context,listen: false).setfCMToken(fCMToken!);
-      await ApiHelper.storeFCMToken(activeUserx.email, fCMToken);
+      await ApiHelper.storeFCMToken(activeUserx.email, fCMToken+activeUserx.email);
     }catch(e){
       print(e);
     }

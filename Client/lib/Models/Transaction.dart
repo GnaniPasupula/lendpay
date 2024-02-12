@@ -4,17 +4,17 @@ class Transaction {
   final String id;
   final String sender;
   final String receiver;
-  final int amount;
+  final num amount;
   final DateTime time;
   final DateTime startDate;
   final DateTime endDate;
-  final int interestRate;
-  final int paymentCycle; 
-  final double subAmount;
-  final int loanPeriod; 
-  final double interestAmount;
-  final double totalAmount;
-  final double amountPaid;
+  final num interestRate;
+  final num paymentCycle; 
+  final num subAmount;
+  final num loanPeriod; 
+  final num interestAmount;
+  final num totalAmount;
+  final num amountPaid;
   final String note;
   final String type;
 

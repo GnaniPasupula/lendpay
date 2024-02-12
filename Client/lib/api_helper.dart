@@ -244,15 +244,15 @@ class ApiHelper {
 
   static Future<Transaction> sendTransactionRequest({
     required String receiverEmail,
-    required int amount,
+    required num amount,
     required String startDate,
     required String endDate,
-    required int interestRate,
-    required int paymentCycle,
-    required double subAmount,
-    required int loanPeriod,
-    required double interestAmount,
-    required double totalAmount,
+    required num interestRate,
+    required num paymentCycle,
+    required num subAmount,
+    required num loanPeriod,
+    required num interestAmount,
+    required num totalAmount,
   }) async {
     final url = '$baseUrl/request';
 
@@ -295,15 +295,15 @@ class ApiHelper {
   static Future<void> acceptTransactionRequest({
     required String requestTransactionID,
     required String senderEmail,
-    required int amount,
+    required num amount,
     required String startDate,
     required String endDate,
-    required int interestRate,
-    required int paymentCycle,
-    required double subAmount,
-    required int loanPeriod,
-    required double interestAmount,
-    required double totalAmount,
+    required num interestRate,
+    required num paymentCycle,
+    required num subAmount,
+    required num loanPeriod,
+    required num interestAmount,
+    required num totalAmount,
   }) async {
     final url = '$baseUrl/acceptrequest';
 
@@ -379,7 +379,7 @@ class ApiHelper {
 
   static Future<void> sendTransactionPaymentRequest({
     required String transactionID,
-    required double paidAmount,
+    required num paidAmount,
     required String date,
     }) async {
     final url = '$baseUrl/requestpayment';

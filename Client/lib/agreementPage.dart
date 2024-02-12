@@ -10,7 +10,7 @@ import 'package:lendpay/api_helper.dart';
 import 'package:provider/provider.dart';
 
 class AgreementPage extends StatefulWidget {
-  final int amount;
+  final num amount;
   final User otheruser;
   final void Function(Transaction) updateTransactions;
 
@@ -21,13 +21,13 @@ class AgreementPage extends StatefulWidget {
 }
 
 class _AgreementPageState extends State<AgreementPage> {
-  late int loanAmount;
-  late int period;
-  late int interest;
-  late int cycle;
-  late double totalAmount;
-  late double interestAmount;
-  late double breakdownAmount;
+  late num loanAmount;
+  late num period;
+  late num interest;
+  late num cycle;
+  late num totalAmount;
+  late num interestAmount;
+  late num breakdownAmount;
   late TextEditingController _loanAmountController;
   late TextEditingController _periodAmountController;
   late TextEditingController _interestAmountController;
@@ -38,7 +38,7 @@ class _AgreementPageState extends State<AgreementPage> {
   void initState() {
     super.initState();
     loanAmount = widget.amount;
-    totalAmount=loanAmount as double;
+    totalAmount=loanAmount.toDouble();
     _loanAmountController = TextEditingController(text: loanAmount.toString());
     _periodAmountController = TextEditingController(text: "12");
     _interestAmountController = TextEditingController(text: "12");
@@ -51,17 +51,17 @@ class _AgreementPageState extends State<AgreementPage> {
     String todayDate = DateFormat('dd-MM-yyyy').format(today);
 
     period = int.tryParse(_periodAmountController.text) ?? 0;
-    DateTime endDate = today.add(Duration(days: period * 30));
+    DateTime endDate = today.add(Duration(days: period.toInt() * 30));
     String endDateFormatted = DateFormat('dd-MM-yyyy').format(endDate);
 
     interest = int.tryParse(_interestAmountController.text) ?? 0;
 
     cycle = int.tryParse(_cycleAmountController.text) ?? 0;
-    interestAmount = loanAmount*interest*period/(12*100);
+    interestAmount = loanAmount*interest*period/(12*100).toDouble();
     interestAmount = double.parse(interestAmount.toStringAsFixed(2));
     breakdownAmount = double.parse((totalAmount/period).toStringAsFixed(2));
 
-    totalAmount=loanAmount+interestAmount;
+    totalAmount=(loanAmount+interestAmount).toDouble();
 
     UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
     FCMTokenProvider fcmTokenProvider = Provider.of<FCMTokenProvider>(context,listen: false);
@@ -220,7 +220,7 @@ class _AgreementPageState extends State<AgreementPage> {
                                   onPressed: () async {
                                     Transaction newTransaction = await ApiHelper.sendTransactionRequest(receiverEmail:widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
                                     widget.updateTransactions(newTransaction);
-                                    await FirebaseApi().sendNotificationToUser(receiverToken: fcmTokenProvider.fCMToken, title: "Loan", body: userProvider.activeUser.email);
+                                    // await FirebaseApi().sendNotificationToUser(receiverToken: fcmTokenProvider.fCMToken, title: "Loan", body: userProvider.activeUser.email);
                                     Navigator.of(context).pop();
                                   },
                                   child: const Text("Confirm"),
