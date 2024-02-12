@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "810529450047",
+    "project_id": "lendpay-183d6",
+    "storage_bucket": "lendpay-183d6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:810529450047:android:d484d87f1ac7edd36bf08a",
+        "android_client_info": {
+          "package_name": "com.example.lendpay"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_Gjt0AwKlXsHkTH35pEzcIvY_fYjdveA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
