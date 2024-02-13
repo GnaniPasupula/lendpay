@@ -143,6 +143,7 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
     double widthMultiplier = 1;
 
     return Scaffold(
+      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
     appBar: AppBar(
       leadingWidth: (screenWidth-searchBarWidth-12)/2,
       backgroundColor: Color.fromRGBO(255, 255, 255, 1),
