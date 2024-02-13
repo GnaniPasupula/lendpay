@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Models/subTransactions.dart';
+import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/auth_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lendpay/Models/Transaction.dart';
 
@@ -292,7 +294,7 @@ class ApiHelper {
     }
   }
 
-  static Future<void> acceptTransactionRequest({
+  static Future<Transaction> acceptTransactionRequest({
     required String requestTransactionID,
     required String senderEmail,
     required num amount,
@@ -330,7 +332,9 @@ class ApiHelper {
       );
 
       if (response.statusCode == 200) {
-        log('Transaction request accepted successfully');
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final transaction = Transaction.fromJson(responseData['transaction']);
+        return transaction;      
       } else if (response.statusCode == 404) {
         log('Sender or receiver not found');
         throw Exception('Sender or receiver not found');
@@ -583,7 +587,7 @@ static Future<void> changeName(String newName,String email) async {
       if (response.statusCode == 200) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.remove('authToken');
-
+        
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => AuthScreen()),

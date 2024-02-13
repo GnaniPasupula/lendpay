@@ -35,7 +35,7 @@ class _RequestState extends State<Request>{
   Future<void> fetchUsers() async {
     try {
       prefs = await SharedPreferences.getInstance();
-      final List<String>? usersString = prefs.getStringList(widget.activeUser.email);
+      final List<String>? usersString = prefs.getStringList('${widget.activeUser.email}/requestUsers');
       if (usersString != null) {
         users = usersString.map((userString) => User.fromJson(jsonDecode(userString))).toList();
       }
@@ -72,7 +72,7 @@ class _RequestState extends State<Request>{
   Future<void> saveUsersToPrefs() async {
     final List<String> usersString = users.map((user) => jsonEncode(user.toJson())).toList();
     
-    await prefs.setStringList(widget.activeUser.email, usersString);
+    await prefs.setStringList('${widget.activeUser.email}/requestUsers', usersString);
   }
 
 

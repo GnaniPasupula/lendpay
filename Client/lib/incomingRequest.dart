@@ -10,9 +10,11 @@ import 'package:provider/provider.dart';
 class IncomingRequest extends StatefulWidget {
 
   final Transaction requestTransaction;
+  final void Function() fetchRequestTransactionsFromAPI;
 
   IncomingRequest({
     required this.requestTransaction,
+    required this.fetchRequestTransactionsFromAPI
   });
 
   @override
@@ -128,9 +130,9 @@ class _IncomingRequestState extends State<IncomingRequest> {
                                           child: const Text("Cancel"),
                                         ),
                                         TextButton(
-                                          onPressed: () {
+                                          onPressed: () async{
                                             // Perform the transaction request here
-                                            ApiHelper.acceptTransactionRequest(
+                                            Transaction newTransaction=await ApiHelper.acceptTransactionRequest(
                                               requestTransactionID: widget.requestTransaction.id,
                                               senderEmail: widget.requestTransaction.sender,
                                               amount: widget.requestTransaction.amount,
@@ -143,6 +145,8 @@ class _IncomingRequestState extends State<IncomingRequest> {
                                               interestAmount: widget.requestTransaction.interestAmount,
                                               totalAmount: widget.requestTransaction.totalAmount,
                                             );
+
+                                            widget.fetchRequestTransactionsFromAPI();
                                             Navigator.of(context).pop();
                                           },
                                           child: const Text("Confirm"),
@@ -185,6 +189,7 @@ class _IncomingRequestState extends State<IncomingRequest> {
                                         requestTransactionID: widget.requestTransaction.id,
                                         receiverEmail: widget.requestTransaction.receiver,
                                       );
+                                      widget.fetchRequestTransactionsFromAPI();
                                       Navigator.of(context).pop();
                                     },
                                     child: const Text("Confirm"),

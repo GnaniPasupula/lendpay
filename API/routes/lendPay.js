@@ -317,7 +317,7 @@ router.post('/acceptrequest', async (req, res) => {
     await sender.save();
     await receiver.save();
 
-    res.status(200).json({ message: 'Request sent successfully' });
+    res.status(200).json({ message: 'Request accepted successfully',transaction });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'An error occurred' });

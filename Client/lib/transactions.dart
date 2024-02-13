@@ -35,18 +35,11 @@ class _TransactionsState extends State<TransactionsPage> {
     _fetchTransactions();
   }
 
-  void updateTransactions(Transaction transaction) {
-    setState(() {
-      allTransactionsUser.insert(0, transaction); 
-    });
-    saveTransactionsToPrefs();
-  }
-
   Future<void> _fetchTransactions() async {
     try {
       prefs = await SharedPreferences.getInstance();
       final List<String>? transactionsString =
-          prefs.getStringList('${widget.otheruser.email}/transactions');
+          prefs.getStringList('${widget.activeuser.email}/${widget.otheruser.email}/transactions');
 
       if (transactionsString != null) {
         allTransactionsUser = transactionsString
@@ -94,7 +87,7 @@ class _TransactionsState extends State<TransactionsPage> {
         .map((transaction) => jsonEncode(transaction.toJson()))
         .toList();
 
-    await prefs.setStringList('${widget.otheruser.email}/transactions', transactionsString);
+    await prefs.setStringList('${widget.activeuser.email}/${widget.otheruser.email}/transactions', transactionsString);
   }
 
 
@@ -201,7 +194,7 @@ class _TransactionsState extends State<TransactionsPage> {
                       suffixIcon: IconButton(
                         icon: Icon(Icons.send, color: Color.fromRGBO(0, 0, 0, 1)),
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => AgreementPage(amount: int.parse(messageController.text), otheruser: widget.otheruser, updateTransactions: updateTransactions)));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => AgreementPage(amount: int.parse(messageController.text), otheruser: widget.otheruser, fetchTransactionsFromAPI: fetchTransactionsFromAPI)));
                         },
                       ),
                       contentPadding: EdgeInsets.symmetric(vertical: 7, horizontal: 8), 

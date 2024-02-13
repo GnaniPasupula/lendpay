@@ -12,9 +12,9 @@ import 'package:provider/provider.dart';
 class AgreementPage extends StatefulWidget {
   final num amount;
   final User otheruser;
-  final void Function(Transaction) updateTransactions;
+  final void Function() fetchTransactionsFromAPI;
 
-  AgreementPage({required this.amount, required this.otheruser, required this.updateTransactions});
+  AgreementPage({required this.amount, required this.otheruser, required this.fetchTransactionsFromAPI});
 
   @override
   _AgreementPageState createState() => _AgreementPageState();
@@ -219,7 +219,7 @@ class _AgreementPageState extends State<AgreementPage> {
                                 TextButton(
                                   onPressed: () async {
                                     Transaction newTransaction = await ApiHelper.sendTransactionRequest(receiverEmail:widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
-                                    widget.updateTransactions(newTransaction);
+                                    widget.fetchTransactionsFromAPI();
                                     // await FirebaseApi().sendNotificationToUser(receiverToken: fcmTokenProvider.fCMToken, title: "Loan", body: userProvider.activeUser.email);
                                     Navigator.of(context).pop();
                                   },

@@ -1,22 +1,23 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Models/subTransactions.dart';
+import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/incomingPaymentRequest.dart';
 import 'package:lendpay/incomingRequest.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class IncomingRequestPage extends StatefulWidget {
+
   @override
   _IncomingRequestPageState createState() => _IncomingRequestPageState();
 }
 
 class _IncomingRequestPageState extends State<IncomingRequestPage> {
-  PageController _pageController = PageController(initialPage: 0);
   TextEditingController searchController = TextEditingController();
 
   List<Transaction> requestTransactions = [];
@@ -28,9 +29,12 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
   bool isLoading = true;
   late SharedPreferences prefs;
 
+  late User activeUser; 
+
   @override
   void initState() {
     super.initState();
+    activeUser = Provider.of<UserProvider>(context, listen: false).activeUser;
     fetchRequests();
   }
 
@@ -38,12 +42,12 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
     try {
       prefs = await SharedPreferences.getInstance();
 
-      final List<String>? requestTransactionsString = prefs.getStringList('requestTransactions');
+      final List<String>? requestTransactionsString = prefs.getStringList('${activeUser.email}/requestTransactions');
       if (requestTransactionsString != null) {
         requestTransactions = requestTransactionsString.map((requestString) => Transaction.fromJson(jsonDecode(requestString))).toList();
       }
 
-      final List<String>? paymentrequestTransactionsString = prefs.getStringList('paymentrequestTransactions');
+      final List<String>? paymentrequestTransactionsString = prefs.getStringList('${activeUser.email}/paymentrequestTransactions');
       if (paymentrequestTransactionsString != null) {
         paymentrequestTransactions = paymentrequestTransactionsString.map((requestString) => subTransactions.fromJson(jsonDecode(requestString))).toList();
       }
@@ -74,7 +78,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
       setState(() {
         requestTransactions = fetchedRequests;
       });
-      await saveRequestsToPrefs('requestTransactions', fetchedRequests);
+      await saveRequestsToPrefs('${activeUser.email}/requestTransactions', fetchedRequests);
     } catch (e) {
       print(e);
       // Handle error and show a proper error message to the user
@@ -87,7 +91,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
       setState(() {
         paymentrequestTransactions = fetchedRequests;
       });
-      await saveRequestsToPrefs('paymentrequestTransactions', fetchedRequests);
+      await saveRequestsToPrefs('${activeUser.email}/paymentrequestTransactions', fetchedRequests);
     } catch (e) {
       print(e);
       // Handle error and show a proper error message to the user
@@ -126,6 +130,9 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    UserProvider userProvider = Provider.of<UserProvider>(context);
+    User activeUser = userProvider.activeUser;
 
       if (isLoading) {
         return const Scaffold(
@@ -267,7 +274,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                               MaterialPageRoute(
                                 builder: (context) => IncomingRequest(
                                   requestTransaction:
-                                      requestTransactions[index],
+                                      requestTransactions[index],fetchRequestTransactionsFromAPI:fetchRequestTransactionsFromAPI
                                 ),
                               ),
                             );                        
@@ -351,7 +358,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                               MaterialPageRoute(
                                 builder: (context) => IncomingPaymentRequest(
                                   paymentrequestTransaction:
-                                      paymentrequestTransactions[index],
+                                      paymentrequestTransactions[index],fetchPaymentRequestTransactionsFromAPI:fetchPaymentRequestTransactionsFromAPI
                                 ),
                               ),
                             );                        

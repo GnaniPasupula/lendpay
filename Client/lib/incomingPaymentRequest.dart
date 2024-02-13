@@ -10,9 +10,11 @@ import 'package:provider/provider.dart';
 class IncomingPaymentRequest extends StatefulWidget {
 
   final subTransactions paymentrequestTransaction;
+  final void Function() fetchPaymentRequestTransactionsFromAPI;
 
   IncomingPaymentRequest({
     required this.paymentrequestTransaction,
+    required this.fetchPaymentRequestTransactionsFromAPI
   });
 
   @override
@@ -97,7 +99,7 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                       width: 150,
                       height: 30,
                       child: TextButton(
-                        onPressed: activeUser.email != widget.paymentrequestTransaction.receiver
+                        onPressed: activeUser.email != widget.paymentrequestTransaction.sender
                             ? () {
                                 showDialog(
                                   context: context,
@@ -116,6 +118,7 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                                           onPressed: () {
                                             // Perform the transaction request here
                                             ApiHelper.acceptTransactionPaymentRequest(transactionID: widget.paymentrequestTransaction.transactionID, date: date, subtransactionID: widget.paymentrequestTransaction.id, senderEmail: widget.paymentrequestTransaction.sender, receiverEmail: widget.paymentrequestTransaction.receiver);
+                                            widget.fetchPaymentRequestTransactionsFromAPI();
                                             Navigator.of(context).pop();
                                           },
                                           child: const Text("Confirm"),
@@ -128,7 +131,7 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                             : null, // Set onPressed to null if condition is not met
                         child: const Text("Confirm", style: TextStyle(color: Colors.white)),
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(activeUser.email != widget.paymentrequestTransaction.receiver ? Colors.black : Colors.grey),
+                          backgroundColor: MaterialStateProperty.all<Color>(activeUser.email != widget.paymentrequestTransaction.sender ? Colors.black : Colors.grey),
                           foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
                         ),
                       ),
@@ -154,6 +157,7 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                                   TextButton(
                                     onPressed: () {
                                       ApiHelper.rejectTransactionPaymentRequest(subtransactionID: widget.paymentrequestTransaction.id, senderEmail: widget.paymentrequestTransaction.sender, receiverEmail: widget.paymentrequestTransaction.receiver);
+                                      widget.fetchPaymentRequestTransactionsFromAPI();
                                       Navigator.of(context).pop();
                                     },
                                     child: const Text("Confirm"),
