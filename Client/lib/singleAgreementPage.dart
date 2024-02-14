@@ -62,9 +62,28 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
 
     // print(activeUser.email +"," + widget.requestTransaction.receiver);
 
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    // 375-260
+
+    // double searchBarWidth=(screenWidth/375)*260;
+    // double searchBarHeight=35;
+
+    double textMultiplier = 1;
+    double widthMultiplier = 1;
+    // double textMultiplier = screenHeight/812;
+    // double widthMultiplier = screenWidth/375;
+    //H=812 , W=375
+
+    double iconSize = cardHeight * 0.25; // Adjust the icon size proportionally
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Loan Agreement'),
+        title: Text('Loan Agreement', style: TextStyle(fontSize: 18,color: Color.fromRGBO(0, 0, 0, 1))),
+        backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.black),
       ),
       body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,31 +265,62 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                         //       DateFormat.jm().format(transactionDate);
                         // }
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                          padding: EdgeInsets.only(left: 14,right: 14),
+                          child: Container(
+                            margin: EdgeInsets.only(top: 14.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Color.fromRGBO(229, 229, 229, 0.3),
                             ),
                             child: SizedBox(
-                              height: insideCardHeight, // Set the individual card's height
-                              child: ListTile(
-                                onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleTransactionsPage(subTransaction:subTransaction)));
+                              height: screenHeight * 0.07,
+                              width: screenWidth * 0.9,
+                              child:InkWell(
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleTransactionsPage(subTransaction:subTransaction)));                      
                                 },
-                                leading: CircleAvatar(
-                                  backgroundColor: Colors.orange,
-                                  child: Icon(Icons.person, color: Colors.white,size:insideCardHeight*0.75),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 12), 
+                                  decoration: BoxDecoration(
+                                    color: Colors.transparent, 
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: screenHeight * 0.07 * 0.75 * 0.5,
+                                        backgroundColor: Color.fromRGBO(218, 218, 218, 1),
+                                        child: Icon(Icons.person, color: const Color.fromARGB(255, 0, 0, 0), size: screenHeight * 0.07 * 0.75),
+                                      ),
+                                      SizedBox(width: 23*widthMultiplier),
+                                      Expanded(
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  subTransaction.sender,
+                                                  style: TextStyle(fontSize: textMultiplier * 14, color: Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
+                                                ),
+                                                Text(
+                                                  DateFormat('dd-MM-yyyy').format(subTransaction.date),
+                                                  style: TextStyle(fontSize: textMultiplier * 12, color: Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
+                                                ),
+                                              ],
+                                            ),
+                                            Text(
+                                              subTransaction.amount.toString(),
+                                              style: TextStyle(fontSize: textMultiplier * 16, color: Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w600),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                title: Text(
-                                  subTransaction.receiver,
-                                  style: TextStyle(fontSize: insideCardHeight * 0.325),
-                                ),
-                                subtitle: Row(
-                                  children: [
-                                    Text(DateFormat('dd-MM-yyyy').format(subTransaction.date),style: TextStyle(fontSize: insideCardHeight * 0.225)),
-                                  ],
-                                ),
-                                trailing: Text(subTransaction.amount.toString(),style: TextStyle(fontSize: insideCardHeight * 0.3)),
                               ),
                             ),
                           ),

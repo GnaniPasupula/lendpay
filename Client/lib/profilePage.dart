@@ -131,6 +131,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     
     return Scaffold(
+      backgroundColor: Color.fromRGBO(255, 255, 255, 1), 
       appBar: AppBar(
         title: Text('Profile', style: TextStyle(fontSize: 18,color: Color.fromRGBO(0, 0, 0, 1))),
         backgroundColor: Color.fromRGBO(255, 255, 255, 1),
@@ -139,7 +140,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: Center(
         child: Container(
-          color: Color.fromRGBO(255, 255, 255, 1), 
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(

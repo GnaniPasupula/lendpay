@@ -11,8 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lendpay/Models/Transaction.dart';
 
 class ApiHelper {
-  static final String baseUrl = 'http://localhost:3000/lendpay';
-  // static final String baseUrl = 'http://192.168.0.103:3000/lendpay';
+  // static final String baseUrl = 'http://localhost:3000/lendpay';
+  static final String baseUrl = 'http://192.168.0.103:3000/lendpay';
 
   static Future<User?> verifyUser(String email) async {
     final url = '$baseUrl/users/$email';
@@ -575,8 +575,8 @@ static Future<void> changeName(String newName,String email) async {
 
 
   static Future<void> logout(BuildContext context) async {
-    const url = 'http://localhost:3000/auth/logout';
-    // const url = 'http://192.168.0.103:3000/auth/logout';
+    // const url = 'http://localhost:3000/auth/logout';
+    const url = 'http://192.168.0.103:3000/auth/logout';
 
     try {
       final response = await http.post(
