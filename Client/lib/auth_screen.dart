@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
+import 'package:lendpay/Widgets/error_dialog.dart';
+import 'package:lendpay/Widgets/sucess_dialog.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/dashboard.dart';
 import 'package:provider/provider.dart';
@@ -42,8 +44,8 @@ class _AuthScreenState extends State<AuthScreen> {
   // }
 
   Future<void> _signup() async {
-    // final url = 'http://localhost:3000/auth/signup';
-    const url = 'http://192.168.0.103:3000/auth/signup';
+    final url = 'http://localhost:3000/auth/signup';
+    // const url = 'http://192.168.0.103:3000/auth/signup';
 
     try {
       final response = await http.post(
@@ -61,7 +63,7 @@ class _AuthScreenState extends State<AuthScreen> {
       } else {
         final responseBody = json.decode(response.body);
         final errorMessage = responseBody['message'];
-        _showErrorDialog(errorMessage);
+        ErrorDialogWidget.show(context,errorMessage);
       }
     } catch (error) {
       print('Error during HTTP request: $error');
@@ -69,8 +71,8 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _signin() async {
-    // final url = 'http://localhost:3000/auth/signin';
-    const url = 'http://192.168.0.103:3000/auth/signin';
+    final url = 'http://localhost:3000/auth/signin';
+    // const url = 'http://192.168.0.103:3000/auth/signin';
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -93,7 +95,7 @@ class _AuthScreenState extends State<AuthScreen> {
         } else {
           final responseBody = json.decode(response.body);
           final errorMessage = responseBody['message'];
-          _showErrorDialog(errorMessage);
+          ErrorDialogWidget.show(context,errorMessage);
         }
     
     } 
@@ -119,8 +121,8 @@ class _AuthScreenState extends State<AuthScreen> {
         actions: [
           ElevatedButton(
             onPressed: () {
-              Navigator.of(ctx).pop(); // Close OTP dialog
-              _validateOTP(); // Validate OTP
+              Navigator.of(ctx).pop(); 
+              _validateOTP(); 
             },
             child: Text('Submit'),
           ),
@@ -130,8 +132,8 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _validateOTP() async {
-    // final url = 'http://localhost:3000/auth/verify-otp';
-    const url = 'http://192.168.0.103:3000/auth/verify-otp';
+    final url = 'http://localhost:3000/auth/verify-otp';
+    // const url = 'http://192.168.0.103:3000/auth/verify-otp';
 
     try {
       final response = await http.post(
@@ -144,11 +146,11 @@ class _AuthScreenState extends State<AuthScreen> {
       );
 
       if (response.statusCode == 200) {
-        _showSuccessDialog("Account created succesfully, sign in to continue");
+        SucessDialogWidget.show(context,"Account created succesfully, sign in to continue");
       } else {
         final responseBody = json.decode(response.body);
         final errorMessage = responseBody['message'];
-        _showErrorDialog(errorMessage);
+        ErrorDialogWidget.show(context,errorMessage);
       }
     } catch (error) {
       print('Error during OTP validation: $error');
@@ -164,48 +166,12 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  void _showSuccessDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Success', style: TextStyle(color: Colors.green)),
-        content: Text(message, style: TextStyle(color: Colors.black)),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-            child: Text('OK', style: TextStyle(color: Colors.green)),
-          ),
-        ],
-        backgroundColor: Colors.yellow,
-      ),
-    );
-  }
 
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Error', style: TextStyle(color: Colors.red)),
-        content: Text(message, style: TextStyle(color: Colors.black)),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-            child: Text('OK', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-        backgroundColor: Colors.yellow,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Set a dark background color
+      backgroundColor: const Color.fromRGBO(255, 255, 255, 1), // Set a dark background color
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -215,7 +181,7 @@ class _AuthScreenState extends State<AuthScreen> {
               const Text(
                 'Welcome',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Color.fromARGB(255, 0, 0, 0),
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
@@ -229,13 +195,15 @@ class _AuthScreenState extends State<AuthScreen> {
                     _isSignIn = index == 0; // Toggle the state
                   });
                 },
+                fillColor: Color.fromARGB(255, 0, 0, 0),
+                borderRadius: BorderRadius.circular(10),
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Text(
                       'Sign In',
                       style: TextStyle(
-                        color: _isSignIn ? Colors.black : Colors.white,
+                        color: _isSignIn ? Colors.white : Colors.black,
                         fontSize: 16,
                       ),
                     ),
@@ -245,15 +213,12 @@ class _AuthScreenState extends State<AuthScreen> {
                     child: Text(
                       'Sign Up',
                       style: TextStyle(
-                        color: !_isSignIn ? Colors.black : Colors.white,
+                        color: !_isSignIn ? Colors.white : Colors.black,
                         fontSize: 16,
                       ),
                     ),
                   ),
                 ],
-                fillColor: Colors.yellow,
-                selectedColor: Colors.white,
-                borderRadius: BorderRadius.circular(30),
               ),
 
               SizedBox(height: 20),
@@ -262,23 +227,23 @@ class _AuthScreenState extends State<AuthScreen> {
                   children: [
                     TextField(
                       controller: _signInEmailController,
-                      style: TextStyle(color: Colors.yellow),
+                      style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                       decoration: const InputDecoration(
                         labelText: 'Username',
-                        labelStyle: TextStyle(color: Colors.yellow),
+                        labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.yellow),
+                          borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
                         ),
                       ),
                     ),
                     TextField(
                       controller: _signInPasswordController,
-                      style: TextStyle(color: Colors.yellow),
+                      style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                       decoration: const InputDecoration(
                         labelText: 'Password',
-                        labelStyle: TextStyle(color: Colors.yellow),
+                        labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.yellow),
+                          borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
                         ),
                       ),
                       obscureText: true,
@@ -290,35 +255,35 @@ class _AuthScreenState extends State<AuthScreen> {
                   children: [
                     TextField(
                       controller: _signUpEmailController,
-                      style: TextStyle(color: Colors.yellow),
+                      style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                       decoration: const InputDecoration(
                         labelText: 'Username',
-                        labelStyle: TextStyle(color: Colors.yellow),
+                        labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.yellow),
+                          borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
                         ),
                       ),
                     ),
                     TextField(
                       controller: _signUpPasswordController,
-                      style: TextStyle(color: Colors.yellow),
+                      style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                       decoration: const InputDecoration(
                         labelText: 'Password',
-                        labelStyle: TextStyle(color: Colors.yellow),
+                        labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.yellow),
+                          borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
                         ),
                       ),
                       obscureText: true,
                     ),
                     TextField(
                       controller: _confirmPasswordController,
-                      style: TextStyle(color: Colors.yellow),
+                      style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                       decoration: const InputDecoration(
                         labelText: 'Confirm Password',
-                        labelStyle: TextStyle(color: Colors.yellow),
+                        labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.yellow),
+                          borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
                         ),
                       ),
                       obscureText: true,
@@ -331,11 +296,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 child: ElevatedButton(
                   onPressed: (_isSignIn ? _signin : _signup),
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.yellow,
+                    backgroundColor: const Color.fromARGB(255, 0, 0, 0),
                     padding: EdgeInsets.symmetric(horizontal: 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
                   ),
                   child: IgnorePointer(
                     ignoring: (!_isSignIn && !passwordsMatch),
@@ -344,9 +306,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       child: Text(
                         _isSignIn ? 'Sign In' : 'Sign Up',
                         style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          color: const Color.fromARGB(255, 255, 255, 255),
                         ),
                       ),
                     ),

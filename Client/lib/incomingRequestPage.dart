@@ -256,10 +256,10 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
         : ListView.builder(
               itemCount: requestTransactions.length,
               itemBuilder: (context, index) {
-                final otheruser = requestTransactions.elementAt(requestTransactions.length-1-index);
                 return Padding(
-                  padding: EdgeInsets.only(left: 14,right: 14,bottom: 5*textMultiplier),
+                  padding: EdgeInsets.only(left: 14,right: 14),
                   child: Container(
+                    margin: EdgeInsets.only(top: 14.0),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: Color.fromRGBO(229, 229, 229, 0.3),
@@ -340,10 +340,10 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
         : ListView.builder(
               itemCount: paymentrequestTransactions.length,
               itemBuilder: (context, index) {
-                final otheruser = paymentrequestTransactions.elementAt(paymentrequestTransactions.length-1-index);
                 return Padding(
-                  padding: EdgeInsets.only(left: 14,right: 14,bottom: 5*textMultiplier),
+                  padding: EdgeInsets.only(left: 14,right: 14),
                   child: Container(
+                     margin: EdgeInsets.only(top: 14.0),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: Color.fromRGBO(229, 229, 229, 0.3),

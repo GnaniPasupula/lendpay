@@ -11,8 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lendpay/Models/Transaction.dart';
 
 class ApiHelper {
-  // static final String baseUrl = 'http://localhost:3000/lendpay';
-  static final String baseUrl = 'http://192.168.0.103:3000/lendpay';
+  static final String baseUrl = 'http://localhost:3000/lendpay';
+  // static final String baseUrl = 'http://192.168.0.103:3000/lendpay';
 
   static Future<User?> verifyUser(String email) async {
     final url = '$baseUrl/users/$email';
@@ -241,6 +241,31 @@ class ApiHelper {
       }
     } catch (e) {
       throw Exception('Error fetching requests: $e');
+    }
+  }
+
+  static Future<Transaction> getUrgentTransaction() async {
+    final url = '$baseUrl/dashboard/urgent';
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $authToken'},
+      );
+
+      if (response.statusCode == 200) {
+        final dynamic jsonData = json.decode(response.body);
+        final Transaction transaction = Transaction.fromJson(jsonData);
+        return transaction;
+      } else if (response.statusCode == 404) {
+        throw Exception('User not found');
+      } else {
+        throw Exception('Error fetching urgent transaction');
+      }
+    } catch (e) {
+      throw Exception('Error fetching urgent transaction: $e');
     }
   }
 
