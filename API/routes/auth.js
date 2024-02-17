@@ -14,13 +14,13 @@ async function sendOTP(email, otp) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'lendpayg@gmail.com', 
-      pass: 'rratxtoloolgljsg', 
+      user: process.env.MAIL_EMAIL, 
+      pass: process.env.MAIL_PASS, 
     },
   });
 
   const mailOptions = {
-    from: 'lendpayg@gmail.com',
+    from: process.env.MAIL_EMAIL,
     to: email,
     subject: 'Verify Your Email - OTP',
     text: `Your OTP for email verification is: ${otp}`,

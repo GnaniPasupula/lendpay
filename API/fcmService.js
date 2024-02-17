@@ -1,6 +1,6 @@
 const https = require('https');
 const { google } = require('googleapis');
-const PROJECT_ID = 'lendpay-183d6';
+const PROJECT_ID = process.env.PROJECT_ID;
 const HOST = 'fcm.googleapis.com';
 const PATH = `/v1/projects/${PROJECT_ID}/messages:send`;
 const MESSAGING_SCOPE = 'https://www.googleapis.com/auth/firebase.messaging';
