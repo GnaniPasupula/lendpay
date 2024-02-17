@@ -64,7 +64,6 @@ class _AgreementPageState extends State<AgreementPage> {
     totalAmount=(loanAmount+interestAmount).toDouble();
 
     UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-    FCMTokenProvider fcmTokenProvider = Provider.of<FCMTokenProvider>(context,listen: false);
 
     return Scaffold(
       backgroundColor: Color.fromRGBO(255, 255, 255, 1),
@@ -218,9 +217,9 @@ class _AgreementPageState extends State<AgreementPage> {
                                 ),
                                 TextButton(
                                   onPressed: () async {
-                                    Transaction newTransaction = await ApiHelper.sendTransactionRequest(receiverEmail:widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
+                                    await ApiHelper.sendTransactionRequest(receiverEmail:widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
                                     widget.fetchTransactionsFromAPI();
-                                    // await FirebaseApi().sendNotificationToUser(receiverToken: fcmTokenProvider.fCMToken, title: "Loan", body: userProvider.activeUser.email);
+                                    await FirebaseApi().sendNotificationToUser(receiverToken: widget.otheruser.fCMToken, title: "Loan Request", body: userProvider.activeUser.email);
                                     Navigator.of(context).pop();
                                   },
                                   child: const Text("Confirm"),
