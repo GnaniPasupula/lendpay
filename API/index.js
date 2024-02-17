@@ -3,10 +3,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const http = require('http');
-const socketIO = require('socket.io');
 const authRouter = require('./routes/auth');
 const lendPay = require('./routes/lendPay');
 const { authenticateUser } = require('./Middleware/authMiddleware');
+const { sendFcmMessage } = require('./fcmService');
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
@@ -33,40 +33,18 @@ function startServer() {
     res.redirect('/lendPay/dashboard');
   });
 
-  // io.use((socket, next) => {
-  //   const token = socket.handshake.auth.token;
+  app.post('/send-notification', async (req, res) => {
+    const { receiverToken, title, body } = req.body;
 
-  //   authenticateUser(socket.request, {}, (err) => {
-  //     if (err) {
-  //       // Authentication failed, disconnect the socket
-  //       return next(new Error('Authentication failed.'));
-  //     }
-
-  //     next();
-  //   });
-  // });
-
-  // io.on('connection', (socket) => {
-  //   console.log('Client connected');
-
-  //   socket.on('transaction_request', (data) => {
-  //     const { receiverEmail } = data;
-  //     io.to(receiverEmail).emit('incoming_transaction_request');
-  //   });
-
-  //   socket.on('receiver_accepts_transaction', (data) => {
-  //     const { senderEmail, amount, startDate, endDate, interestRate, paymentCycle, subAmount, loanPeriod, interestAmount, totalAmount } = data;
-
-  //     // Perform the necessary logic when the receiver accepts the transaction
-  //     console.log('Receiver accepted the transaction');
-  //     // Example call to ApiHelper.sendTransactionRequest
-  //     // ApiHelper.sendTransactionRequest(senderEmail, receiverEmail, amount, startDate, endDate, interestRate, paymentCycle, subAmount, loanPeriod, interestAmount, totalAmount);
-  //   });
-
-  //   socket.on('disconnect', () => {
-  //     console.log('Client disconnected');
-  //   });
-  // });
+    try {
+      await sendFcmMessage({ receiverToken, title, body });
+      console.log('Notification sent successfully');
+      res.status(200).send('FCM message sent successfully');
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      res.status(500).send('Error sending notification');
+    }
+  });
 
   const PORT = process.env.PORT || 3000;
 
