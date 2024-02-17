@@ -159,7 +159,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
-                                return widget.viewAgreement.type != "req" ? AlertDialog(
+                                return AlertDialog(
                                   title: const Text('Pay Monthly Payment'),
                                   content: const Text("Are you sure you want to pay the transaction request?"),
                                   actions: [
@@ -172,11 +172,14 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                     TextButton(
                                       onPressed: () async {
                                         try {
+                                          // Call the API function
                                           await ApiHelper.sendTransactionPaymentRequest(
                                             transactionID: widget.viewAgreement.id,
                                             paidAmount: widget.viewAgreement.interestAmount,
                                             date: date,
                                           );
+
+                                          // Show success popup
                                           showDialog(
                                             context: context,
                                             builder: (BuildContext context) {
@@ -205,26 +208,14 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                       child: const Text("Confirm"),
                                     ),
                                   ],
-                                ) : AlertDialog(
-                                  title: const Text('Notice'),
-                                  content: const Text('Your loan request is not accepted yet'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop(); 
-                                        Navigator.pushReplacementNamed(context, '/dashboard');
-                                      },
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                );                              
-                              }
+                                );
+                              },
                             );
                           },
+                          child: const Text("Pay", style: TextStyle(color: Colors.white)),
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
                           ),
-                          child: const Text("Pay", style: TextStyle(color: Colors.white)),
                         ),
                       ),
                     ],

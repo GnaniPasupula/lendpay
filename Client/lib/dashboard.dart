@@ -86,7 +86,7 @@ class _DashboardState extends State<Dashboard> {
       Provider.of<FCMTokenProvider>(context, listen: false)
           .setfCMToken(fCMToken!);
       await ApiHelper.storeFCMToken(
-          activeUserx.email, fCMToken);
+          activeUserx.email, fCMToken + activeUserx.email);
     } catch (e) {
       print(e);
     }

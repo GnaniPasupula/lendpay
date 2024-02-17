@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Models/subTransactions.dart';
+import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/auth_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lendpay/Models/Transaction.dart';
 
 class ApiHelper {
-  // static final String baseUrl = 'http://localhost:3000/lendpay';
-  static final String baseUrl = 'http://192.168.0.103:3000/lendpay';
+  static final String baseUrl = 'http://localhost:3000/lendpay';
+  // static final String baseUrl = 'http://192.168.0.103:3000/lendpay';
 
   static Future<User?> verifyUser(String email) async {
     final url = '$baseUrl/users/$email';
