@@ -9,8 +9,39 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lendpay/Models/Transaction.dart';
 
 class ApiHelper {
-  // static final String baseUrl = 'http://localhost:3000/lendpay';
-  static final String baseUrl = 'http://192.168.0.103:3000/lendpay';
+  static final String baseUrl = 'http://localhost:3000/lendpay';
+  // static final String baseUrl = 'http://192.168.0.103:3000/lendpay';
+
+  static Future<User?> addUser(String email, String name) async {
+    final url = '$baseUrl/addUser';
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+        body: jsonEncode({
+          'email': email,
+          'name': name,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final dynamic jsonData = json.decode(response.body);
+        final User user = User.fromJson(jsonData);
+
+        return user;
+      } else {
+        throw Exception('Failed to create user: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error creating user: $e');
+    }
+  }
 
   static Future<User?> verifyUser(String email) async {
     final url = '$baseUrl/users/$email';
@@ -598,8 +629,8 @@ static Future<void> changeName(String newName,String email) async {
 
 
   static Future<void> logout(BuildContext context) async {
-    // const url = 'http://localhost:3000/auth/logout';
-    const url = 'http://192.168.0.103:3000/auth/logout';
+    const url = 'http://localhost:3000/auth/logout';
+    // const url = 'http://192.168.0.103:3000/auth/logout';
 
     try {
       final response = await http.post(

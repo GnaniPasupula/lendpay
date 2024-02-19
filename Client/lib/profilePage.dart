@@ -155,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                   editOption: true,
                 ),
-                SizedBox(height: 5*textMultiplier),
+                SizedBox(height: 7*textMultiplier),
                 ProfileOption(
                   icon: Icons.mail_outline,
                   label: 'Email',
@@ -165,7 +165,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                   editOption: false,
                 ),
-                SizedBox(height: 5*textMultiplier),
+                SizedBox(height: 7*textMultiplier),
                 ProfileOption(
                   icon: Icons.lock_outline,
                   label: 'Password',
@@ -175,7 +175,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                   editOption: true,
                 ),
-                SizedBox(height: 5*textMultiplier),
+                SizedBox(height: 7*textMultiplier),
                 ProfileOption(
                   icon: Icons.login_outlined,
                   label: 'Log out',
@@ -185,7 +185,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                   editOption: false,
                 ),
-                SizedBox(height: 5*textMultiplier),
+                SizedBox(height: 7*textMultiplier),
                 ProfileOption(
                   icon: Icons.power_settings_new_outlined,
                   label: 'Close account',
@@ -249,25 +249,25 @@ class ProfileOption extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(icon, size: 20 * textMultiplier, color: Color.fromRGBO(37, 113, 240, 1)),
+                    Icon(icon, size: MediaQuery.of(context).size.height * 0.06 * 0.5, color: Color.fromRGBO(0, 0, 0, 1)),
                   ],
                 ),
                 SizedBox(width: 16 * widthMultiplier), 
                 Column(
-                  mainAxisAlignment: (value != null && value.isNotEmpty) ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
+                  mainAxisAlignment: (value.isNotEmpty) ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       label,
                       style: TextStyle(fontSize: textMultiplier * 14, color: Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
                     ),
-                    if (value != null && value.isNotEmpty)
+                    if (value.isNotEmpty)
                       Text(
                         value,
                         style: TextStyle(fontSize: textMultiplier * 12, color: Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
                       )
                     else
-                      SizedBox(), // Placeholder widget when value is null or empty
+                      SizedBox(), 
                   ],
                 ),
 

@@ -71,8 +71,8 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _signin() async {
-    // final url = 'http://localhost:3000/auth/signin';
-    const url = 'http://192.168.0.103:3000/auth/signin';
+    final url = 'http://localhost:3000/auth/signin';
+    // const url = 'http://192.168.0.103:3000/auth/signin';
     try {
       final response = await http.post(
         Uri.parse(url),

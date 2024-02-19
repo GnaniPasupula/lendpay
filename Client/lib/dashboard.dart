@@ -7,6 +7,7 @@ import 'package:lendpay/Models/subTransactions.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Providers/fCMToken_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
+import 'package:lendpay/addUserPage.dart';
 import 'package:lendpay/allAgreementsPage.dart';
 import 'package:lendpay/incomingRequestPage.dart';
 import 'package:lendpay/profilePage.dart';
@@ -300,7 +301,7 @@ class _DashboardState extends State<Dashboard> {
                               borderRadius: BorderRadius.circular(iconSize / 2),
                             ),
                             child: IconButton(
-                              icon: Icon(Icons.request_page,
+                              icon: Icon(Icons.contacts,
                                   color: const Color(0xFF999999),
                                   size: iconSize * 0.6),
                               onPressed: () {
@@ -314,7 +315,7 @@ class _DashboardState extends State<Dashboard> {
                             ),
                           ),
                           const SizedBox(height: 1.0),
-                          Text("Request",
+                          Text("Contacts",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: iconSize * 0.25,
@@ -505,6 +506,18 @@ class _DashboardState extends State<Dashboard> {
                   ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AddUserDialog();
+            },
+          );
+        },
+        backgroundColor: Colors.black,
+        child: Icon(Icons.add, color: Colors.white),
       ),
     );
   }

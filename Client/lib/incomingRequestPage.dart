@@ -259,7 +259,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                 return Padding(
                   padding: EdgeInsets.only(left: 14,right: 14),
                   child: Container(
-                    margin: EdgeInsets.only(top: 14.0),
+                    margin: EdgeInsets.only(top: 7.0),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: Color.fromRGBO(229, 229, 229, 0.3),

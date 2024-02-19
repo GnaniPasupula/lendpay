@@ -32,6 +32,33 @@ router.get('/dashboard', async (req, res) => {
   }
 });
 
+router.post('/addUser', async (req, res) => {
+  try {
+    const { email, name } = req.body;
+
+    const userData = {
+      email: email || name,
+      password: 'No Password',
+      name: name,
+      fCMToken: name,
+    };
+
+    const user = await User.create(userData);
+
+    const userId = req.user.userId;
+    const activeUser = await User.findById(userId);
+
+    activeUser.previousUsers.push(user._id);
+    await activeUser.save();
+
+    return res.status(201).json(user);
+  } catch (error) {
+    console.error('Error creating user:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 router.get('/user/loans', async (req, res) => {
   const userId = req.user.userId;
 
