@@ -64,6 +64,7 @@ class _AgreementPageState extends State<AgreementPage> {
     totalAmount=(loanAmount+interestAmount).toDouble();
 
     UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
+    User activeUser = userProvider.activeUser;
 
     return Scaffold(
       backgroundColor: Color.fromRGBO(255, 255, 255, 1),
@@ -217,9 +218,13 @@ class _AgreementPageState extends State<AgreementPage> {
                                 ),
                                 TextButton(
                                   onPressed: () async {
-                                    await ApiHelper.sendTransactionRequest(receiverEmail:widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
+                                    if(widget.otheruser.fCMToken.contains(widget.otheruser.name)){
+                                      await ApiHelper.addTransaction(receiverEmailorName:widget.otheruser.email=="No Email"?widget.otheruser.name:widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
+                                    }else{
+                                      await ApiHelper.sendTransactionRequest(receiverEmail:widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
+                                      await FirebaseApi().sendNotificationToUser(receiverToken: widget.otheruser.fCMToken, title: "Loan Request", body: userProvider.activeUser.email);
+                                    }
                                     widget.fetchTransactionsFromAPI();
-                                    await FirebaseApi().sendNotificationToUser(receiverToken: widget.otheruser.fCMToken, title: "Loan Request", body: userProvider.activeUser.email);
                                     Navigator.of(context).pop();
                                   },
                                   child: const Text("Confirm"),

@@ -58,7 +58,6 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
     // print(widget.requestTransaction.toJson());
 
     UserProvider userProvider = Provider.of<UserProvider>(context);
-    User activeUser = userProvider.activeUser;
 
     // print(activeUser.email +"," + widget.requestTransaction.receiver);
 
@@ -172,11 +171,20 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                     TextButton(
                                       onPressed: () async {
                                         try {
-                                          await ApiHelper.sendTransactionPaymentRequest(
-                                            transactionID: widget.viewAgreement.id,
-                                            paidAmount: widget.viewAgreement.interestAmount,
-                                            date: date,
-                                          );
+                                          if(!widget.viewAgreement.receiver.contains('@')){
+                                            await ApiHelper.addPayment(
+                                              transactionID: widget.viewAgreement.id,
+                                              paidAmount: widget.viewAgreement.interestAmount,
+                                              date: date,
+                                            );
+                                            }else{
+                                            await ApiHelper.sendTransactionPaymentRequest(
+                                              transactionID: widget.viewAgreement.id,
+                                              paidAmount: widget.viewAgreement.interestAmount,
+                                              date: date,
+                                            );
+                                          }
+
                                           showDialog(
                                             context: context,
                                             builder: (BuildContext context) {

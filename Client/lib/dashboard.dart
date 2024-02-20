@@ -56,7 +56,7 @@ class _DashboardState extends State<Dashboard> {
 
   Future<void> _fetchUrgentPayment() async {
     try {
-      Transaction transaction = await ApiHelper.getUrgentTransaction();
+      Transaction? transaction = await ApiHelper.getUrgentTransaction();
       setState(() {
         urgentTransaction = transaction;
       });

@@ -34,10 +34,10 @@ router.get('/dashboard', async (req, res) => {
 
 router.post('/addUser', async (req, res) => {
   try {
-    const { email, name } = req.body;
+    const { name } = req.body;
 
     const userData = {
-      email: email || name,
+      email: 'No Email',
       password: 'No Password',
       name: name,
       fCMToken: name,
@@ -58,6 +58,62 @@ router.post('/addUser', async (req, res) => {
   }
 });
 
+router.post('/addTransaction', async (req, res) => {
+  try {
+    const {
+      receiverEmail,
+      amount,
+      startDate,
+      endDate,
+      interestRate,
+      paymentCycle,
+      subAmount,
+      loanPeriod,
+      interestAmount,
+      totalAmount,
+    } = req.body;    
+
+    const senderEmail = req.user.userEmail;
+    // console.dir(req.user, { depth: null });
+    // console.dir(req.body, { depth: null });
+
+    const sender = await User.findOne({ email: senderEmail });
+    const receiver = await User.findOne({ email: receiverEmail });
+    // console.log("sender"+sender+",receiver"+receiver);
+
+    if (!sender || !receiver || senderEmail===receiverEmail) {
+      return res.status(404).json({ message: 'Sender or receiver not found' });
+    }
+
+    const transaction = new Transaction({
+      sender: senderEmail, 
+      receiver: receiver.name, 
+      amount,
+      startDate,
+      endDate,
+      interestRate,
+      paymentCycle,
+      subAmount,
+      loanPeriod,
+      interestAmount,
+      totalAmount,
+      type: "notReq"
+    });
+
+    await transaction.save();
+
+    sender.requests.push(transaction._id);
+    receiver.requests.push(transaction._id);
+
+    await sender.save();
+    await receiver.save();
+
+    res.status(200).json({ message: 'Transaction added successfully',transaction});
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+});
 
 router.get('/user/loans', async (req, res) => {
   const userId = req.user.userId;
@@ -171,21 +227,26 @@ router.get('/dashboard/urgent', async (req, res) => {
 
     const allTransactions = [...user.creditTransactions, ...user.debitTransactions];
 
-    allTransactions.sort((a, b) => {
+    if(allTransactions.length==0){
+      res.status(201).json({message: 'No upcoming payments'});
+    }else{
 
-      const dateA = a.date.getTime(); 
-      const dateB = b.date.getTime(); 
+      allTransactions.sort((a, b) => {
 
-      const adjustedDateA = dateA + a.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
-      const adjustedDateB = dateB + b.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
+        const dateA = a.date.getTime(); 
+        const dateB = b.date.getTime(); 
+  
+        const adjustedDateA = dateA + a.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
+        const adjustedDateB = dateB + b.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
+  
+        return adjustedDateA - adjustedDateB;
+      });
+  
+      const leastTransaction = allTransactions[0];
 
-      return adjustedDateA - adjustedDateB;
-    });
+      res.status(200).json(leastTransaction);
+    }
 
-    // Get the transaction with the least adjusted date
-    const leastTransaction = allTransactions[0];
-
-    res.status(200).json(leastTransaction);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'An error occurred' });
@@ -458,6 +519,40 @@ router.get('/user/request', async (req,res)=>{
     res.status(500).json({ message: 'An error occurred' });
   }
 })
+
+router.post('/addPayment', async (req, res) => {
+  try {
+    const { transactionID, paidAmount, date} = req.body;
+
+    const transaction = await Transaction.findById(transactionID);
+    transaction.amountPaid+=transaction.subAmount;
+
+    const receiverEmail = transaction.receiver;
+    const senderEmail = transaction.sender;
+
+    const sender = await User.findOne({ email: senderEmail });
+
+    const subTransaction = new subTransactions({
+      transactionID:transactionID,
+      sender:senderEmail,
+      receiver:receiverEmail,
+      amount:paidAmount,
+      date:date,
+      type:"notreq"
+    });
+
+    sender.subTransactions.push(subTransaction);
+
+    await subTransaction.save();
+    await transaction.save();
+    await sender.save();
+
+    res.status(200).json({ message: 'Payment added successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 router.post('/requestpayment', async (req, res) => {
   try {

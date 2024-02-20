@@ -43,6 +43,41 @@ class ApiHelper {
     }
   }
 
+  static Future<void> addPayment({
+    required String transactionID,
+    required String date,
+    required num paidAmount,
+  }) async {
+    final url = '$baseUrl/addPayment';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'transactionID': transactionID,
+          'date': date,
+          'paidAmount': paidAmount,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        log('Payment added successfully');
+      } else {
+        throw Exception('Failed to add payment');
+      }
+    } catch (e) {
+      throw Exception('Error adding payment: $e');
+    }
+  }
+
+
   static Future<User?> verifyUser(String email) async {
     final url = '$baseUrl/users/$email';
     try {
@@ -273,7 +308,7 @@ class ApiHelper {
     }
   }
 
-  static Future<Transaction> getUrgentTransaction() async {
+  static Future<Transaction?> getUrgentTransaction() async {
     final url = '$baseUrl/dashboard/urgent';
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -288,13 +323,65 @@ class ApiHelper {
         final dynamic jsonData = json.decode(response.body);
         final Transaction transaction = Transaction.fromJson(jsonData);
         return transaction;
-      } else if (response.statusCode == 404) {
+      } else if (response.statusCode == 201) {
+        return null;
+      }else if (response.statusCode == 404) {
         throw Exception('User not found');
       } else {
         throw Exception('Error fetching urgent transaction');
       }
     } catch (e) {
       throw Exception('Error fetching urgent transaction: $e');
+    }
+  }
+
+  static Future<Transaction> addTransaction({
+    required String receiverEmailorName,
+    required num amount,
+    required String startDate,
+    required String endDate,
+    required num interestRate,
+    required num paymentCycle,
+    required num subAmount,
+    required num loanPeriod,
+    required num interestAmount,
+    required num totalAmount,
+  }) async {
+    final url = '$baseUrl/addTransaction';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $authToken', 'Content-Type': 'application/json',},
+        body: jsonEncode({
+          'receiverEmail': receiverEmailorName,
+          'amount': amount,
+          'startDate': startDate,
+          'endDate': endDate,
+          'interestRate': interestRate,
+          'paymentCycle': paymentCycle,
+          'subAmount': subAmount,
+          'loanPeriod': loanPeriod,
+          'interestAmount': interestAmount,
+          'totalAmount': totalAmount,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final transaction = Transaction.fromJson(responseData['transaction']);
+        return transaction;
+      } else if (response.statusCode == 404) {
+        log('Sender or receiver not found');
+        throw Exception('Sender or receiver not found');
+      } else {
+        throw Exception('Failed to send transaction request');
+      }
+    } catch (e) {
+      throw Exception('Error sending transaction request: $e');
     }
   }
 
