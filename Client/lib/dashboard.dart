@@ -516,8 +516,8 @@ class _DashboardState extends State<Dashboard> {
             },
           );
         },
-        backgroundColor: Colors.black,
-        child: Icon(Icons.add, color: Colors.white),
+        backgroundColor: allsubTransactions.length!=0?Colors.black:Colors.white,
+        child: Icon(Icons.add, color: allsubTransactions.length!=0?Colors.white:Colors.black),
       ),
     );
   }

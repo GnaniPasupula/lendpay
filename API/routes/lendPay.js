@@ -34,13 +34,15 @@ router.get('/dashboard', async (req, res) => {
 
 router.post('/addUser', async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name,email } = req.body;
+
+    const now = Date.now();   
 
     const userData = {
-      email: 'No Email',
+      email: email || 'No Email',
       password: 'No Password',
       name: name,
-      fCMToken: name,
+      fCMToken: req.user.userId+name+now,
     };
 
     const user = await User.create(userData);
@@ -51,7 +53,7 @@ router.post('/addUser', async (req, res) => {
     activeUser.previousUsers.push(user._id);
     await activeUser.save();
 
-    return res.status(201).json(user);
+    return res.status(201).json({message: "Successfully added User to contacts"});
   } catch (error) {
     console.error('Error creating user:', error);
     return res.status(500).json({ error: 'Internal server error' });
@@ -61,7 +63,7 @@ router.post('/addUser', async (req, res) => {
 router.post('/addTransaction', async (req, res) => {
   try {
     const {
-      receiverEmail,
+      receiverUser,
       amount,
       startDate,
       endDate,
@@ -77,13 +79,11 @@ router.post('/addTransaction', async (req, res) => {
     // console.dir(req.user, { depth: null });
     // console.dir(req.body, { depth: null });
 
-    const sender = await User.findOne({ email: senderEmail });
-    const receiver = await User.findOne({ email: receiverEmail });
-    // console.log("sender"+sender+",receiver"+receiver);
+    console.dir(receiverUser, { depth: null });
 
-    if (!sender || !receiver || senderEmail===receiverEmail) {
-      return res.status(404).json({ message: 'Sender or receiver not found' });
-    }
+    const sender = await User.findOne({ email: senderEmail });
+    const receiver = await User.findOne({fCMToken: receiverUser.fCMToken});
+    // console.log("sender"+sender+",receiver"+receiver);
 
     const transaction = new Transaction({
       sender: senderEmail, 
@@ -102,13 +102,16 @@ router.post('/addTransaction', async (req, res) => {
 
     await transaction.save();
 
-    sender.requests.push(transaction._id);
-    receiver.requests.push(transaction._id);
+    sender.totalCredit+=amount;
+    receiver.totalDebit+=amount;
+
+    sender.debitTransactions.push(transaction._id);
+    receiver.creditTransactions.push(transaction._id);
 
     await sender.save();
     await receiver.save();
 
-    res.status(200).json({ message: 'Transaction added successfully',transaction});
+    res.status(200).json({ message: 'Transaction added successfully'});
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'An error occurred' });
@@ -232,14 +235,8 @@ router.get('/dashboard/urgent', async (req, res) => {
     }else{
 
       allTransactions.sort((a, b) => {
-
-        const dateA = a.date.getTime(); 
-        const dateB = b.date.getTime(); 
   
-        const adjustedDateA = dateA + a.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
-        const adjustedDateB = dateB + b.interestPeriod * 30 * 24 * 60 * 60 * 1000; 
-  
-        return adjustedDateA - adjustedDateB;
+        return a.endDate - b.endDate;
       });
   
       const leastTransaction = allTransactions[0];
@@ -392,10 +389,10 @@ router.post('/acceptrequest', async (req, res) => {
     });
 
     sender.debitTransactions.push(transaction._id);
-    sender.totalDebit += amount;
+    sender.totalCredit += amount;
 
     receiver.creditTransactions.push(transaction._id);
-    receiver.totalCredit += amount;
+    receiver.totalDebit += amount;
 
     await Transaction.findByIdAndDelete(requestTransactionID);
     sender.requests.pull(requestTransactionID);
@@ -462,6 +459,31 @@ router.get('/users/:email/transactions',async (req,res)=>{
       $or: [
         { sender: activeUser, receiver: email },
         { sender: email, receiver: activeUser },
+      ],
+    });
+
+    res.status(200).json(transactions);
+
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+
+})
+
+router.get('/manualUsers/:name/transactions',async (req,res)=>{
+  try {
+
+    const name = req.params.name;
+
+    const activeUser = req.user.userEmail;
+
+    // console.log(activeUser+" other"+name);
+
+    const transactions = await Transaction.find({
+      $or: [
+        { sender: activeUser, receiver: name },
+        { sender: name, receiver: activeUser },
       ],
     });
 

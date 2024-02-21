@@ -47,16 +47,17 @@ class _AddUserDialogState extends State<AddUserDialog> {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('User added successfully'),
+          content: Text('Successfully added User to contacts'),
           duration: Duration(seconds: 2),
         ),
       );
     } catch (e) {
-      print('Error adding user: $e');
+      // print('Error adding user: $e');
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error adding user: $e'),
-          duration: Duration(seconds: 2),
+          content: nameController.text.isNotEmpty?Text('Error adding user: $e'):const Text('Name is required'),
+          duration: const Duration(seconds: 2),
         ),
       );
     }
@@ -64,19 +65,17 @@ class _AddUserDialogState extends State<AddUserDialog> {
 
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
-    double dialogHeight = screenHeight * 0.3;
 
     double textMultiplier = 1;
 
     return Dialog(
       backgroundColor: Color.fromRGBO(255, 255, 255, 1),
       child: SizedBox(
-        height: dialogHeight,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
                 'Add Person',
@@ -85,18 +84,18 @@ class _AddUserDialogState extends State<AddUserDialog> {
               SizedBox(height: 16 * textMultiplier),
               ProfileOption(
                 icon: Icons.person,
-                label: 'Name',
+                label: 'Name *',
                 value: nameController.text,
                 controller: nameController,
               ),
-              SizedBox(height: 7 * textMultiplier),
+              SizedBox(height: 8 * textMultiplier),
               ProfileOption(
                 icon: Icons.mail,
                 label: 'Email',
                 value: emailController.text,
                 controller: emailController,
               ),
-              SizedBox(height: 7 * textMultiplier),
+              SizedBox(height: 24 * textMultiplier),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -149,13 +148,16 @@ class ProfileOption extends StatelessWidget {
           ),
           SizedBox(width: 16 * widthMultiplier), 
           Expanded(
-            child: SizedBox( 
-              width: screenWidth * 0.6, 
-              child: TextField(
-                controller: controller,
-                decoration: InputDecoration(
-                  hintText: 'Enter $label',
-                  border: InputBorder.none,
+            child: Center( 
+              child: SizedBox( 
+                width: screenWidth * 0.6, 
+                child: TextField(
+                  controller: controller,
+                  decoration: InputDecoration(
+                    hintText: 'Enter $label',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 16.0),
+                  ),
                 ),
               ),
             ),

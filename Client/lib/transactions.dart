@@ -7,7 +7,6 @@ import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/agreementPage.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/singleAgreementPage.dart';
-import 'package:lendpay/singleTransaction.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TransactionsPage extends StatefulWidget {
@@ -28,11 +27,15 @@ class _TransactionsState extends State<TransactionsPage> {
   late SharedPreferences prefs;
 
   bool isLoading = true;
+  bool isManual = false;
 
   @override
   void initState() {
     super.initState();
     _fetchTransactions();
+    setState(() {
+      isManual=!widget.otheruser.fCMToken.contains((widget.otheruser.name))?false:true;
+    });
   }
 
   Future<void> _fetchTransactions() async {
@@ -68,7 +71,13 @@ class _TransactionsState extends State<TransactionsPage> {
 
   Future<void> fetchTransactionsFromAPI() async {
     try {
-      final List<Transaction> fetchedTransactions = await ApiHelper.fetchUserTransactions(widget.otheruser.email);
+      List<Transaction> fetchedTransactions = [];
+
+      if(!isManual){
+        fetchedTransactions = await ApiHelper.fetchUserTransactions(widget.otheruser.email);
+      }else{
+        fetchedTransactions = await ApiHelper.fetchManualUserTransactions(widget.otheruser.name);
+      }
 
       setState(() {
         allTransactionsUser = fetchedTransactions;
@@ -212,7 +221,7 @@ class _TransactionsState extends State<TransactionsPage> {
   }
 
   Widget buildTransactionItem(Transaction transaction) {
-    bool isCredit = transaction.sender == widget.otheruser.email;
+    bool isCredit = transaction.receiver == (widget.otheruser.fCMToken.contains(widget.otheruser.name)?widget.otheruser.name:widget.otheruser.email);
     bool isReq = transaction.type == "req";
 
     return GestureDetector(

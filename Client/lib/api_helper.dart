@@ -222,6 +222,12 @@ class ApiHelper {
     return _fetchTransactionsByUrl('$url/transactions');
   }
 
+  static Future<List<Transaction>> fetchManualUserTransactions(String name)async {
+    final url = '$baseUrl/manualUsers/$name';
+    return _fetchTransactionsByUrl('$url/transactions');
+  }
+  
+
   static Future<List<Transaction>> fetchUserLoans() async {
     final url = '$baseUrl/user/loans';
     return _fetchTransactionsByUrl('$url');
@@ -336,7 +342,7 @@ class ApiHelper {
   }
 
   static Future<Transaction> addTransaction({
-    required String receiverEmailorName,
+    required User receiverUser,
     required num amount,
     required String startDate,
     required String endDate,
@@ -357,7 +363,7 @@ class ApiHelper {
         Uri.parse(url),
         headers: {'Authorization': 'Bearer $authToken', 'Content-Type': 'application/json',},
         body: jsonEncode({
-          'receiverEmail': receiverEmailorName,
+          'receiverUser': receiverUser,
           'amount': amount,
           'startDate': startDate,
           'endDate': endDate,
