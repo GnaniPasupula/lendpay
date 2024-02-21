@@ -6,6 +6,8 @@ const nodemailer = require('nodemailer');
 
 const router = express.Router();
 
+const temporaryStorage = {};
+
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
@@ -38,15 +40,12 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ message: 'Email already exists' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const otp = generateOTP();
     await sendOTP(email, otp);
 
-    const newUser = new User({ email, password: hashedPassword, otp });
-    await newUser.save();
+    temporaryStorage[email] = { email, password, otp };
 
-    res.status(201).json({ message: 'User registered successfully' });
+    res.status(200).json({ message: 'OTP sent successfully'});
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'An error occurred' });
@@ -57,28 +56,29 @@ router.post('/verify-otp', async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    const user = await User.findOne({ email, otp });
-    if (!user) {
+    const signupDetails = temporaryStorage[email];
+
+    if (!signupDetails) {
+      return res.status(400).json({ message: 'Signup details not found' });
+    }
+
+    if (signupDetails.otp !== otp) {
       return res.status(401).json({ message: 'Invalid OTP' });
     }
 
-    // If OTP is valid, remove it from the user record
-    user.otp = undefined;
-    await user.save();
+    const hashedPassword = await bcrypt.hash(signupDetails.password, 10);
+    const newUser = new User({ email: signupDetails.email, password: hashedPassword });
+    await newUser.save();
 
-    const payLoad = {
-      userId: user._id,
-      userEmail: user.email,
-    };
+    delete temporaryStorage[email];
 
-    const authToken = jwt.sign(payLoad, process.env.SECRET_KEY);
-
-    res.status(200).json({ message: 'Sign up successful', token: authToken });
+    res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'An error occurred' });
   }
 });
+
 
 router.post('/signin', async (req, res) => {
     try {

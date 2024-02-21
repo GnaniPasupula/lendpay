@@ -7,14 +7,14 @@ class SucessDialogWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Error', style: TextStyle(color: Colors.red)),
+        title: Text('Success', style: TextStyle(color: Colors.green)),
         content: Text(message, style: TextStyle(color: Colors.black)),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
             },
-            child: Text('OK', style: TextStyle(color: Colors.red)),
+            child: Text('OK', style: TextStyle(color: Colors.green)),
           ),
         ],
       ),

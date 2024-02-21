@@ -7,17 +7,17 @@ class ErrorDialogWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Success', style: TextStyle(color: Colors.green)),
+        title: Text('Error', style: TextStyle(color: Colors.red)),
         content: Text(message, style: TextStyle(color: Colors.black)),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
             },
-            child: Text('OK', style: TextStyle(color: Colors.green)),
+            child: Text('OK', style: TextStyle(color: Colors.red)),
           ),
         ],
-        backgroundColor: Colors.yellow,
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       ),
     );
   }

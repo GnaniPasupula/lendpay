@@ -25,6 +25,9 @@ class _AuthScreenState extends State<AuthScreen> {
 
   bool _isSignIn = true; 
   bool passwordsMatch = false;
+  String? _emailErrorText;
+  String? _passwordErrorText;
+  String? _confirmPasswordErrorText;
 
    @override
   void initState() {
@@ -42,33 +45,6 @@ class _AuthScreenState extends State<AuthScreen> {
   // Future<void> _logout() async {
   //   await ApiHelper.logout(context);
   // }
-
-  Future<void> _signup() async {
-    // final url = 'http://localhost:3000/auth/signup';
-    const url = 'http://192.168.0.103:3000/auth/signup';
-
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        body: json.encode({
-          'email': _signUpEmailController.text,
-          'password': _signUpPasswordController.text,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 201) {
-        // Show OTP dialog after successful signup
-        _showOtpDialog();
-      } else {
-        final responseBody = json.decode(response.body);
-        final errorMessage = responseBody['message'];
-        ErrorDialogWidget.show(context,errorMessage);
-      }
-    } catch (error) {
-      print('Error during HTTP request: $error');
-    }
-  }
 
   Future<void> _signin() async {
     final url = 'http://localhost:3000/auth/signin';
@@ -104,27 +80,60 @@ class _AuthScreenState extends State<AuthScreen> {
     }  
   }
 
+  Future<void> _signup() async {
+    final url = 'http://localhost:3000/auth/signup';
+    // const url = 'http://192.168.0.103:3000/auth/signup';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: json.encode({
+          'email': _signUpEmailController.text,
+          'password': _signUpPasswordController.text,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print(response.body);
+
+      if (response.statusCode == 200) {
+        _showOtpDialog();
+      } else {
+        final responseBody = json.decode(response.body);
+        final errorMessage = responseBody['message'];
+        ErrorDialogWidget.show(context, errorMessage);
+      }
+    } catch (error) {
+      print('Error during HTTP request: $error');
+    }
+  }
+
   void _showOtpDialog() {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('Enter OTP'),
-        content: Column(
-          children: [
-            TextField(
-              controller: _otpController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: 'OTP'),
-            ),
-          ],
+        content: TextField(
+          controller: _otpController,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration
+                      (labelText: 'OTP',    
+                        labelStyle: TextStyle(color: Colors.black), 
+                        focusedBorder: UnderlineInputBorder
+                        (borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
+                      ),),
         ),
         actions: [
           ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+            ),
             onPressed: () {
-              Navigator.of(ctx).pop(); 
-              _validateOTP(); 
+              Navigator.of(ctx).pop();
+              _validateOTP();
             },
             child: Text('Submit'),
+            
           ),
         ],
       ),
@@ -132,8 +141,8 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _validateOTP() async {
-    // final url = 'http://localhost:3000/auth/verify-otp';
-    const url = 'http://192.168.0.103:3000/auth/verify-otp';
+    final url = 'http://localhost:3000/auth/verify-otp';
+    // const url = 'http://192.168.0.103:3000/auth/verify-otp';
 
     try {
       final response = await http.post(
@@ -145,17 +154,18 @@ class _AuthScreenState extends State<AuthScreen> {
         headers: {'Content-Type': 'application/json'},
       );
 
-      if (response.statusCode == 200) {
-        SucessDialogWidget.show(context,"Account created succesfully, sign in to continue");
+      if (response.statusCode == 201) {
+        SucessDialogWidget.show(context, "Account created successfully, sign in to continue");
       } else {
         final responseBody = json.decode(response.body);
         final errorMessage = responseBody['message'];
-        ErrorDialogWidget.show(context,errorMessage);
+        ErrorDialogWidget.show(context, errorMessage);
       }
     } catch (error) {
       print('Error during OTP validation: $error');
     }
   }
+
 
   Future<void> getActiveUserDetails() async{
     try{
@@ -166,12 +176,10 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(255, 255, 255, 1), // Set a dark background color
+      backgroundColor: const Color.fromRGBO(255, 255, 255, 1), 
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -188,7 +196,7 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 20), // Add some spacing
               ToggleButtons(
-                constraints: const BoxConstraints.tightFor(height: 30), // Set the desired height
+                constraints: const BoxConstraints.tightFor(height: 30), 
                 isSelected: [_isSignIn, !_isSignIn],
                 onPressed: (index) {
                   setState(() {
@@ -229,7 +237,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       controller: _signInEmailController,
                       style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                       decoration: const InputDecoration(
-                        labelText: 'Username',
+                        labelText: 'Email',
                         labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
@@ -256,37 +264,59 @@ class _AuthScreenState extends State<AuthScreen> {
                     TextField(
                       controller: _signUpEmailController,
                       style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
-                      decoration: const InputDecoration(
-                        labelText: 'Username',
+                      decoration: InputDecoration(
+                        labelText: 'Email',
                         labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
                         ),
+                        errorText: _emailErrorText,
                       ),
+                      keyboardType: TextInputType.emailAddress,
+                      onChanged: (value) {
+                        bool isValid = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value);
+                        setState(() {
+                          _emailErrorText = isValid ? null : 'Enter valid email';
+                        });
+                      },
                     ),
                     TextField(
                       controller: _signUpPasswordController,
                       style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Password',
                         labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
                         ),
+                        errorText: _passwordErrorText,
                       ),
                       obscureText: true,
+                      onChanged: (value) {
+                        setState(() {
+                          bool isValid = value.length >= 6;
+                          _passwordErrorText = isValid ? null : 'Password must be at least 6 characters';
+                        });
+                      },
                     ),
                     TextField(
                       controller: _confirmPasswordController,
                       style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Confirm Password',
                         labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
                         ),
+                        errorText: _confirmPasswordErrorText,
                       ),
                       obscureText: true,
+                      onChanged: (value) {
+                        setState(() {
+                          bool isValid = value == _signUpPasswordController.text;
+                          _confirmPasswordErrorText = isValid ? null : 'Passwords do not match';
+                        });
+                      },
                     ),
                   ],
                 ),
@@ -302,7 +332,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   child: IgnorePointer(
                     ignoring: (!_isSignIn && !passwordsMatch),
                     child: Opacity(
-                      opacity: (passwordsMatch && _signUpPasswordController.text.length!=0) || _isSignIn? 1.0 : 0.5,
+                      opacity: (passwordsMatch && _signUpPasswordController.text.length>=6) || _isSignIn? 1.0 : 0.5,
                       child: Text(
                         _isSignIn ? 'Sign In' : 'Sign Up',
                         style: TextStyle(
