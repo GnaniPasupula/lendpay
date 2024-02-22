@@ -79,7 +79,7 @@ router.post('/addTransaction', async (req, res) => {
     // console.dir(req.user, { depth: null });
     // console.dir(req.body, { depth: null });
 
-    console.dir(receiverUser, { depth: null });
+    // console.dir(receiverUser, { depth: null });
 
     const sender = await User.findOne({ email: senderEmail });
     const receiver = await User.findOne({fCMToken: receiverUser.fCMToken});
@@ -547,9 +547,9 @@ router.post('/addPayment', async (req, res) => {
     const { transactionID, paidAmount, date} = req.body;
 
     const transaction = await Transaction.findById(transactionID);
-    transaction.amountPaid+=transaction.subAmount;
+    transaction.amountPaid+=paidAmount;
 
-    const receiverEmail = transaction.receiver;
+    // const receiverEmail = transaction.receiver;
     const senderEmail = transaction.sender;
 
     const sender = await User.findOne({ email: senderEmail });
@@ -557,7 +557,7 @@ router.post('/addPayment', async (req, res) => {
     const subTransaction = new subTransactions({
       transactionID:transactionID,
       sender:senderEmail,
-      receiver:receiverEmail,
+      receiver:transaction.receiver,
       amount:paidAmount,
       date:date,
       type:"notreq"
@@ -570,6 +570,30 @@ router.post('/addPayment', async (req, res) => {
     await sender.save();
 
     res.status(200).json({ message: 'Payment added successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+router.post('/deletePayment', async (req, res) => {
+  try {
+    const {subtransactionID} = req.body;
+
+    const subTransaction = await subTransactions.findById(subtransactionID);
+    const transaction = await Transaction.findById(subTransaction.transactionID);
+
+    transaction.amountPaid-=subTransaction.amount;
+
+    const sender = await User.findOne({ email: subTransaction.sender });
+
+    await subTransactions.findByIdAndDelete(subtransactionID);
+    sender.subTransactions.pull(subtransactionID);R
+
+    await transaction.save();
+    await sender.save();
+
+    res.status(200).json({ message: 'Payment deleted successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });

@@ -160,7 +160,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                               builder: (BuildContext context) {
                                 return widget.viewAgreement.type != "req" ? AlertDialog(
                                   title: const Text('Pay Monthly Payment'),
-                                  content: const Text("Are you sure you want to pay the transaction request?"),
+                                  content: !widget.viewAgreement.receiver.contains('@')?const Text("Are you sure you want to add the monthly payment?"):const Text("Are you sure you want to send the payment request?"),
                                   actions: [
                                     TextButton(
                                       onPressed: () {
@@ -184,19 +184,18 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                               date: date,
                                             );
                                           }
-
+                                          Navigator.of(context).pop(); // Close the dialog
                                           showDialog(
                                             context: context,
                                             builder: (BuildContext context) {
                                               return AlertDialog(
                                                 title: const Text('Success'),
-                                                content: const Text('Payment request sent successfully.'),
+                                                content: !widget.viewAgreement.receiver.contains('@')?const Text('Payment added successfully.'):const Text('Payment request sent successfully.'),
                                                 actions: [
                                                   TextButton(
                                                     onPressed: () {
-                                                      Navigator.of(context).pop(); // Close the dialog
+                                                      Navigator.of(context).pop(); // Close the current dialog
                                                       Navigator.of(context).pop(); // Close the current page
-                                                      Navigator.pushReplacementNamed(context, '/dashboard');
                                                     },
                                                     child: const Text('OK'),
                                                   ),
@@ -284,7 +283,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                         return Padding(
                           padding: EdgeInsets.only(left: 14,right: 14),
                           child: Container(
-                            margin: EdgeInsets.only(top: 14.0),
+                            margin: EdgeInsets.only(top: 8.0),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               color: Color.fromRGBO(229, 229, 229, 0.3),

@@ -67,6 +67,28 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
     }
   }
 
+  Future<void> _deleteTransaction() async {
+    try {
+      await ApiHelper.deletePayment(
+        subtransactionID: widget.subTransaction.id,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Transaction deleted successfully'),
+        ),
+      );
+      Navigator.of(context).pop();
+    } catch (error) {
+      print('Error deleting transaction: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to delete transaction. Please try again.'),
+        ),
+      );
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     String formattedDate = dateFormat.format(widget.subTransaction.date);
@@ -132,7 +154,6 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // 6th row: "Title"
                           const Align(
                             alignment: Alignment.center,
                             child: Text(
@@ -147,13 +168,9 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
                             color: Colors.black,
                           ),
                           const SizedBox(height: 10.0),
-                          // 7th row: To: receiverName
                           Text('To: ${widget.subTransaction.receiver}'),
-                          // 8th row: Receiver mail
                           Text('${widget.subTransaction.receiver}@email.com'),
-                          // 9th row: From: senderName
                           Text('${widget.subTransaction.sender}'),
-                          // 10th row: Sender mail
                           Text('${widget.subTransaction.sender}@email.com'),
                           const SizedBox(height: 10.0),
                         ],
@@ -191,6 +208,38 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
                   ),
                 ],
               ),
-            )));
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("Confirm Delete"),
+                          content: Text("Are you sure you want to delete this transaction?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); 
+                              },
+                              child: Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); 
+                                _deleteTransaction();
+                              },
+                              child: Text("Delete"),
+                            ),
+                          ],
+                        );
+                      }
+                    );
+              },
+              child: Icon(Icons.delete),
+              backgroundColor: Colors.black,
+            ),
+          )
+        );      
   }
 }

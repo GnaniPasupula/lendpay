@@ -404,7 +404,7 @@ class _DashboardState extends State<Dashboard> {
                           return Padding(
                             padding: const EdgeInsets.only(left: 14, right: 14),
                             child: Container(
-                              margin: const EdgeInsets.only(top: 14.0),
+                              margin: const EdgeInsets.only(top: 8.0),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                                 color: const Color.fromRGBO(229, 229, 229, 0.3),

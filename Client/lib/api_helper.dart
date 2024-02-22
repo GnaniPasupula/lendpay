@@ -77,6 +77,36 @@ class ApiHelper {
     }
   }
 
+  static Future<void> deletePayment({
+    required String subtransactionID,
+  }) async {
+    final url = '$baseUrl/deletePayment';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'subtransactionID': subtransactionID,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        log('Payment deleted successfully');
+      } else {
+        throw Exception('Failed to delete payment');
+      }
+    } catch (e) {
+      throw Exception('Error deleting payment: $e');
+    }
+  }
+
 
   static Future<User?> verifyUser(String email) async {
     final url = '$baseUrl/users/$email';
