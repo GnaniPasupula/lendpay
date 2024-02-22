@@ -12,8 +12,42 @@ class ApiHelper {
   static final String baseUrl = 'http://localhost:3000/lendpay';
   // static final String baseUrl = 'http://192.168.0.103:3000/lendpay';
 
-  static Future<User?> addUser(String email, String name) async {
+  static Future<void> addUser(String? email, String name) async {
     final url = '$baseUrl/addUser';
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final Map<String, dynamic> requestBody = {
+        'name': name,
+      };
+
+      if (email != null) {
+        requestBody['email'] = email;
+      }
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 201) {
+        log('User added successfully');
+      } else {
+        throw Exception('Failed to create user: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error creating user: $e');
+    }
+  }
+
+
+  static Future<void> deleteUser(String userId) async {
+    final url = '$baseUrl/deleteUser';
     try {
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('authToken');
@@ -25,21 +59,19 @@ class ApiHelper {
           'Authorization': 'Bearer $authToken',
         },
         body: jsonEncode({
-          'email': email,
-          'name': name,
+          'userId': userId
         }),
       );
 
-      if (response.statusCode == 201) {
-        final dynamic jsonData = json.decode(response.body);
-        final User user = User.fromJson(jsonData);
+      print(response.body);
 
-        return user;
+      if (response.statusCode == 201) {
+        log('User deleted successfully');
       } else {
-        throw Exception('Failed to create user: ${response.statusCode}');
+        throw Exception('Failed to delete user: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error creating user: $e');
+      throw Exception('Error deleting user: $e');
     }
   }
 
@@ -371,7 +403,7 @@ class ApiHelper {
     }
   }
 
-  static Future<Transaction> addTransaction({
+  static Future<void> addTransaction({
     required User receiverUser,
     required num amount,
     required String startDate,
@@ -406,10 +438,10 @@ class ApiHelper {
         }),
       );
 
+      print(response.body);
+
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
-        final transaction = Transaction.fromJson(responseData['transaction']);
-        return transaction;
+        print('Transaction added successfully');
       } else if (response.statusCode == 404) {
         log('Sender or receiver not found');
         throw Exception('Sender or receiver not found');

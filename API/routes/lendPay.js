@@ -39,10 +39,11 @@ router.post('/addUser', async (req, res) => {
     const now = Date.now();   
 
     const userData = {
-      email: email || 'No Email',
+      email: (email?email+"*":name),
       password: 'No Password',
       name: name,
       fCMToken: req.user.userId+name+now,
+
     };
 
     const user = await User.create(userData);
@@ -51,7 +52,10 @@ router.post('/addUser', async (req, res) => {
     const activeUser = await User.findById(userId);
 
     activeUser.previousUsers.push(user._id);
+    user.previousUsers.push(userId);
+
     await activeUser.save();
+    await user.save();
 
     return res.status(201).json({message: "Successfully added User to contacts"});
   } catch (error) {
@@ -59,6 +63,41 @@ router.post('/addUser', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+router.post('/deleteUser', async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    const activeUserID= req.user.userId;
+
+    const deletedUser = await User.findById(userId);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const activeUser = await User.findById(activeUserID);
+    activeUser.previousUsers.pull(userId);
+
+    await Transaction.deleteMany({ $or: [{ sender: deletedUser.name }, { receiver: deletedUser.name }] });
+
+    await subTransactions.deleteMany({ $or: [{ sender: deletedUser.name }, { receiver: deletedUser.name }] });
+
+    activeUser.creditTransactions = activeUser.creditTransactions.filter(transactionId => !deletedUser.debitTransactions.includes(transactionId));
+    activeUser.debitTransactions = activeUser.debitTransactions.filter(transactionId => !deletedUser.creditTransactions.includes(transactionId));
+    activeUser.subTransactions = activeUser.subTransactions.filter(transactionId => !deletedUser.subTransactions.includes(transactionId));
+
+    await activeUser.save();
+
+    await User.findByIdAndDelete(userId);
+
+    return res.status(201).json({ message: 'User and associated transactions deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 router.post('/addTransaction', async (req, res) => {
   try {
@@ -124,10 +163,7 @@ router.post('/deleteTransaction', async (req, res) => {
       transactionID
     } = req.body;    
 
-    console.log(transactionID);
-
     const transaction = await Transaction.findById(transactionID);
-    console.dir(transaction);
     const amount=transaction.amount;
 
     const sender = await User.findOne({ email: transaction.sender });
@@ -135,7 +171,7 @@ router.post('/deleteTransaction', async (req, res) => {
     sender.totalCredit-=amount;
     // receiver.totalDebit-=amount;
 
-    sender.debitTransactions.pull(transaction._id);
+    sender.creditTransactions.pull(transaction._id);
     // receiver.creditTransactions.push(transaction._id);
 
     await Transaction.findByIdAndDelete(transactionID);
@@ -585,6 +621,7 @@ router.post('/addPayment', async (req, res) => {
     const senderEmail = transaction.sender;
 
     const sender = await User.findOne({ email: senderEmail });
+    const receiver = await User.findOne({previousUsers: sender._id, name:transaction.receiver});
 
     const subTransaction = new subTransactions({
       transactionID:transactionID,
@@ -596,10 +633,12 @@ router.post('/addPayment', async (req, res) => {
     });
 
     sender.subTransactions.push(subTransaction);
+    receiver.subTransactions.push(subTransaction);
 
     await subTransaction.save();
     await transaction.save();
     await sender.save();
+    await receiver.save();
 
     res.status(200).json({ message: 'Payment added successfully' });
   } catch (error) {
@@ -620,7 +659,7 @@ router.post('/deletePayment', async (req, res) => {
     const sender = await User.findOne({ email: subTransaction.sender });
 
     await subTransactions.findByIdAndDelete(subtransactionID);
-    sender.subTransactions.pull(subtransactionID);R
+    sender.subTransactions.pull(subtransactionID);
 
     await transaction.save();
     await sender.save();

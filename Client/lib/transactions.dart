@@ -90,7 +90,6 @@ class _TransactionsState extends State<TransactionsPage> {
     }
   }
 
-
   Future<void> saveTransactionsToPrefs() async {
     final List<String> transactionsString = allTransactionsUser
         .map((transaction) => jsonEncode(transaction.toJson()))
@@ -99,6 +98,24 @@ class _TransactionsState extends State<TransactionsPage> {
     await prefs.setStringList('${widget.activeuser.email}/${widget.otheruser.email}/transactions', transactionsString);
   }
 
+  Future<void> _deleteUser(String userId) async {
+    try {
+      await ApiHelper.deleteUser(userId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('User deleted successfully'),
+        ),
+      );
+      Navigator.of(context).pop();
+    } catch (error) {
+      print('Error deleting user: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to delete user. Please try again.'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +143,7 @@ class _TransactionsState extends State<TransactionsPage> {
     //H=812 , W=375
 
     return Scaffold(
-      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+      backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
       appBar: AppBar(
         title: Container(
             decoration: BoxDecoration(
@@ -137,7 +154,7 @@ class _TransactionsState extends State<TransactionsPage> {
               children: [
                 CircleAvatar(
                   radius: screenHeight * 0.07 * 0.75 * 0.5,
-                  backgroundColor: Color.fromRGBO(218, 218, 218, 1),
+                  backgroundColor: const Color.fromRGBO(218, 218, 218, 1),
                   child: Icon(Icons.person, color: const Color.fromARGB(255, 0, 0, 0), size: screenHeight * 0.07 * 0.75),
                 ),
                 SizedBox(width: 23 * widthMultiplier),
@@ -147,20 +164,56 @@ class _TransactionsState extends State<TransactionsPage> {
                   children: [
                     Text(
                       widget.otheruser.name,
-                      style: TextStyle(fontSize: textMultiplier * 14, color: Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: textMultiplier * 14, color: const Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
                     ),
                     Text(
                       widget.otheruser.email,
-                      style: TextStyle(fontSize: textMultiplier * 12, color: Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: textMultiplier * 12, color: const Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
               ],
             ),
           ),        
-        backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+        backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.black),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'delete') {
+                _deleteUser(widget.otheruser.id);
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem<String>(
+                  value: 'delete',
+                  child: Container(
+                    width: 112, 
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12), 
+                    child: const Row(
+                      children: [
+                        Icon(Icons.delete, size: 24), 
+                        SizedBox(width: 12), 
+                        Expanded(
+                          child: Text(
+                            'Delete',
+                            textAlign: TextAlign.start, 
+                            style: TextStyle(
+                              fontSize: 16, 
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ];
+            },
+          ),
+
+        ],
       ),
       body: Column(
         children: [
@@ -177,14 +230,14 @@ class _TransactionsState extends State<TransactionsPage> {
           Container(
             width: searchBarWidth,
             height: searchBarHeight,
-            margin: EdgeInsets.only(bottom: 10), 
+            margin: const EdgeInsets.only(bottom: 10), 
             decoration: BoxDecoration(
-              color: Color.fromRGBO(229, 229, 229, 1),
+              color: const Color.fromRGBO(229, 229, 229, 1),
               borderRadius: BorderRadius.circular(5),
             ),
             child: Row(
               children: [
-                SizedBox(width: 8), 
+                const SizedBox(width: 8), 
                 Expanded(
                   child: TextField(
                     controller: messageController,
@@ -197,16 +250,16 @@ class _TransactionsState extends State<TransactionsPage> {
                       hintText: 'Enter amount',
                       hintStyle: TextStyle(
                         fontSize: textMultiplier * 12,
-                        color: Color.fromRGBO(107, 114, 120, 1),
+                        color: const Color.fromRGBO(107, 114, 120, 1),
                         fontWeight: FontWeight.w500,
                       ),
                       suffixIcon: IconButton(
-                        icon: Icon(Icons.send, color: Color.fromRGBO(0, 0, 0, 1)),
+                        icon: const Icon(Icons.send, color: Color.fromRGBO(0, 0, 0, 1)),
                         onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => AgreementPage(amount: int.parse(messageController.text), otheruser: widget.otheruser, fetchTransactionsFromAPI: fetchTransactionsFromAPI)));
                         },
                       ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 7, horizontal: 8), 
+                      contentPadding: const EdgeInsets.symmetric(vertical: 7, horizontal: 8), 
                       border: InputBorder.none,
                     ),
                     cursorColor: Colors.black,
