@@ -27,10 +27,15 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
   late String tempDirPath;
   late ScreenshotController screenshotController;
 
+  bool isManual=false;
+
   @override
   void initState() {
     super.initState();
     _fetchLoan();
+    setState(() {
+      isManual=(!widget.subTransaction.sender.contains("@") || !widget.subTransaction.receiver.contains("@"))?true:false;
+    });
     screenshotController = ScreenshotController();
   }
 
@@ -67,14 +72,14 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
     }
   }
 
-  Future<void> _deleteTransaction() async {
+  Future<void> _deletePayment() async {
     try {
       await ApiHelper.deletePayment(
         subtransactionID: widget.subTransaction.id,
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Transaction deleted successfully'),
+          content: Text('Payment deleted successfully'),
         ),
       );
       Navigator.of(context).pop();
@@ -82,7 +87,7 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
       print('Error deleting transaction: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to delete transaction. Please try again.'),
+          content: Text('Failed to delete payment. Please try again.'),
         ),
       );
     }
@@ -209,7 +214,7 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
                 ],
               ),
             ),
-            floatingActionButton: FloatingActionButton(
+            floatingActionButton: !isManual ? null : FloatingActionButton(
               onPressed: () {
                     showDialog(
                       context: context,
@@ -227,7 +232,7 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
                             TextButton(
                               onPressed: () {
                                 Navigator.of(context).pop(); 
-                                _deleteTransaction();
+                                _deletePayment();
                               },
                               child: Text("Delete"),
                             ),

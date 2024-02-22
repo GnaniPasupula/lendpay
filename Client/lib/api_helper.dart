@@ -421,6 +421,30 @@ class ApiHelper {
     }
   }
 
+  static Future<void> deleteTransaction({
+    required String transactionID
+  })async {
+    final url = '$baseUrl/deleteTransaction';
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $authToken','Content-Type': 'application/json',},
+        body: jsonEncode({'transactionID': transactionID}),
+      );
+
+      if (response.statusCode == 200) {
+        print('Transaction deleted successfully');
+      } else {
+        throw Exception('Failed to delete transaction');
+      }
+    } catch (e) {
+      throw Exception('Error deleting transaction: $e');
+    }
+  }
+
   static Future<Transaction> sendTransactionRequest({
     required String receiverEmail,
     required num amount,

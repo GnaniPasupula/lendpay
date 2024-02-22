@@ -105,11 +105,43 @@ router.post('/addTransaction', async (req, res) => {
     sender.totalCredit+=amount;
     receiver.totalDebit+=amount;
 
-    sender.debitTransactions.push(transaction._id);
-    receiver.creditTransactions.push(transaction._id);
+    sender.creditTransactions.push(transaction._id);
+    receiver.debitTransactions.push(transaction._id);
 
     await sender.save();
     await receiver.save();
+
+    res.status(200).json({ message: 'Transaction added successfully'});
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+});
+
+router.post('/deleteTransaction', async (req, res) => {
+  try {
+    const {
+      transactionID
+    } = req.body;    
+
+    console.log(transactionID);
+
+    const transaction = await Transaction.findById(transactionID);
+    console.dir(transaction);
+    const amount=transaction.amount;
+
+    const sender = await User.findOne({ email: transaction.sender });
+
+    sender.totalCredit-=amount;
+    // receiver.totalDebit-=amount;
+
+    sender.debitTransactions.pull(transaction._id);
+    // receiver.creditTransactions.push(transaction._id);
+
+    await Transaction.findByIdAndDelete(transactionID);
+
+    await sender.save();
+    // await receiver.save();
 
     res.status(200).json({ message: 'Transaction added successfully'});
   } catch (error) {

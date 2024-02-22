@@ -24,11 +24,15 @@ class SingleAgreementPage extends StatefulWidget {
 class _SingleAgreementState extends State<SingleAgreementPage> {
 
   List<subTransactions> allsubTransactions = [];
+  bool isManual=false;
 
   @override
   void initState() {
     super.initState();
     _fetchSubTransactions();
+    setState(() {
+      isManual=(!widget.viewAgreement.sender.contains("@") || !widget.viewAgreement.receiver.contains("@"))?true:false;
+    });
   }
 
   Future<void> _fetchSubTransactions() async {
@@ -41,6 +45,27 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
     } catch (e) {
       print(e);
       // Handle error and show a proper error message to the user
+    }
+  }
+
+  void _deleteTransaction() async {
+    // print(widget.viewAgreement.toJson());
+    try {
+      await ApiHelper.deleteTransaction(transactionID: widget.viewAgreement.id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Transaction deleted successfully'),
+        ),
+      );
+      Navigator.of(context).pop();
+      print("Transaction deleted successfully");
+    } catch (e) {
+      print("Error deleting transaction: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to delete transaction. Please try again.'),
+        ),
+      );
     }
   }
 
@@ -347,6 +372,36 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                 ),
           ),
           ],
+        ),
+        floatingActionButton: !isManual ? null : FloatingActionButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text("Confirm Delete"),
+                  content: Text("Are you sure you want to delete this Loan?"),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); 
+                      },
+                      child: Text("Cancel"),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        _deleteTransaction();
+                        Navigator.of(context).pop(); 
+                      },
+                      child: Text("Delete"),
+                    ),
+                  ],
+                );
+              }
+            );
+          },
+          child: Icon(Icons.delete),
+          backgroundColor: Colors.black,
         ),
       );
   }
