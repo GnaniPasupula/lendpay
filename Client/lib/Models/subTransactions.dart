@@ -9,6 +9,7 @@ class subTransactions {
   final DateTime time;
   final DateTime date;
   final String type;
+  final bool isCredit;
 
   subTransactions({
     required this.id,
@@ -19,6 +20,7 @@ class subTransactions {
     required this.time,
     required this.date,
     required this.type,
+    required this.isCredit
   });
 
   factory subTransactions.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,7 @@ class subTransactions {
       time: timeFormat.parse(json['time']),
       date: dateFormat.parse(json['date']),
       type: json['type'],
+      isCredit: json['isCredit']
     );
   }
 
@@ -47,7 +50,8 @@ class subTransactions {
       'amount': amount,
       'time': time,
       'date': date,
-      'type': type
+      'type': type,
+      'isCredit': isCredit
     };
   }
 }

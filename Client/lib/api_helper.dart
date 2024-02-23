@@ -12,7 +12,7 @@ class ApiHelper {
   static final String baseUrl = 'http://localhost:3000/lendpay';
   // static final String baseUrl = 'http://192.168.0.103:3000/lendpay';
 
-  static Future<void> addUser(String? email, String name) async {
+  static Future<void> addUser(String name) async {
     final url = '$baseUrl/addUser';
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -21,10 +21,6 @@ class ApiHelper {
       final Map<String, dynamic> requestBody = {
         'name': name,
       };
-
-      if (email != null) {
-        requestBody['email'] = email;
-      }
 
       final response = await http.post(
         Uri.parse(url),
@@ -79,6 +75,7 @@ class ApiHelper {
     required String transactionID,
     required String date,
     required num paidAmount,
+    required bool isCredit
   }) async {
     final url = '$baseUrl/addPayment';
 
@@ -96,6 +93,7 @@ class ApiHelper {
           'transactionID': transactionID,
           'date': date,
           'paidAmount': paidAmount,
+          'isCredit': isCredit
         }),
       );
 
@@ -414,6 +412,7 @@ class ApiHelper {
     required num loanPeriod,
     required num interestAmount,
     required num totalAmount,
+    required bool isCredit
   }) async {
     final url = '$baseUrl/addTransaction';
 
@@ -488,6 +487,7 @@ class ApiHelper {
     required num loanPeriod,
     required num interestAmount,
     required num totalAmount,
+    required bool isCredit
   }) async {
     final url = '$baseUrl/request';
 
@@ -509,6 +509,7 @@ class ApiHelper {
           'loanPeriod': loanPeriod,
           'interestAmount': interestAmount,
           'totalAmount': totalAmount,
+          'isCredit': isCredit
         }),
       );
 
@@ -618,6 +619,7 @@ class ApiHelper {
     required String transactionID,
     required num paidAmount,
     required String date,
+    required bool isCredit
     }) async {
     final url = '$baseUrl/requestpayment';
 
@@ -634,7 +636,8 @@ class ApiHelper {
         body: jsonEncode({
           'transactionID': transactionID,
           'paidAmount': paidAmount,
-          'date': date
+          'date': date,
+          'isCredit': isCredit
         }),
       );
 

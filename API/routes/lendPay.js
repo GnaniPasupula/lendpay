@@ -34,16 +34,18 @@ router.get('/dashboard', async (req, res) => {
 
 router.post('/addUser', async (req, res) => {
   try {
-    const { name,email } = req.body;
+    const { name } = req.body;
 
-    const now = Date.now();   
+    const existingUser = await User.findOne({ name, fCMToken: { $regex: req.user.userId } });
+
+    if (existingUser) {
+      return res.status(400).json({ message: 'User with the same name already exists' });
+    }
 
     const userData = {
-      email: (email?email+"*":name),
       password: 'No Password',
       name: name,
-      fCMToken: req.user.userId+name+now,
-
+      fCMToken: req.user.userId + name,
     };
 
     const user = await User.create(userData);
@@ -57,12 +59,13 @@ router.post('/addUser', async (req, res) => {
     await activeUser.save();
     await user.save();
 
-    return res.status(201).json({message: "Successfully added User to contacts"});
+    return res.status(201).json({ message: "Successfully added User to contacts" });
   } catch (error) {
     console.error('Error creating user:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 router.post('/deleteUser', async (req, res) => {
   try {
@@ -112,6 +115,7 @@ router.post('/addTransaction', async (req, res) => {
       loanPeriod,
       interestAmount,
       totalAmount,
+      isCredit
     } = req.body;    
 
     const senderEmail = req.user.userEmail;
@@ -136,7 +140,8 @@ router.post('/addTransaction', async (req, res) => {
       loanPeriod,
       interestAmount,
       totalAmount,
-      type: "notReq"
+      type: "notReq",
+      isCredit: isCredit
     });
 
     await transaction.save();
@@ -144,8 +149,13 @@ router.post('/addTransaction', async (req, res) => {
     sender.totalCredit+=amount;
     receiver.totalDebit+=amount;
 
-    sender.creditTransactions.push(transaction._id);
-    receiver.debitTransactions.push(transaction._id);
+    if(isCredit){
+      sender.creditTransactions.push(transaction._id);
+      receiver.debitTransactions.push(transaction._id);
+    }else{
+      sender.debitTransactions.push(transaction._id);
+      receiver.creditTransactions.push(transaction._id);
+    }
 
     await sender.save();
     await receiver.save();
@@ -398,6 +408,7 @@ router.post('/request', async (req, res) => {
       loanPeriod,
       interestAmount,
       totalAmount,
+      isCredit: true
     });
 
     sender.requests.push(transaction._id);
@@ -612,7 +623,7 @@ router.get('/user/request', async (req,res)=>{
 
 router.post('/addPayment', async (req, res) => {
   try {
-    const { transactionID, paidAmount, date} = req.body;
+    const { transactionID, paidAmount, date, isCredit} = req.body;
 
     const transaction = await Transaction.findById(transactionID);
     transaction.amountPaid+=paidAmount;
@@ -629,7 +640,8 @@ router.post('/addPayment', async (req, res) => {
       receiver:transaction.receiver,
       amount:paidAmount,
       date:date,
-      type:"notreq"
+      type:"notreq",
+      isCredit: !isCredit
     });
 
     sender.subTransactions.push(subTransaction);
@@ -673,7 +685,7 @@ router.post('/deletePayment', async (req, res) => {
 
 router.post('/requestpayment', async (req, res) => {
   try {
-    const { transactionID, paidAmount, date} = req.body;
+    const { transactionID, paidAmount, date, isCredit} = req.body;
 
     const transaction = await Transaction.findById(transactionID);
 
@@ -688,7 +700,8 @@ router.post('/requestpayment', async (req, res) => {
       sender:senderEmail,
       receiver:receiverEmail,
       amount:paidAmount,
-      date:date
+      date:date,
+      isCredit: !isCredit
     });
 
     sender.paymentrequests.push(subTransaction);

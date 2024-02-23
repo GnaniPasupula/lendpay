@@ -3,11 +3,9 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
-import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/singleAgreementPage.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:provider/provider.dart';
 
@@ -90,7 +88,6 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
 
   TextEditingController searchController = TextEditingController();
 
-  
   bool foundUser = false;
 
   late String username;
@@ -115,7 +112,7 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
         }
       }); 
     }catch(e){ 
-      ErrorDialogWidget.show(context,"Error seaechiomg");
+      ErrorDialogWidget.show(context,"Error searching");
       print(e);
     }
   }

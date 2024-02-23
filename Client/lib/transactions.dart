@@ -28,6 +28,8 @@ class _TransactionsState extends State<TransactionsPage> {
 
   bool isLoading = true;
   bool isManual = false;
+  bool isCredit =true;
+  bool isEmpty = true;
 
   @override
   void initState() {
@@ -35,6 +37,13 @@ class _TransactionsState extends State<TransactionsPage> {
     _fetchTransactions();
     setState(() {
       isManual=!widget.otheruser.fCMToken.contains((widget.otheruser.name))?false:true;
+    });
+    messageController.addListener(updateSendButtonState);
+  }
+
+  void updateSendButtonState(){
+    setState(() {
+      isEmpty=messageController.text.isEmpty;
     });
   }
 
@@ -236,8 +245,9 @@ class _TransactionsState extends State<TransactionsPage> {
               borderRadius: BorderRadius.circular(5),
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(width: 8), 
+                // const SizedBox(width: 8), 
                 Expanded(
                   child: TextField(
                     controller: messageController,
@@ -253,13 +263,56 @@ class _TransactionsState extends State<TransactionsPage> {
                         color: const Color.fromRGBO(107, 114, 120, 1),
                         fontWeight: FontWeight.w500,
                       ),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.send, color: Color.fromRGBO(0, 0, 0, 1)),
+                      prefixIcon: widget.otheruser.fCMToken.contains(widget.otheruser.name)?IconButton(
+                        icon: isCredit 
+                          ? Icon(Icons.add_circle_outline_outlined, color: Colors.green)
+                          : Icon(Icons.remove_circle_outline_outlined, color: Colors.red),
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => AgreementPage(amount: int.parse(messageController.text), otheruser: widget.otheruser, fetchTransactionsFromAPI: fetchTransactionsFromAPI)));
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Container(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    ListTile(
+                                      title: Text('Credit'),
+                                      onTap: () {
+                                        Navigator.pop(context, true); 
+                                      },
+                                    ),
+                                    ListTile(
+                                      title: Text('Debit'),
+                                      onTap: () {
+                                        Navigator.pop(context, false); 
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ).then((value) {
+                            if (value != null) {
+                              setState(() {
+                                isCredit = value; 
+                              });
+                            }
+                          });
                         },
+                      ):null,
+                    suffixIcon: IgnorePointer(
+                      ignoring: isEmpty,
+                      child: Opacity(
+                        opacity: !isEmpty ? 1.0 : 0.5,
+                        child: IconButton(
+                          icon: const Icon(Icons.send, color: Color.fromRGBO(0, 0, 0, 1)),
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => AgreementPage(amount: int.parse(messageController.text), otheruser: widget.otheruser, fetchTransactionsFromAPI: fetchTransactionsFromAPI,isCredit: isCredit)));
+                          },
+                        ),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 7, horizontal: 8), 
+                    ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8), 
                       border: InputBorder.none,
                     ),
                     cursorColor: Colors.black,

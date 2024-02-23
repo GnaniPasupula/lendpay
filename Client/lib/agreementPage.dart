@@ -11,8 +11,9 @@ class AgreementPage extends StatefulWidget {
   final num amount;
   final User otheruser;
   final void Function() fetchTransactionsFromAPI;
+  final bool isCredit;
 
-  AgreementPage({required this.amount, required this.otheruser, required this.fetchTransactionsFromAPI});
+  AgreementPage({required this.amount, required this.otheruser, required this.fetchTransactionsFromAPI, required this.isCredit});
 
   @override
   _AgreementPageState createState() => _AgreementPageState();
@@ -221,9 +222,9 @@ class _AgreementPageState extends State<AgreementPage> {
                               TextButton(
                                 onPressed: () async {
                                   if (widget.otheruser.fCMToken.contains(widget.otheruser.name)) {
-                                    await ApiHelper.addTransaction(receiverUser: widget.otheruser, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
+                                    await ApiHelper.addTransaction(receiverUser: widget.otheruser, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount, isCredit:widget.isCredit);
                                   } else {
-                                    await ApiHelper.sendTransactionRequest(receiverEmail: widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount);
+                                    await ApiHelper.sendTransactionRequest(receiverEmail: widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount,isCredit:widget.isCredit);
                                     await FirebaseApi().sendNotificationToUser(receiverToken: widget.otheruser.fCMToken, title: "Loan Request", body: userProvider.activeUser.email);
                                   }
                                   widget.fetchTransactionsFromAPI();

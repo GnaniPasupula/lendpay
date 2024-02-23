@@ -17,6 +17,7 @@ class Transaction {
   final num amountPaid;
   final String note;
   final String type;
+  final bool isCredit;
 
   Transaction({
     required this.id,
@@ -35,6 +36,7 @@ class Transaction {
     required this.amountPaid,
     required this.note,
     required this.type,
+    required this.isCredit
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
@@ -59,6 +61,7 @@ class Transaction {
       amountPaid: json['amountPaid'],
       note: json['note'],
       type: json['type'],
+      isCredit: json['isCredit']
     );
   }
 
@@ -84,6 +87,7 @@ class Transaction {
       'amountPaid': amountPaid,
       'note': note,
       'type': type,
+      'isCredit': isCredit
     };
   }
 }

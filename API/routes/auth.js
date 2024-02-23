@@ -67,7 +67,7 @@ router.post('/verify-otp', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(signupDetails.password, 10);
-    const newUser = new User({ email: signupDetails.email, password: hashedPassword });
+    const newUser = new User({ email: signupDetails.email, password: hashedPassword, fCMToken:signupDetails.email});
     await newUser.save();
 
     delete temporaryStorage[email];

@@ -94,7 +94,7 @@ class _AuthScreenState extends State<AuthScreen> {
         headers: {'Content-Type': 'application/json'},
       );
 
-      print(response.body);
+      // print(response.body);
 
       if (response.statusCode == 200) {
         _showOtpDialog();

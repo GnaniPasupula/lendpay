@@ -465,30 +465,20 @@ class _DashboardState extends State<Dashboard> {
                                                             FontWeight.w500),
                                                   ),
                                                   Text(
-                                                    DateFormat('dd-MM-yyyy')
-                                                        .format(subTransaction
-                                                            .date),
-                                                    style: TextStyle(
-                                                        fontSize:
-                                                            textMultiplier * 12,
-                                                        color: const Color
-                                                            .fromRGBO(
-                                                            107, 114, 120, 1),
-                                                        fontWeight:
-                                                            FontWeight.w500),
+                                                    DateFormat('dd-MM-yyyy').format(subTransaction.date),
+                                                    style: TextStyle(fontSize:textMultiplier * 12,
+                                                        color: const Color.fromRGBO(107, 114, 120, 1),
+                                                        fontWeight:FontWeight.w500),
                                                   ),
                                                 ],
                                               ),
                                               Text(
-                                                subTransaction.amount
-                                                    .toString(),
+                                                subTransaction.amount.toString(),
                                                 style: TextStyle(
-                                                    fontSize:
-                                                        textMultiplier * 16,
-                                                    color: const Color.fromRGBO(
-                                                        0, 0, 0, 1),
-                                                    fontWeight:
-                                                        FontWeight.w600),
+                                                    fontSize:textMultiplier * 16,
+                                                    color: const Color.fromRGBO(0, 0, 0, 1),
+                                                    fontWeight:FontWeight.w600
+                                                ),
                                               ),
                                             ],
                                           ),

@@ -32,18 +32,16 @@ class AddUserDialog extends StatefulWidget {
 
 class _AddUserDialogState extends State<AddUserDialog> {
   TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
 
   @override
   void dispose() {
     nameController.dispose();
-    emailController.dispose();
     super.dispose();
   }
 
   Future<void> addUser(BuildContext context) async {
     try {
-      await ApiHelper.addUser(emailController.text, nameController.text);
+      await ApiHelper.addUser(nameController.text);
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -56,7 +54,7 @@ class _AddUserDialogState extends State<AddUserDialog> {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: nameController.text.isNotEmpty?Text('Error adding user: $e'):const Text('Name is required'),
+          content: nameController.text.isNotEmpty?const Text('Error: Name already exists'):const Text('Name is required'),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -84,16 +82,9 @@ class _AddUserDialogState extends State<AddUserDialog> {
               SizedBox(height: 16 * textMultiplier),
               ProfileOption(
                 icon: Icons.person,
-                label: 'Name *',
+                label: 'Name',
                 value: nameController.text,
                 controller: nameController,
-              ),
-              SizedBox(height: 8 * textMultiplier),
-              ProfileOption(
-                icon: Icons.mail,
-                label: 'Email',
-                value: emailController.text,
-                controller: emailController,
               ),
               SizedBox(height: 24 * textMultiplier),
               Row(

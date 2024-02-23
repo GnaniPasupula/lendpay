@@ -201,15 +201,17 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                               transactionID: widget.viewAgreement.id,
                                               paidAmount: widget.viewAgreement.interestAmount,
                                               date: date,
+                                              isCredit: widget.viewAgreement.isCredit
                                             );
                                             }else{
                                             await ApiHelper.sendTransactionPaymentRequest(
                                               transactionID: widget.viewAgreement.id,
                                               paidAmount: widget.viewAgreement.interestAmount,
                                               date: date,
+                                              isCredit: widget.viewAgreement.isCredit
                                             );
                                           }
-                                          Navigator.of(context).pop(); // Close the dialog
+                                          Navigator.of(context).pop(); 
                                           showDialog(
                                             context: context,
                                             builder: (BuildContext context) {
@@ -429,5 +431,4 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
       ],
     );
   }
-
 }

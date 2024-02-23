@@ -17,6 +17,7 @@ const transactionSchema = new mongoose.Schema({
   amountPaid: {type: Number, required: true , default:0},
   note: { type: String, required: false , default:""},
   type: { type: String, required: true , default:"req"},
+  isCredit: {type: Boolean, required: true, default: true}
 });
 
 const Transaction = mongoose.model('Transaction', transactionSchema);

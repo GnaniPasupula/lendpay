@@ -9,6 +9,7 @@ const subTransactionSchema = new mongoose.Schema({
   time: { type: String, default: () => new Date().toLocaleTimeString() , required: true},
   date: { type: String, default: Date.now , required: true},
   type: { type: String, required: true , default:"req"},
+  isCredit: {type: Boolean, required: true, default: false}
 });
 
 const subTransactions = mongoose.model('subTransactions', subTransactionSchema);

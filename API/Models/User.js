@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
   totalDebit: { type: Number, required: true, default: 0 },
   previousUsers: [{type: mongoose.Schema.Types.ObjectId,ref: 'User',required:true, default:[]}],
   subTransactions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'subTransactions',required:true, default:[] }], 
-  fCMToken: {type: String, default:"", unique: true}
+  fCMToken: {type: String, default:"", required: true}
 });
 
 
