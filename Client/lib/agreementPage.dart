@@ -224,8 +224,8 @@ class _AgreementPageState extends State<AgreementPage> {
                                   if (widget.otheruser.fCMToken.contains(widget.otheruser.name)) {
                                     await ApiHelper.addTransaction(receiverUser: widget.otheruser, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount, isCredit:widget.isCredit);
                                   } else {
-                                    await ApiHelper.sendTransactionRequest(receiverEmail: widget.otheruser.email, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount,isCredit:widget.isCredit);
-                                    await FirebaseApi().sendNotificationToUser(receiverToken: widget.otheruser.fCMToken, title: "Loan Request", body: userProvider.activeUser.email);
+                                    await ApiHelper.sendTransactionRequest(receiverEmail: widget.otheruser.email!, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount,isCredit:widget.isCredit);
+                                    await FirebaseApi().sendNotificationToUser(receiverToken: widget.otheruser.fCMToken, title: "Loan Request", body: userProvider.activeUser.email!);
                                   }
                                   widget.fetchTransactionsFromAPI();
                                   Navigator.of(context).pop();

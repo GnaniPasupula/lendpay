@@ -1,6 +1,6 @@
 class User {
   final String id;
-  String email;
+  String? email;
   String password;
   String name;
   List<String> creditTransactions;
@@ -15,7 +15,7 @@ class User {
   
   User({
     required this.id,
-    required this.email,
+    this.email,
     required this.password,
     required this.name,
     required this.creditTransactions,

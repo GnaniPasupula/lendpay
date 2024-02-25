@@ -55,7 +55,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: () async {
                   if (newName.isNotEmpty) {
                     try{
-                      await ApiHelper.changeName(newName, activeUser.email);  
+                      await ApiHelper.changeName(newName, activeUser.email!);  
                       setState(() {
                         activeUser.name = newName;
                       });
@@ -118,7 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               TextButton(
                 onPressed: () {
                   if (newPassword == confirmNewPassword) {
-                    ApiHelper.changePassword(activeUser.email, oldPassword, newPassword);
+                    ApiHelper.changePassword(activeUser.email!, oldPassword, newPassword);
                   }
                   Navigator.pop(context);
                 },
@@ -159,7 +159,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ProfileOption(
                   icon: Icons.mail_outline,
                   label: 'Email',
-                  value: activeUser.email,
+                  value: activeUser.email!,
                   onPressed: () {
                     Null;
                   },

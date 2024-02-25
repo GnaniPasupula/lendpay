@@ -83,7 +83,7 @@ class _TransactionsState extends State<TransactionsPage> {
       List<Transaction> fetchedTransactions = [];
 
       if(!isManual){
-        fetchedTransactions = await ApiHelper.fetchUserTransactions(widget.otheruser.email);
+        fetchedTransactions = await ApiHelper.fetchUserTransactions(widget.otheruser.email!);
       }else{
         fetchedTransactions = await ApiHelper.fetchManualUserTransactions(widget.otheruser.name);
       }
@@ -176,7 +176,7 @@ class _TransactionsState extends State<TransactionsPage> {
                       style: TextStyle(fontSize: textMultiplier * 14, color: const Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
                     ),
                     Text(
-                      widget.otheruser.email,
+                      widget.otheruser.email??'',
                       style: TextStyle(fontSize: textMultiplier * 12, color: const Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
                     ),
                   ],

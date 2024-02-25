@@ -223,7 +223,7 @@ Widget build(BuildContext context) {
                                     style: TextStyle(fontSize: textMultiplier * 14, color: Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
                                   ),
                                   Text(
-                                    otheruser.email,
+                                    otheruser.email??'',
                                     style: TextStyle(fontSize: textMultiplier * 12, color: Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
                                   ),
                                 ],
