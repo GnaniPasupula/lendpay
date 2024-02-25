@@ -4,6 +4,7 @@ const User = require('../Models/User');
 const Transaction = require('../Models/Transaction'); 
 const subTransactions = require('../Models/subTransactions');
 const bcrypt = require('bcrypt');
+const cron = require('node-cron');
 
 router.get('/dashboard', async (req, res) => {
   const userId = req.user.userId;
@@ -878,5 +879,54 @@ router.post('/store-fcm-token', async (req, res) => {
     res.status(500).json({ message: 'An error occurred' });
   }
 });
+
+cron.schedule('0 8 * * *', async () => { 
+  try {
+    const fiveDaysFromNow = new Date();
+    fiveDaysFromNow.setDate(fiveDaysFromNow.getDate() + 5);
+
+    const transactions = await Transaction.find({ endDate: { $lte: fiveDaysFromNow } });
+
+    for (const transaction of transactions) {
+      const senderEmail = transaction.sender; 
+      const senderReminderMessage = `Reminder: Your Payment of ${transaction.subAmount} for Loan with ID ${transaction._id} is to be paid by ${transaction.endDate}.`;
+
+      await sendReminderEmail(senderEmail, senderReminderMessage);
+
+      const receiverEmail = transaction.receiver; 
+      const receiverReminderMessage = `Reminder: ${transaction.sender} has to pay you ${transaction.subAmount} for Loan with ID ${transaction._id} by ${transaction.endDate}.`;
+
+      await sendReminderEmail(receiverEmail, receiverReminderMessage);
+    }
+
+    console.log('Reminders sent successfully');
+  } catch (error) {
+    console.error('Error sending reminders:', error);
+  }
+});
+
+const sendReminderEmail = async (email, message) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.MAIL_EMAIL,
+        pass: process.env.MAIL_PASS
+      }
+    });
+
+    const mailOptions = {
+      from: process.env.MAIL_EMAIL,
+      to: email,
+      subject: 'Loan Payment Reminder',
+      text: message
+    };
+
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw new Error('Error sending email');
+  }
+};
 
 module.exports = router; 

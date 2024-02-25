@@ -5,7 +5,8 @@ import 'package:http/http.dart' as http;
 class FirebaseApi {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   // static const String fcmServerKey = '07efb902e96cf85bf4abf6d23043e82aec9384cf';
-  static const String serverUrl = 'http://192.168.0.103:3000/send-notification';
+  // static const String serverUrl = 'http://192.168.0.103:3000/send-notification';
+  static const String serverUrl = 'http://localhost:3000/send-notification';
 
   Future<void> initNotifications() async {
     await _firebaseMessaging.requestPermission();
