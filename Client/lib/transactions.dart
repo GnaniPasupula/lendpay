@@ -51,13 +51,15 @@ class _TransactionsState extends State<TransactionsPage> {
     try {
       prefs = await SharedPreferences.getInstance();
       final List<String>? transactionsString =
-          prefs.getStringList('${widget.activeuser.email}/${widget.otheruser.email}/transactions');
+          prefs.getStringList('${widget.activeuser.email}/${widget.otheruser.email??widget.otheruser.name}/transactions');
 
       if (transactionsString != null) {
-        allTransactionsUser = transactionsString
+        setState(() {
+          allTransactionsUser = transactionsString
             .map((transactionString) =>
                 Transaction.fromJson(jsonDecode(transactionString)))
             .toList();
+        });
       }
 
       if (allTransactionsUser.isEmpty) {
@@ -83,15 +85,16 @@ class _TransactionsState extends State<TransactionsPage> {
 
       if(!isManual){
         fetchedTransactions = await ApiHelper.fetchUserTransactions(widget.otheruser.email!);
+        setState(() {
+          allTransactionsUser = fetchedTransactions;
+        });
       }else{
         fetchedTransactions = await ApiHelper.fetchManualUserTransactions(widget.otheruser.name);
+        setState(() {
+          allTransactionsUser = fetchedTransactions;
+        });
         saveTransactionsToPrefs();
       }
-
-      setState(() {
-        allTransactionsUser = fetchedTransactions;
-      });
-
     } catch (e) {
       ErrorDialogWidget.show(context, "Error fetching transactions from API");
       print(e);
