@@ -42,14 +42,18 @@ class subTransactions {
   }
 
   Map<String, dynamic> toJson() {
+
+    final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
+    final DateFormat timeFormat = DateFormat('HH:mm');
+
     return {
       '_id': id,
       'transactionID': transactionID,
       'sender': sender,
       'receiver': receiver,
       'amount': amount,
-      'time': time,
-      'date': date,
+      'time': timeFormat.format(time),
+      'date': dateFormat.format(date),
       'type': type,
       'isCredit': isCredit
     };

@@ -36,7 +36,7 @@ class _TransactionsState extends State<TransactionsPage> {
     super.initState();
     _fetchTransactions();
     setState(() {
-      isManual=!widget.otheruser.fCMToken.contains((widget.otheruser.name))?false:true;
+      isManual=!widget.otheruser.fCMToken.contains((widget.activeuser.id))?false:true;
     });
     messageController.addListener(updateSendButtonState);
   }
@@ -77,7 +77,6 @@ class _TransactionsState extends State<TransactionsPage> {
     }
   }
 
-
   Future<void> fetchTransactionsFromAPI() async {
     try {
       List<Transaction> fetchedTransactions = [];
@@ -86,13 +85,13 @@ class _TransactionsState extends State<TransactionsPage> {
         fetchedTransactions = await ApiHelper.fetchUserTransactions(widget.otheruser.email!);
       }else{
         fetchedTransactions = await ApiHelper.fetchManualUserTransactions(widget.otheruser.name);
+        saveTransactionsToPrefs();
       }
 
       setState(() {
         allTransactionsUser = fetchedTransactions;
       });
 
-      saveTransactionsToPrefs();
     } catch (e) {
       ErrorDialogWidget.show(context, "Error fetching transactions from API");
       print(e);
@@ -104,7 +103,7 @@ class _TransactionsState extends State<TransactionsPage> {
         .map((transaction) => jsonEncode(transaction.toJson()))
         .toList();
 
-    await prefs.setStringList('${widget.activeuser.email}/${widget.otheruser.email}/transactions', transactionsString);
+    await prefs.setStringList('${widget.activeuser.email}/${widget.otheruser.email??widget.otheruser.name}/transactions', transactionsString);
   }
 
   Future<void> _deleteUser(String userId) async {
@@ -335,7 +334,7 @@ class _TransactionsState extends State<TransactionsPage> {
         Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:transaction)));
       },
       child: Align(
-        alignment: isCredit ? Alignment.centerLeft : Alignment.centerRight,
+        alignment: transaction.sender==widget.activeuser.email ? Alignment.centerRight : Alignment.centerLeft,
         child: ConstrainedBox(
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.7, 

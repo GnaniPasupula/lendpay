@@ -134,18 +134,18 @@ Widget build(BuildContext context) {
   //H=812 , W=375
 
   return Scaffold(
-    backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+    backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
     appBar: AppBar(
       leadingWidth: (screenWidth-searchBarWidth-12)/2,
-      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+      backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
       elevation: 0,
-      iconTheme: IconThemeData(color: Colors.black),
+      iconTheme: const IconThemeData(color: Colors.black),
       title: 
         Container(
           width: searchBarWidth,
           height: searchBarHeight,
           decoration: BoxDecoration(
-            color: Color.fromRGBO(229, 229, 229, 1), 
+            color: const Color.fromRGBO(229, 229, 229, 1), 
             borderRadius: BorderRadius.circular(5),
           ),
           child: Row(
@@ -162,15 +162,15 @@ Widget build(BuildContext context) {
                     hintText: 'Search with email',
                     hintStyle: TextStyle(
                       fontSize: textMultiplier * 12,
-                      color: Color.fromRGBO(107, 114, 120, 1),
+                      color: const Color.fromRGBO(107, 114, 120, 1),
                       fontWeight: FontWeight.w500,
                     ),
-                    prefixIcon: Icon(Icons.search, color: Color.fromRGBO(0, 0, 0, 1)),
+                    prefixIcon: const Icon(Icons.search, color: Color.fromRGBO(0, 0, 0, 1)),
                     suffixIcon: IconButton(
-                      icon: Icon(Icons.done, color: Color.fromRGBO(0, 0, 0, 1)),
+                      icon: const Icon(Icons.done, color: Color.fromRGBO(0, 0, 0, 1)),
                       onPressed: handleSearch,
                     ),
-                    contentPadding: EdgeInsets.symmetric(vertical: 7),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 7),
                     border: InputBorder.none,
                   ),
                   cursorColor: Colors.black,
@@ -181,7 +181,7 @@ Widget build(BuildContext context) {
         ),
     ),
     body: users.isEmpty
-        ? Center(child: Text('No Users available.'))
+        ? const Center(child: Text('No Users available.'))
         : ListView.builder(
               itemCount: users.length,
               itemBuilder: (context, index) {
@@ -191,7 +191,7 @@ Widget build(BuildContext context) {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Color.fromRGBO(229, 229, 229, 0.3),
+                      color: const Color.fromRGBO(229, 229, 229, 0.3),
                     ),
                     child: SizedBox(
                       height: screenHeight * 0.07,
@@ -201,7 +201,7 @@ Widget build(BuildContext context) {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => TransactionsPage(otheruser: otheruser,activeuser: widget.activeUser,)));
                         },
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12), 
+                          padding: const EdgeInsets.symmetric(horizontal: 12), 
                           decoration: BoxDecoration(
                             color: Colors.transparent, 
                             borderRadius: BorderRadius.circular(10),
@@ -210,7 +210,7 @@ Widget build(BuildContext context) {
                             children: [
                               CircleAvatar(
                                 radius: screenHeight * 0.07 * 0.75 * 0.5,
-                                backgroundColor: Color.fromRGBO(218, 218, 218, 1),
+                                backgroundColor: const Color.fromRGBO(218, 218, 218, 1),
                                 child: Icon(Icons.person, color: const Color.fromARGB(255, 0, 0, 0), size: screenHeight * 0.07 * 0.75),
                               ),
                               SizedBox(width: 23*widthMultiplier), 
@@ -220,11 +220,11 @@ Widget build(BuildContext context) {
                                 children: [
                                   Text(
                                     otheruser.name,
-                                    style: TextStyle(fontSize: textMultiplier * 14, color: Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontSize: textMultiplier * 14, color: const Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
                                   ),
                                   Text(
                                     otheruser.email??'',
-                                    style: TextStyle(fontSize: textMultiplier * 12, color: Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontSize: textMultiplier * 12, color: const Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
                                   ),
                                 ],
                               ),

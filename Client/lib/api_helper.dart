@@ -287,7 +287,6 @@ class ApiHelper {
     return _fetchTransactionsByUrl('$url/transactions');
   }
   
-
   static Future<List<Transaction>> fetchUserLoans() async {
     final url = '$baseUrl/user/loans';
     return _fetchTransactionsByUrl('$url');
@@ -306,7 +305,7 @@ class ApiHelper {
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
-        log(response.body);
+        // log(response.body);
         final List<Transaction> transactions = jsonData
             .map((data) => Transaction.fromJson(data))
             .toList();

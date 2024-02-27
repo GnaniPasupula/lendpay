@@ -1,4 +1,5 @@
-import 'package:firebase_core/firebase_core.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:lendpay/API/firebase_api.dart';
 import 'package:lendpay/Models/Transaction.dart';
@@ -14,6 +15,7 @@ import 'package:lendpay/profilePage.dart';
 import 'package:lendpay/singleAgreementPage.dart';
 import 'package:lendpay/singleTransaction.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'api_helper.dart';
 import 'package:intl/intl.dart';
 import 'request.dart';
@@ -26,33 +28,57 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   List<subTransactions> allsubTransactions = [];
-
   Transaction? urgentTransaction;
   late User activeUserx;
 
   @override
   void initState() {
     super.initState();
-    _fetchUrgentPayment();
-    _fetchTransactions();
     _getActiveUser();
+    _fetchUrgentPayment();
   }
 
   Future<void> _fetchTransactions() async {
     try {
-      final List<subTransactions> transactions =
-          await ApiHelper.fetchSubTransactions();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      final List<String>? transactionsString = prefs.getStringList('${activeUserx.email}/subTransactions');
+      if (transactionsString != null) {
+        final List<subTransactions> transactions = transactionsString.map(
+            (transactionString) => subTransactions.fromJson(jsonDecode(transactionString))
+        ).toList();
+
+        Provider.of<SubtransactionsProvider>(context, listen: false)
+            .setAllSubTransactions(transactions);
+        setState(() {
+          allsubTransactions = transactions;
+        });
+        return; 
+      }
+
+      final List<subTransactions> transactions = await ApiHelper.fetchSubTransactions();
+
       Provider.of<SubtransactionsProvider>(context, listen: false)
           .setAllSubTransactions(transactions);
       setState(() {
         allsubTransactions = transactions;
       });
-      // print('all transactions = ${allTransactions}');
+
+      await _saveTransactionsToPrefs(transactions);
+
     } catch (e) {
       print(e);
-      // Handle error and show a proper error message to the user
     }
   }
+
+  Future<void> _saveTransactionsToPrefs(List<subTransactions> transactions) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final List<String> transactionsString = transactions.map(
+        (transaction) => jsonEncode(transaction.toJson())
+    ).toList();
+
+    await prefs.setStringList('${activeUserx.email}/subTransactions', transactionsString);
+  } 
 
   Future<void> _fetchUrgentPayment() async {
     try {
@@ -74,6 +100,7 @@ class _DashboardState extends State<Dashboard> {
           .setActiveUser(activeUser);
       setState(() {
         activeUserx = activeUser;
+        _fetchTransactions();
         _getfCMToken();
       });
     } catch (e) {
