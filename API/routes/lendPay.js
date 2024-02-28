@@ -8,7 +8,7 @@ const cron = require('node-cron');
 const Redis = require('ioredis'); 
 
 const redisClient = new Redis({
-  host: '127.0.0.1', 
+  host: process.env.REDIS_AWS_ENDPOINT, 
   port: 6379, 
   connectTimeout: 10000,
 });
