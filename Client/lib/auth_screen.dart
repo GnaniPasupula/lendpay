@@ -9,6 +9,7 @@ import 'package:lendpay/dashboard.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthScreen extends StatefulWidget {
   @override
@@ -29,6 +30,9 @@ class _AuthScreenState extends State<AuthScreen> {
   String? _passwordErrorText;
   String? _confirmPasswordErrorText;
 
+  String apiUrl = dotenv.env['API_BASE_URL']!;
+  // String apiUrl='http://localhost:3000';
+
    @override
   void initState() {
     super.initState();
@@ -47,7 +51,7 @@ class _AuthScreenState extends State<AuthScreen> {
   // }
 
   Future<void> _signin() async {
-    final url = 'http://localhost:3000/auth/signin';
+    final url = '$apiUrl/auth/signin';
     // const url = 'http://192.168.0.103:3000/auth/signin';
     try {
       final response = await http.post(
@@ -81,7 +85,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _signup() async {
-    final url = 'http://localhost:3000/auth/signup';
+    final url = '$apiUrl/auth/signup';
     // const url = 'http://192.168.0.103:3000/auth/signup';
 
     try {
@@ -141,7 +145,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _validateOTP() async {
-    final url = 'http://localhost:3000/auth/verify-otp';
+    final url = '$apiUrl/auth/verify-otp';
     // const url = 'http://192.168.0.103:3000/auth/verify-otp';
 
     try {

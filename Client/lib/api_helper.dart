@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Models/subTransactions.dart';
@@ -9,7 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lendpay/Models/Transaction.dart';
 
 class ApiHelper {
-  static final String baseUrl = 'http://localhost:3000/lendpay';
+  static String apiUrl = dotenv.env['API_BASE_URL']!;
+  static String baseUrl='$apiUrl/lendpay';
+
   // static final String baseUrl = 'http://192.168.0.103:3000/lendpay';
 
   static Future<void> addUser(String name) async {
@@ -810,7 +813,7 @@ static Future<void> changeName(String newName,String email) async {
 
 
   static Future<void> logout(BuildContext context) async {
-    const url = 'http://localhost:3000/auth/logout';
+    final url = '$apiUrl/auth/logout';
     // const url = 'http://192.168.0.103:3000/auth/logout';
 
     try {
