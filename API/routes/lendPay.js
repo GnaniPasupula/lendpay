@@ -46,7 +46,7 @@ router.post('/addUser', async (req, res) => {
   try {
     const { name } = req.body;
 
-    const existingUser = await User.findOne({ name, fCMToken: { $regex: req.user.userId } });
+    const existingUser = await User.findOne({ name, fCMToken:req.user.userId+name});
 
     if (existingUser) {
       return res.status(400).json({ message: 'User with the same name already exists' });
@@ -56,6 +56,7 @@ router.post('/addUser', async (req, res) => {
       password: 'No Password',
       name: name,
       fCMToken: req.user.userId + name,
+      email: req.user.userId + name
     };
 
     const user = await User.create(userData);
