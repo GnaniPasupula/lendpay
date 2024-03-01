@@ -7,6 +7,7 @@ import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Providers/fCMToken_provider.dart';
 import 'package:lendpay/Providers/requestUsers_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
+import 'package:lendpay/Providers/subTransactionsOfTransaction_provider.dart';
 import 'package:lendpay/dashboard.dart';
 import 'package:lendpay/firebase_options.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +27,7 @@ void main() async{
         ChangeNotifierProvider(create: (context) => UserProvider()),
         ChangeNotifierProvider(create: (context) => FCMTokenProvider()),
         ChangeNotifierProvider(create: (context) => RequestUsersProvider()),
+        ChangeNotifierProvider(create: (context) => SubtransactionsOfTransactionProvider()),
       ],
       child: MyApp(),
     ),

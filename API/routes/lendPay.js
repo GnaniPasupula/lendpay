@@ -734,7 +734,7 @@ router.post('/addPayment', async (req, res) => {
     await sender.save();
     await receiver.save();
 
-    res.status(200).json({ message: 'Payment added successfully' });
+    res.status(200).json(subTransaction);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });

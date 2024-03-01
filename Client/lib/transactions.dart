@@ -298,6 +298,7 @@ class _TransactionsState extends State<TransactionsPage> {
                               setState(() {
                                 isCredit = value; 
                               });
+                              // print(value);
                             }
                           });
                         },

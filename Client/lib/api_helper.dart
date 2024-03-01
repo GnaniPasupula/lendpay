@@ -79,7 +79,7 @@ class ApiHelper {
     }
   }
 
-  static Future<void> addPayment({
+  static Future<subTransactions> addPayment({
     required String transactionID,
     required String date,
     required num paidAmount,
@@ -107,6 +107,9 @@ class ApiHelper {
 
       if (response.statusCode == 200) {
         log('Payment added successfully');
+        final dynamic jsonData = json.decode(response.body);
+        final subTransactions payment = subTransactions.fromJson(jsonData);
+        return payment;
       } else {
         throw Exception('Failed to add payment');
       }
@@ -441,6 +444,7 @@ class ApiHelper {
           'loanPeriod': loanPeriod,
           'interestAmount': interestAmount,
           'totalAmount': totalAmount,
+          'isCredit': isCredit
         }),
       );
 
