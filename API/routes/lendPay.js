@@ -10,7 +10,7 @@ const Redis = require('ioredis');
 const redisClient = new Redis({
   host: process.env.REDIS_AWS_ENDPOINT, 
   port: 6379, 
-  connectTimeout: 10000,
+  connectTimeout: 5000,
 });
 
 redisClient.on('error', (err) => console.error('Redis error:', err));
@@ -70,7 +70,7 @@ router.post('/addUser', async (req, res) => {
     await activeUser.save();
     await user.save();
 
-    return res.status(201).json({ message: "Successfully added User to contacts" });
+    return res.status(200).json(user);
   } catch (error) {
     console.error('Error creating user:', error);
     return res.status(500).json({ error: 'Internal server error' });

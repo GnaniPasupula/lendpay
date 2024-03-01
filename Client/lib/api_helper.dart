@@ -15,7 +15,7 @@ class ApiHelper {
 
   // static final String baseUrl = 'http://192.168.0.103:3000/lendpay';
 
-  static Future<void> addUser(String name) async {
+  static Future<User> addUser(String name) async {
     final url = '$baseUrl/addUser';
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -34,8 +34,13 @@ class ApiHelper {
         body: jsonEncode(requestBody),
       );
 
-      if (response.statusCode == 201) {
+      // print(response.body);
+
+      if (response.statusCode == 200) {
         log('User added successfully');
+        final dynamic jsonData = json.decode(response.body);
+        final User user = User.fromJson(jsonData);
+        return user;
       } else {
         throw Exception('Failed to create user: ${response.statusCode}');
       }
@@ -62,7 +67,7 @@ class ApiHelper {
         }),
       );
 
-      print(response.body);
+      // print(response.body);
 
       if (response.statusCode == 201) {
         log('User deleted successfully');

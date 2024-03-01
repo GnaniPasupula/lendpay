@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/User.dart';
+import 'package:lendpay/Providers/requestUsers_provider.dart';
 import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/transactions.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Request extends StatefulWidget{
@@ -26,18 +29,30 @@ class _RequestState extends State<Request>{
   List<User> users = [];
   late SharedPreferences prefs;
 
+  late final RequestUsersProvider requestUsersProvider;
+
   @override
   void initState() {
     super.initState();
     fetchUsers();
+    requestUsersProvider = Provider.of<RequestUsersProvider>(context,listen: false);
+  }
+
+  handleUpdateUser(){
+    setState(() {
+      users=requestUsersProvider.allrequestUser;
+      saveUsersToPrefs();
+    });
   }
 
   Future<void> fetchUsers() async {
     try {
       prefs = await SharedPreferences.getInstance();
-      final List<String>? usersString = prefs.getStringList('${widget.activeUser.email}/requestUsers');
+      List<String>? usersString= prefs.getStringList('${widget.activeUser.email}/requestUsers');
       if (usersString != null) {
-        users = usersString.map((userString) => User.fromJson(jsonDecode(userString))).toList();
+        handleUpdateUser();
+        usersString= prefs.getStringList('${widget.activeUser.email}/requestUsers');
+        users = usersString!.map((userString) => User.fromJson(jsonDecode(userString))).toList();
       }
       if (users.isEmpty) {
         await fetchUsersFromAPI();
@@ -59,7 +74,8 @@ class _RequestState extends State<Request>{
       final List<User> fetchedUsers = await ApiHelper.fetchUsers();
       
       setState(() {
-        users = fetchedUsers;
+        requestUsersProvider.setAllRequestUsers(fetchedUsers);
+        users=requestUsersProvider.allrequestUser;
       });
       
       saveUsersToPrefs();

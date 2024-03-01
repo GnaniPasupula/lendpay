@@ -329,9 +329,6 @@ class _TransactionsState extends State<TransactionsPage> {
   }
 
   Widget buildTransactionItem(Transaction transaction) {
-    bool isCredit = transaction.receiver == (widget.otheruser.fCMToken.contains(widget.otheruser.name)?widget.otheruser.name:widget.otheruser.email);
-    bool isReq = transaction.type == "req";
-
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:transaction)));
@@ -346,14 +343,14 @@ class _TransactionsState extends State<TransactionsPage> {
             padding: const EdgeInsets.all(8.0),
             margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
             decoration: BoxDecoration(
-              color: isCredit ? Colors.green : Colors.blue,
+              color: transaction.isCredit ? Colors.green : Colors.blue,
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${isReq ? "Request":(isCredit ? "Credit" : "Debit")}: \$${transaction.amount}',
+                  '${transaction.type=="req" ? "Request":(transaction.isCredit ? "Credit" : "Debit")}: \$${transaction.amount}',
                   style: const TextStyle(color: Colors.white),
                 ),
                 const SizedBox(height: 8.0),

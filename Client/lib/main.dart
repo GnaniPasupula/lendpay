@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lendpay/API/firebase_api.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Providers/fCMToken_provider.dart';
+import 'package:lendpay/Providers/requestUsers_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/dashboard.dart';
 import 'package:lendpay/firebase_options.dart';
@@ -24,6 +25,7 @@ void main() async{
         ChangeNotifierProvider(create: (context) => SubtransactionsProvider()),
         ChangeNotifierProvider(create: (context) => UserProvider()),
         ChangeNotifierProvider(create: (context) => FCMTokenProvider()),
+        ChangeNotifierProvider(create: (context) => RequestUsersProvider()),
       ],
       child: MyApp(),
     ),
@@ -43,12 +45,12 @@ class MyApp extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.data == true) {
-              return Dashboard();
+              return const Dashboard();
             } else {
               return AuthScreen();
             }
           } else {
-            return Scaffold(
+            return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           }

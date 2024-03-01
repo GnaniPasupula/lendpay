@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:lendpay/Providers/requestUsers_provider.dart';
 import 'package:lendpay/api_helper.dart';
+import 'package:provider/provider.dart';
 
 class AddUserScreen extends StatelessWidget {
   @override
@@ -34,14 +36,22 @@ class _AddUserDialogState extends State<AddUserDialog> {
   TextEditingController nameController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   void dispose() {
     nameController.dispose();
     super.dispose();
   }
 
   Future<void> addUser(BuildContext context) async {
+    final requestUsersProvider = Provider.of<RequestUsersProvider>(context,listen: false);
+    
     try {
-      await ApiHelper.addUser(nameController.text);
+      final newUser=await ApiHelper.addUser(nameController.text);
+      requestUsersProvider.allrequestUser.add(newUser);
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
