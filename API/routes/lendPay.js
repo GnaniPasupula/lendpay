@@ -5,15 +5,19 @@ const Transaction = require('../Models/Transaction');
 const subTransactions = require('../Models/subTransactions');
 const bcrypt = require('bcrypt');
 const cron = require('node-cron');
-const Redis = require('ioredis'); 
+// const Redis = require('ioredis'); 
 
-const redisClient = new Redis({
-  host: process.env.REDIS_AWS_ENDPOINT, 
-  port: 6379, 
-  connectTimeout: 5000,
-});
+// const redisClient = new Redis({
+//   host: process.env.REDIS_AWS_ENDPOINT_TEST, 
+//   port: 6379, 
+//   connectTimeout: 5000,
+// });
 
-redisClient.on('error', (err) => console.error('Redis error:', err));
+// redisClient.on('connect', () => {
+//   console.log('Connected to Redis');
+// });
+
+// redisClient.on('error', (err) => console.error('Redis error:', err));
 
 router.get('/dashboard', async (req, res) => {
   const userId = req.user.userId;
@@ -425,28 +429,28 @@ router.post('/request', async (req, res) => {
     sender.requests.push(transaction._id);
     receiver.requests.push(transaction._id);
 
-    const cacheKey1 = `transactions:${senderEmail}:${receiverEmail}`;
-    const cacheKey2 = `transactions:${receiverEmail}:${senderEmail}`;
+    // const cacheKey1 = `transactions:${senderEmail}:${receiverEmail}`;
+    // const cacheKey2 = `transactions:${receiverEmail}:${senderEmail}`;
 
-    let cachedTransactions1 = await redisClient.get(cacheKey1);
-    let cachedTransactions2 = await redisClient.get(cacheKey2);
+    // let cachedTransactions1 = await redisClient.get(cacheKey1);
+    // let cachedTransactions2 = await redisClient.get(cacheKey2);
 
-    if (cachedTransactions1) {
-      cachedTransactions1 = JSON.parse(cachedTransactions1);
-    } else {
-      cachedTransactions1 = []; 
-    }
-    if (cachedTransactions2) {
-      cachedTransactions2 = JSON.parse(cachedTransactions2);
-    } else {
-      cachedTransactions2 = [];
-    }
+    // if (cachedTransactions1) {
+    //   cachedTransactions1 = JSON.parse(cachedTransactions1);
+    // } else {
+    //   cachedTransactions1 = []; 
+    // }
+    // if (cachedTransactions2) {
+    //   cachedTransactions2 = JSON.parse(cachedTransactions2);
+    // } else {
+    //   cachedTransactions2 = [];
+    // }
 
-    cachedTransactions1.push(transaction);
-    cachedTransactions2.push(transaction);
+    // cachedTransactions1.push(transaction);
+    // cachedTransactions2.push(transaction);
 
-    redisClient.set(cacheKey1, JSON.stringify(cachedTransactions1), 'EX', 600); 
-    redisClient.set(cacheKey2, JSON.stringify(cachedTransactions2), 'EX', 600); 
+    // redisClient.set(cacheKey1, JSON.stringify(cachedTransactions1), 'EX', 600); 
+    // redisClient.set(cacheKey2, JSON.stringify(cachedTransactions2), 'EX', 600); 
 
     await transaction.save();
     await sender.save();
@@ -511,25 +515,25 @@ router.post('/acceptrequest', async (req, res) => {
     sender.requests.pull(requestTransactionID);
     receiver.requests.pull(requestTransactionID);
 
-    const cacheKey1 = `transactions:${senderEmail}:${receiverEmail}`;
-    const cacheKey2 = `transactions:${receiverEmail}:${senderEmail}`;
+    // const cacheKey1 = `transactions:${senderEmail}:${receiverEmail}`;
+    // const cacheKey2 = `transactions:${receiverEmail}:${senderEmail}`;
 
-    let cachedTransactions1 = await redisClient.get(cacheKey1);
-    let cachedTransactions2 = await redisClient.get(cacheKey2);
+    // let cachedTransactions1 = await redisClient.get(cacheKey1);
+    // let cachedTransactions2 = await redisClient.get(cacheKey2);
 
-    if (cachedTransactions1) {
-      cachedTransactions1 = JSON.parse(cachedTransactions1);
-      cachedTransactions1 = cachedTransactions1.filter(t => t._id.toString() !== requestTransactionID);
-      cachedTransactions1.push(transaction); 
-      redisClient.set(cacheKey1, JSON.stringify(cachedTransactions1), 'EX', 600);
-    }
+    // if (cachedTransactions1) {
+    //   cachedTransactions1 = JSON.parse(cachedTransactions1);
+    //   cachedTransactions1 = cachedTransactions1.filter(t => t._id.toString() !== requestTransactionID);
+    //   cachedTransactions1.push(transaction); 
+    //   redisClient.set(cacheKey1, JSON.stringify(cachedTransactions1), 'EX', 600);
+    // }
 
-    if (cachedTransactions2) {
-      cachedTransactions2 = JSON.parse(cachedTransactions2);
-      cachedTransactions2 = cachedTransactions2.filter(t => t._id.toString() !== requestTransactionID);
-      cachedTransactions2.push(transaction); 
-      redisClient.set(cacheKey2, JSON.stringify(cachedTransactions2), 'EX', 600);
-    }
+    // if (cachedTransactions2) {
+    //   cachedTransactions2 = JSON.parse(cachedTransactions2);
+    //   cachedTransactions2 = cachedTransactions2.filter(t => t._id.toString() !== requestTransactionID);
+    //   cachedTransactions2.push(transaction); 
+    //   redisClient.set(cacheKey2, JSON.stringify(cachedTransactions2), 'EX', 600);
+    // }
 
     await transaction.save();
     await sender.save();
@@ -563,23 +567,23 @@ router.post('/rejectrequest', async (req, res) => {
 
     await Transaction.findByIdAndDelete(requestTransactionID);
 
-    const cacheKey1 = `transactions:${senderEmail}:${receiverEmail}`;
-    const cacheKey2 = `transactions:${receiverEmail}:${senderEmail}`;
+    // const cacheKey1 = `transactions:${senderEmail}:${receiverEmail}`;
+    // const cacheKey2 = `transactions:${receiverEmail}:${senderEmail}`;
 
-    let cachedTransactions1 = await redisClient.get(cacheKey1);
-    let cachedTransactions2 = await redisClient.get(cacheKey2);
+    // let cachedTransactions1 = await redisClient.get(cacheKey1);
+    // let cachedTransactions2 = await redisClient.get(cacheKey2);
 
-    if (cachedTransactions1) {
-      cachedTransactions1 = JSON.parse(cachedTransactions1);
-      cachedTransactions1 = cachedTransactions1.filter(t => t._id.toString() !== requestTransactionID);
-      redisClient.set(cacheKey1, JSON.stringify(cachedTransactions1), 'EX', 600);
-    }
+    // if (cachedTransactions1) {
+    //   cachedTransactions1 = JSON.parse(cachedTransactions1);
+    //   cachedTransactions1 = cachedTransactions1.filter(t => t._id.toString() !== requestTransactionID);
+    //   redisClient.set(cacheKey1, JSON.stringify(cachedTransactions1), 'EX', 600);
+    // }
 
-    if (cachedTransactions2) {
-      cachedTransactions2 = JSON.parse(cachedTransactions2);
-      cachedTransactions2 = cachedTransactions2.filter(t => t._id.toString() !== requestTransactionID);
-      redisClient.set(cacheKey2, JSON.stringify(cachedTransactions2), 'EX', 600);
-    }
+    // if (cachedTransactions2) {
+    //   cachedTransactions2 = JSON.parse(cachedTransactions2);
+    //   cachedTransactions2 = cachedTransactions2.filter(t => t._id.toString() !== requestTransactionID);
+    //   redisClient.set(cacheKey2, JSON.stringify(cachedTransactions2), 'EX', 600);
+    // }
     
     await sender.save();
     await receiver.save();
@@ -601,17 +605,17 @@ router.get('/users/:email/transactions', async (req, res) => {
           return res.status(404).json({ message: 'Sender or receiver not found' });
       }
 
-      const cacheKey1 = `transactions:${activeUser}:${email}`;
-      const cacheKey2 = `transactions:${email}:${activeUser}`;
+      // const cacheKey1 = `transactions:${activeUser}:${email}`;
+      // const cacheKey2 = `transactions:${email}:${activeUser}`;
 
-      let cachedTransactions1 = await redisClient.get(cacheKey1);
-      let cachedTransactions2 = await redisClient.get(cacheKey2);
+      // let cachedTransactions1 = await redisClient.get(cacheKey1);
+      // let cachedTransactions2 = await redisClient.get(cacheKey2);
 
-      if (cachedTransactions1 || cachedTransactions2) {
-          // console.log('Cache hit for key:', cacheKey);
-          return res.status(200).json(JSON.parse(cachedTransactions1??cachedTransactions2));
-      } else {
-          // console.log('Cache miss for key:', cacheKey);
+      // if (cachedTransactions1 || cachedTransactions2) {
+      //     // console.log('Cache hit for key:', cacheKey);
+      //     return res.status(200).json(JSON.parse(cachedTransactions1??cachedTransactions2));
+      // } else {
+      //     // console.log('Cache miss for key:', cacheKey);
 
           const transactions = await Transaction.find({
               $or: [
@@ -620,11 +624,11 @@ router.get('/users/:email/transactions', async (req, res) => {
               ],
           });
 
-          redisClient.set(cacheKey1, JSON.stringify(transactions), 'EX', 600); 
-          redisClient.set(cacheKey2, JSON.stringify(transactions), 'EX', 600); 
+      //     redisClient.set(cacheKey1, JSON.stringify(transactions), 'EX', 600); 
+      //     redisClient.set(cacheKey2, JSON.stringify(transactions), 'EX', 600); 
 
           return res.status(200).json(transactions); 
-      }
+      // }
 
   } catch (error) {
       console.error('Error:', error);
@@ -789,28 +793,28 @@ router.post('/requestpayment', async (req, res) => {
     sender.paymentrequests.push(subTransaction);
     receiver.paymentrequests.push(subTransaction);
 
-    const cacheKey1 = `subtransactions:${senderEmail}:${receiverEmail}`;
-    const cacheKey2 = `subtransactions:${receiverEmail}:${senderEmail}`;
+    // const cacheKey1 = `subtransactions:${senderEmail}:${receiverEmail}`;
+    // const cacheKey2 = `subtransactions:${receiverEmail}:${senderEmail}`;
 
-    let cachedSubTransactions1 = await redisClient.get(cacheKey1);
-    let cachedSubTransactions2 = await redisClient.get(cacheKey2);
+    // let cachedSubTransactions1 = await redisClient.get(cacheKey1);
+    // let cachedSubTransactions2 = await redisClient.get(cacheKey2);
 
-    if (cachedSubTransactions1) {
-      cachedSubTransactions1 = JSON.parse(cachedSubTransactions1);
-    } else {
-      cachedSubTransactions1 = []; 
-    }
-    if (cachedSubTransactions2) {
-      cachedSubTransactions2 = JSON.parse(cachedSubTransactions2);
-    } else {
-      cachedSubTransactions2 = [];
-    }
+    // if (cachedSubTransactions1) {
+    //   cachedSubTransactions1 = JSON.parse(cachedSubTransactions1);
+    // } else {
+    //   cachedSubTransactions1 = []; 
+    // }
+    // if (cachedSubTransactions2) {
+    //   cachedSubTransactions2 = JSON.parse(cachedSubTransactions2);
+    // } else {
+    //   cachedSubTransactions2 = [];
+    // }
 
-    cachedSubTransactions1.push(subTransaction);
-    cachedSubTransactions2.push(subTransaction);
+    // cachedSubTransactions1.push(subTransaction);
+    // cachedSubTransactions2.push(subTransaction);
 
-    redisClient.set(cacheKey1, JSON.stringify(cachedTransactions1), 'EX', 600); 
-    redisClient.set(cacheKey2, JSON.stringify(cachedTransactions2), 'EX', 600); 
+    // redisClient.set(cacheKey1, JSON.stringify(cachedTransactions1), 'EX', 600); 
+    // redisClient.set(cacheKey2, JSON.stringify(cachedTransactions2), 'EX', 600); 
 
     await subTransaction.save();
     await sender.save();
@@ -835,23 +839,23 @@ router.post('/rejectrequestpayment', async (req, res) => {
     sender.paymentrequests.pull(subtransactionID);
     receiver.paymentrequests.pull(subtransactionID);
 
-    const cacheKey1 = `subtransactions:${senderEmail}:${receiverEmail}`;
-    const cacheKey2 = `subtransactions:${receiverEmail}:${senderEmail}`;
+    // const cacheKey1 = `subtransactions:${senderEmail}:${receiverEmail}`;
+    // const cacheKey2 = `subtransactions:${receiverEmail}:${senderEmail}`;
 
-    let cachedSubTransactions1 = await redisClient.get(cacheKey1);
-    let cachedSubTransactions2 = await redisClient.get(cacheKey2);
+    // let cachedSubTransactions1 = await redisClient.get(cacheKey1);
+    // let cachedSubTransactions2 = await redisClient.get(cacheKey2);
 
-    if (cachedSubTransactions1) {
-      cachedSubTransactions1 = JSON.parse(cachedSubTransactions1);
-      cachedSubTransactions1 = cachedSubTransactions1.filter(t => t._id.toString() !== subtransactionID);
-      redisClient.set(cacheKey1, JSON.stringify(cachedSubTransactions1), 'EX', 600);
-    }
+    // if (cachedSubTransactions1) {
+    //   cachedSubTransactions1 = JSON.parse(cachedSubTransactions1);
+    //   cachedSubTransactions1 = cachedSubTransactions1.filter(t => t._id.toString() !== subtransactionID);
+    //   redisClient.set(cacheKey1, JSON.stringify(cachedSubTransactions1), 'EX', 600);
+    // }
 
-    if (cachedSubTransactions2) {
-      cachedSubTransactions2 = JSON.parse(cachedSubTransactions2);
-      cachedSubTransactions2 = cachedSubTransactions2.filter(t => t._id.toString() !== subtransactionID);
-      redisClient.set(cacheKey2, JSON.stringify(cachedSubTransactions2), 'EX', 600);
-    }
+    // if (cachedSubTransactions2) {
+    //   cachedSubTransactions2 = JSON.parse(cachedSubTransactions2);
+    //   cachedSubTransactions2 = cachedSubTransactions2.filter(t => t._id.toString() !== subtransactionID);
+    //   redisClient.set(cacheKey2, JSON.stringify(cachedSubTransactions2), 'EX', 600);
+    // }
 
     await sender.save();
     await receiver.save();
@@ -890,25 +894,25 @@ router.post('/acceptrequestpayment', async (req, res) => {
     sender.subTransactions.push(subTransaction);
     receiver.subTransactions.push(subTransaction);
 
-    const cacheKey1 = `subtransactions:${senderEmail}:${receiverEmail}`;
-    const cacheKey2 = `subtransactions:${receiverEmail}:${senderEmail}`;
+    // const cacheKey1 = `subtransactions:${senderEmail}:${receiverEmail}`;
+    // const cacheKey2 = `subtransactions:${receiverEmail}:${senderEmail}`;
 
-    let cachedSubTransactions1 = await redisClient.get(cacheKey1);
-    let cachedSubTransactions2 = await redisClient.get(cacheKey2);
+    // let cachedSubTransactions1 = await redisClient.get(cacheKey1);
+    // let cachedSubTransactions2 = await redisClient.get(cacheKey2);
 
-    if (cachedSubTransactions1) {
-      cachedSubTransactions1 = JSON.parse(cachedSubTransactions1);
-      cachedSubTransactions1 = cachedSubTransactions1.filter(t => t._id.toString() !== subtransactionID);
-      cachedSubTransactions1.push(subTransaction); 
-      redisClient.set(cacheKey1, JSON.stringify(cachedSubTransactions1), 'EX', 600);
-    }
+    // if (cachedSubTransactions1) {
+    //   cachedSubTransactions1 = JSON.parse(cachedSubTransactions1);
+    //   cachedSubTransactions1 = cachedSubTransactions1.filter(t => t._id.toString() !== subtransactionID);
+    //   cachedSubTransactions1.push(subTransaction); 
+    //   redisClient.set(cacheKey1, JSON.stringify(cachedSubTransactions1), 'EX', 600);
+    // }
 
-    if (cachedSubTransactions2) {
-      cachedSubTransactions2 = JSON.parse(cachedSubTransactions2);
-      cachedSubTransactions2 = cachedSubTransactions2.filter(t => t._id.toString() !== subtransactionID);
-      cachedSubTransactions2.push(subTransaction); 
-      redisClient.set(cacheKey2, JSON.stringify(cachedSubTransactions2), 'EX', 600);
-    }
+    // if (cachedSubTransactions2) {
+    //   cachedSubTransactions2 = JSON.parse(cachedSubTransactions2);
+    //   cachedSubTransactions2 = cachedSubTransactions2.filter(t => t._id.toString() !== subtransactionID);
+    //   cachedSubTransactions2.push(subTransaction); 
+    //   redisClient.set(cacheKey2, JSON.stringify(cachedSubTransactions2), 'EX', 600);
+    // }
 
     await subTransaction.save();
     await transaction.save();
