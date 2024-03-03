@@ -149,6 +149,7 @@ class _DashboardState extends State<Dashboard> {
                 right: 0.0), // Add right padding to the notifications button
             child: IconButton(
               icon: const Icon(Icons.chat),
+              color: Theme.of(context).colorScheme.onSurface,
               onPressed: () {
                 Navigator.push(
                     context,
@@ -158,20 +159,21 @@ class _DashboardState extends State<Dashboard> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(
-                right: 10.0), // Add right padding to the notifications button
+            padding: const EdgeInsets.only(right: 10.0), 
             child: IconButton(
               icon: const Icon(Icons.notifications),
+              color: Theme.of(context).colorScheme.onSurface,
               onPressed: () {},
             ),
           ),
         ],
-        backgroundColor: Colors.black, // Black background for the top bar
+        backgroundColor: Theme.of(context).colorScheme.surface, 
         leading: Padding(
           padding: const EdgeInsets.only(
               left: 10.0), // Add left padding to the logout button
           child: IconButton(
             icon: const Icon(Icons.person),
+            color: Theme.of(context).colorScheme.onSurface,
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => ProfileScreen()));
@@ -179,21 +181,21 @@ class _DashboardState extends State<Dashboard> {
           ),
         ),
       ),
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background, 
       body: Column(
         children: [
           Container(
-            color: Colors.black,
+            color: Theme.of(context).colorScheme.surface, 
             height: MediaQuery.of(context).size.height * 0.40,
             child: Column(
               children: [
                 Container(
-                  margin: EdgeInsets.only(left: 14, right: 14, bottom: 7),
+                  margin: const EdgeInsets.only(left: 14, right: 14, bottom: 7),
                   child: Card(
-                    color: const Color.fromRGBO(229, 229, 229, 0.3),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 2,
                     child: urgentTransaction == null
                         ? SizedBox(
                             width: double.infinity,
@@ -203,7 +205,7 @@ class _DashboardState extends State<Dashboard> {
                             ),
                           )
                         : Padding(
-                            padding: EdgeInsets.all(14.0),
+                            padding: const EdgeInsets.all(14.0),
                             child: SizedBox(
                               width: double.infinity,
                               height: cardHeight,
@@ -297,13 +299,17 @@ class _DashboardState extends State<Dashboard> {
                                       ),
                                       if(urgentTransaction!=null)              
                                         ElevatedButton(
-                                            style: ButtonStyle(
-                                              backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Theme.of(context).colorScheme.primary, 
+                                              foregroundColor: Theme.of(context).colorScheme.onPrimary, 
+                                              textStyle: const TextStyle(
+                                                fontWeight: FontWeight.bold,  
+                                              )
                                             ),
                                             onPressed: () => {
                                               Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:urgentTransaction!)))
                                             },
-                                            child: Text("Details")
+                                            child: const Text("Details")
                                         )
                                     ],
                                   )
@@ -324,12 +330,12 @@ class _DashboardState extends State<Dashboard> {
                             width: iconSize,
                             height: iconSize,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF2E2E2E),
+                              color: Theme.of(context).colorScheme.primary,
                               borderRadius: BorderRadius.circular(iconSize / 2),
                             ),
                             child: IconButton(
                               icon: Icon(Icons.contacts,
-                                  color: const Color(0xFF999999),
+                                  color: Theme.of(context).colorScheme.onPrimary,
                                   size: iconSize * 0.6),
                               onPressed: () {
                                 // Handle Transfer Money button click
@@ -344,7 +350,7 @@ class _DashboardState extends State<Dashboard> {
                           const SizedBox(height: 1.0),
                           Text("Contacts",
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: iconSize * 0.25,
                               )),
                         ],
@@ -358,12 +364,12 @@ class _DashboardState extends State<Dashboard> {
                             width: iconSize,
                             height: iconSize,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF2E2E2E),
+                              color: Theme.of(context).colorScheme.primary,
                               borderRadius: BorderRadius.circular(iconSize / 2),
                             ),
                             child: IconButton(
                               icon: Icon(Icons.handshake,
-                                  color: const Color(0xFF999999),
+                                  color: Theme.of(context).colorScheme.onPrimary,
                                   size: iconSize * 0.6),
                               onPressed: () {
                                 Navigator.push(
@@ -377,7 +383,7 @@ class _DashboardState extends State<Dashboard> {
                           const SizedBox(height: 1.0),
                           Text("Loans",
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: iconSize * 0.25,
                               )),
                         ],
@@ -390,14 +396,16 @@ class _DashboardState extends State<Dashboard> {
           ),
           Expanded(
             child: allsubTransactions.isEmpty
-                ? const Center(child: Text('No transactions available.'))
+                ? Center(child: Text('No transactions available.',style: TextStyle(
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7), fontSize: 16, 
+                ),))
                 : ClipRRect(
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(24.0), // Top left corner
                       topRight: Radius.circular(24.0), // Top right corner
                     ),
                     child: Container(
-                      color: Colors.white, // Set the background color to white
+                      color: Theme.of(context).colorScheme.surface, 
                       child: ListView.builder(
                         itemCount: allsubTransactions.length,
                         itemBuilder: (context, index) {
@@ -434,7 +442,15 @@ class _DashboardState extends State<Dashboard> {
                               margin: const EdgeInsets.only(top: 8.0),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                color: const Color.fromRGBO(229, 229, 229, 0.3),
+                                color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.7),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.15),
+                                    spreadRadius: 0,
+                                    blurRadius: 4,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
                               ),
                               child: SizedBox(
                                 height: screenHeight * 0.07,
@@ -459,13 +475,10 @@ class _DashboardState extends State<Dashboard> {
                                     child: Row(
                                       children: [
                                         CircleAvatar(
-                                          radius:
-                                              screenHeight * 0.07 * 0.75 * 0.5,
-                                          backgroundColor: const Color.fromRGBO(
-                                              218, 218, 218, 1),
-                                          child: Icon(Icons.person,
-                                              color: const Color.fromARGB(
-                                                  255, 0, 0, 0),
+                                              radius:screenHeight * 0.07 * 0.75 * 0.5,
+                                              backgroundColor: Theme.of(context).colorScheme.surfaceVariant, 
+                                              child: Icon(Icons.person,
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant, 
                                               size: screenHeight * 0.07 * 0.75),
                                         ),
                                         SizedBox(width: 23 * widthMultiplier),
@@ -485,16 +498,13 @@ class _DashboardState extends State<Dashboard> {
                                                     style: TextStyle(
                                                         fontSize:
                                                             textMultiplier * 14,
-                                                        color: const Color
-                                                            .fromRGBO(
-                                                            0, 0, 0, 1),
-                                                        fontWeight:
-                                                            FontWeight.w500),
+                                                        color: Theme.of(context).colorScheme.onSurfaceVariant, 
+                                                        fontWeight:FontWeight.w500),
                                                   ),
                                                   Text(
                                                     DateFormat('dd-MM-yyyy').format(subTransaction.date),
                                                     style: TextStyle(fontSize:textMultiplier * 12,
-                                                        color: const Color.fromRGBO(107, 114, 120, 1),
+                                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7), 
                                                         fontWeight:FontWeight.w500),
                                                   ),
                                                 ],
@@ -503,7 +513,7 @@ class _DashboardState extends State<Dashboard> {
                                                 subTransaction.amount.toString(),
                                                 style: TextStyle(
                                                     fontSize:textMultiplier * 16,
-                                                    color: const Color.fromRGBO(0, 0, 0, 1),
+                                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                     fontWeight:FontWeight.w600
                                                 ),
                                               ),
@@ -533,8 +543,9 @@ class _DashboardState extends State<Dashboard> {
             },
           );
         },
-        backgroundColor: allsubTransactions.length!=0?Colors.black:Colors.white,
-        child: Icon(Icons.add, color: allsubTransactions.length!=0?Colors.white:Colors.black),
+        backgroundColor: Theme.of(context).colorScheme.primary, 
+        foregroundColor: Theme.of(context).colorScheme.onPrimary, 
+        child: const Icon(Icons.add),
       ),
     );
   }

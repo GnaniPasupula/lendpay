@@ -43,8 +43,12 @@ class _IncomingRequestState extends State<IncomingRequest> {
     // print(activeUser.email +"," + widget.requestTransaction.receiver);
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background, 
       appBar: AppBar(
-        title: const Text('Loan Request'),
+        title: Text('Loan Request', style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface)),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -52,16 +56,16 @@ class _IncomingRequestState extends State<IncomingRequest> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'Loan Details',
-              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold,color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
             ),
             const SizedBox(height: 8.0),
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade200),
-                borderRadius: BorderRadius.circular(0.0),
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: BorderRadius.circular(10.0), 
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -96,11 +100,11 @@ class _IncomingRequestState extends State<IncomingRequest> {
                       children: [
                         Text(
                           "\$ ${widget.requestTransaction.totalAmount} ",
-                          style: const TextStyle(fontSize: 16.0, color: Colors.black, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 16.0, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           "( \$ ${widget.requestTransaction.subAmount}/Month)",
-                          style: const TextStyle(fontSize: 12.0, color: Colors.black),
+                          style: TextStyle(fontSize: 12.0, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
                         ),
                       ],
                     ),
@@ -120,8 +124,14 @@ class _IncomingRequestState extends State<IncomingRequest> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: const Text("Accept Transaction Request"),
-                                      content: const Text("Are you sure you want to accept the transaction request?"),
+                                      title:  Text("Accept Transaction Request",
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurface
+                                      )),
+                                      content:  Text("Are you sure you want to accept the transaction request?",
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurface
+                                      )),
                                       actions: [
                                         TextButton(
                                           onPressed: () {
@@ -156,12 +166,11 @@ class _IncomingRequestState extends State<IncomingRequest> {
                                   },
                                 );
                               }
-                            : null, // Set onPressed to null if condition is not met
-                        child: const Text("Confirm", style: TextStyle(color: Colors.white)),
+                            : null,
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(activeUser.email == widget.requestTransaction.receiver ? Colors.black : Colors.grey),
-                          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                        ),
+                          backgroundColor: MaterialStateProperty.all<Color>(activeUser.email == widget.requestTransaction.receiver ? Theme.of(context).colorScheme.primary : Colors.grey),
+                        ), 
+                        child: Text("Confirm", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
                       ),
                     ),
                     SizedBox(
@@ -173,8 +182,15 @@ class _IncomingRequestState extends State<IncomingRequest> {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: const Text("Decline Transaction Request"),
-                                content: const Text("Are you sure you want to decline the transaction request?"),
+                                title:  Text("Decline Transaction Request",
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurface
+                                  )),
+                                content: Text("Are you sure you want to decline the transaction request?",
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurface
+                                  )
+                                ),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
@@ -199,10 +215,10 @@ class _IncomingRequestState extends State<IncomingRequest> {
                             },
                           );
                         },
-                        child: const Text("Decline", style: TextStyle(color: Colors.white)),
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                          backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary),
                         ),
+                        child: Text("Decline", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
                       ),
                     ),
                   ],
@@ -220,18 +236,18 @@ class _IncomingRequestState extends State<IncomingRequest> {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style:  TextStyle(
             fontSize: 14.0,
-            color: Colors.black,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const Spacer(),
         Flexible(
           child: Text(
             value.toString(),
-            style: const TextStyle(
+            style:  TextStyle(
               fontSize: 14.0,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
         ),

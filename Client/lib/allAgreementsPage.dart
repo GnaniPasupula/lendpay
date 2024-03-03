@@ -140,18 +140,18 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
     double widthMultiplier = 1;
 
     return Scaffold(
-      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
-    appBar: AppBar(
+      backgroundColor: Theme.of(context).colorScheme.background,    
+      appBar: AppBar(
       leadingWidth: (screenWidth-searchBarWidth-12)/2,
-      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 0,
-      iconTheme: IconThemeData(color: Colors.black),
+      iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),      
       title: 
         Container(
           width: searchBarWidth,
           height: searchBarHeight,
           decoration: BoxDecoration(
-            color: Color.fromRGBO(229, 229, 229, 1), 
+            color: Theme.of(context).colorScheme.surfaceVariant,
             borderRadius: BorderRadius.circular(5),
           ),
           child: Row(
@@ -161,19 +161,19 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
                   controller: searchController,
                   style: TextStyle( 
                     fontSize: textMultiplier * 12,
-                    color: Colors.black,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant, 
                     fontWeight: FontWeight.w500,
                   ),
                   decoration: InputDecoration(
                     hintText: 'Search with email',
                     hintStyle: TextStyle(
                       fontSize: textMultiplier * 12,
-                      color: Color.fromRGBO(107, 114, 120, 1),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7),
                       fontWeight: FontWeight.w500,
                     ),
-                    prefixIcon: Icon(Icons.search, color: Color.fromRGBO(0, 0, 0, 1)),
+                    prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     suffixIcon: IconButton(
-                      icon: Icon(Icons.done, color: Color.fromRGBO(0, 0, 0, 1)),
+                      icon: Icon(Icons.done, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       onPressed: handleSearch,
                     ),
                     contentPadding: EdgeInsets.symmetric(vertical: 7),
@@ -187,7 +187,7 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
         ),
     ),
     body: allTransactions.isEmpty
-        ? Center(child: Text('No Loans available.'))
+        ? Center(child: Text('No Loans available.',style: TextStyle(color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7))))
         : ListView.builder(
               itemCount: allTransactions.length,
               itemBuilder: (context, index) {
@@ -196,8 +196,16 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
                   padding: EdgeInsets.only(left: 14,right: 14,bottom: 5*textMultiplier),
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Color.fromRGBO(229, 229, 229, 0.3),
+                      borderRadius: BorderRadius.circular(8),
+                      color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.7),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.15),
+                          spreadRadius: 0,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: SizedBox(
                       height: screenHeight * 0.07,
@@ -216,8 +224,8 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
                             children: [
                               CircleAvatar(
                                 radius: screenHeight * 0.07 * 0.75 * 0.5,
-                                backgroundColor: Color.fromRGBO(218, 218, 218, 1),
-                                child: Icon(Icons.person, color: const Color.fromARGB(255, 0, 0, 0), size: screenHeight * 0.07 * 0.75),
+                                backgroundColor: Theme.of(context).colorScheme.surfaceVariant, 
+                                child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant, size: screenHeight * 0.07 * 0.75),
                               ),
                               SizedBox(width: 23*widthMultiplier), 
                               Column(
@@ -226,11 +234,11 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
                                 children: [
                                   Text(
                                     otheruser.sender,
-                                    style: TextStyle(fontSize: textMultiplier * 14, color: Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontSize: textMultiplier * 14, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
                                   ),
                                   Text(
                                     otheruser.receiver,
-                                    style: TextStyle(fontSize: textMultiplier * 12, color: Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontSize: textMultiplier * 12, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
                                   ),
                                 ],
                               ),

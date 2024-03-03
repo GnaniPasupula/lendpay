@@ -8,15 +8,16 @@ class SucessDialogWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('Success', style: TextStyle(color: Colors.green)),
-        content: Text(message, style: TextStyle(color: Colors.black)),
+        content: Text(message, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
             },
-            child: Text('OK', style: TextStyle(color: Colors.green)),
+            child: Text('OK', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
           ),
         ],
+        backgroundColor: Theme.of(context).colorScheme.surface, 
       ),
     );
   }

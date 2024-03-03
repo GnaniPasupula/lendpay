@@ -41,6 +41,8 @@ class MyApp extends StatelessWidget {
       title: 'Your App Title',
       theme: ThemeData( 
         fontFamily: GoogleFonts.inter().fontFamily,
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black ),
       ),
       home: FutureBuilder(
         future: checkAuthToken(),

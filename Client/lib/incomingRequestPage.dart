@@ -113,17 +113,17 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Error', style: TextStyle(color: Colors.red)),
-        content: Text(message, style: TextStyle(color: Colors.black)),
+        title: const Text('Error', style: TextStyle(color: Colors.red)),
+        content: Text(message, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)), 
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
             },
-            child: Text('OK', style: TextStyle(color: Colors.red)),
+            child: Text('OK', style: TextStyle(color: Theme.of(context).colorScheme.primary)), 
           ),
         ],
-        backgroundColor: Colors.yellow,
+        backgroundColor: Theme.of(context).colorScheme.surface, 
       ),
     );
   }
@@ -159,18 +159,18 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
     return DefaultTabController(
       length: 2, 
       child: Scaffold(
-        backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+        backgroundColor: Theme.of(context).colorScheme.background,
         appBar: AppBar(
           leadingWidth: (screenWidth-searchBarWidth-12)/2,
-          backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+          backgroundColor: Theme.of(context).colorScheme.surface, 
           elevation: 0,
-          iconTheme: IconThemeData(color: Colors.black),
+          iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface), 
           title: 
             Container(
               width: searchBarWidth,
               height: searchBarHeight,
               decoration: BoxDecoration(
-                color: Color.fromRGBO(229, 229, 229, 1), 
+                color: const Color.fromRGBO(229, 229, 229, 1), 
                 borderRadius: BorderRadius.circular(5),
               ),
               child: Row(
@@ -180,38 +180,43 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                       controller: searchController,
                       style: TextStyle( 
                         fontSize: textMultiplier * 12,
-                        color: Colors.black,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Search with email',
                         hintStyle: TextStyle(
                           fontSize: textMultiplier * 12,
-                          color: Color.fromRGBO(107, 114, 120, 1),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7), 
                           fontWeight: FontWeight.w500,
                         ),
-                        prefixIcon: Icon(Icons.search, color: Color.fromRGBO(0, 0, 0, 1)),
+                        prefixIcon:  Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         suffixIcon: IconButton(
-                          icon: Icon(Icons.done, color: Color.fromRGBO(0, 0, 0, 1)),
+                          icon: Icon(Icons.done, color: Theme.of(context).colorScheme.onSurfaceVariant),
                           onPressed: handleSearch,
                         ),
-                        contentPadding: EdgeInsets.symmetric(vertical: 7),
-                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 7),
+                        border: OutlineInputBorder( 
+                          borderRadius: BorderRadius.circular(5), 
+                          borderSide: BorderSide.none, 
+                        ),
+                        filled: true,       
+                        fillColor: Theme.of(context).colorScheme.surfaceVariant,                
                       ),
-                      cursorColor: Colors.black,
+                      cursorColor: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
               ),
             ),
-          bottom: const TabBar(
-            indicatorColor: Colors.black,
+          bottom: TabBar(
+            indicatorColor: Theme.of(context).colorScheme.primary,
             tabs: [
               Tab(
                 child: Text(
                   'Loan Requests',
                   style: TextStyle(
-                    color: Colors.black, 
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -219,7 +224,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                 child: Text(
                   'Payment Requests',
                   style: TextStyle(
-                    color: Colors.black, 
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -252,17 +257,25 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
     //H=812 , W=375
 
     return requestTransactions.isEmpty
-        ? Center(child: Text('No loan requests available.'))
+        ? const Center(child: Text('No loan requests available.',style: TextStyle(color: Colors.grey)))
         : ListView.builder(
               itemCount: requestTransactions.length,
               itemBuilder: (context, index) {
                 return Padding(
-                  padding: EdgeInsets.only(left: 14,right: 14),
+                  padding: const EdgeInsets.only(left: 14,right: 14),
                   child: Container(
-                    margin: EdgeInsets.only(top: 7.0),
+                    margin: const EdgeInsets.only(top: 7.0),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Color.fromRGBO(229, 229, 229, 0.3),
+                      color: Theme.of(context).colorScheme.surfaceVariant, 
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          spreadRadius: 1,
+                          blurRadius: 1,
+                          offset: Offset(0, 1),
+                        ),
+                      ],                    
                     ),
                     child: SizedBox(
                       height: screenHeight * 0.07,
@@ -280,17 +293,17 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                             );                        
                         },
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12), 
+                          padding: const EdgeInsets.symmetric(horizontal: 12), 
                           decoration: BoxDecoration(
                             color: Colors.transparent, 
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
                             children: [
                               CircleAvatar(
                                 radius: screenHeight * 0.07 * 0.75 * 0.5,
-                                backgroundColor: Color.fromRGBO(218, 218, 218, 1),
-                                child: Icon(Icons.person, color: const Color.fromARGB(255, 0, 0, 0), size: screenHeight * 0.07 * 0.75),
+                                backgroundColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.8),
+                                child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant, size: screenHeight * 0.07 * 0.75),
                               ),
                               SizedBox(width: 23*widthMultiplier), 
                               Column(
@@ -299,11 +312,11 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                                 children: [
                                   Text(
                                     requestTransactions[index].receiver,
-                                    style: TextStyle(fontSize: textMultiplier * 14, color: Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontSize: textMultiplier * 14, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
                                   ),
                                   Text(
                                     DateFormat('dd-MM-yyyy').format(requestTransactions[index].startDate),
-                                    style: TextStyle(fontSize: textMultiplier * 12, color: Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontSize: textMultiplier * 12, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7), fontWeight: FontWeight.w500),
                                   ),
                                 ],
                               ),
@@ -336,17 +349,25 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
     //H=812 , W=375
 
     return paymentrequestTransactions.isEmpty
-        ? Center(child: Text('No payment requests available.'))
+        ? const Center(child: Text('No payment requests available.',style: TextStyle(color: Colors.grey)))
         : ListView.builder(
               itemCount: paymentrequestTransactions.length,
               itemBuilder: (context, index) {
                 return Padding(
-                  padding: EdgeInsets.only(left: 14,right: 14),
+                  padding: const EdgeInsets.only(left: 14,right: 14),
                   child: Container(
-                     margin: EdgeInsets.only(top: 14.0),
+                     margin: const EdgeInsets.only(top: 14.0),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Color.fromRGBO(229, 229, 229, 0.3),
+                      borderRadius: BorderRadius.circular(8),
+                      color: Theme.of(context).colorScheme.surfaceVariant,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.15),
+                          spreadRadius: 0,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: SizedBox(
                       height: screenHeight * 0.07,
@@ -364,17 +385,17 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                             );                        
                         },
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12), 
+                          padding: const EdgeInsets.symmetric(horizontal: 12), 
                           decoration: BoxDecoration(
                             color: Colors.transparent, 
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
                             children: [
                               CircleAvatar(
                                 radius: screenHeight * 0.07 * 0.75 * 0.5,
-                                backgroundColor: Color.fromRGBO(218, 218, 218, 1),
-                                child: Icon(Icons.person, color: const Color.fromARGB(255, 0, 0, 0), size: screenHeight * 0.07 * 0.75),
+                                backgroundColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.8),
+                                child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant, size: screenHeight * 0.07 * 0.75),
                               ),
                               SizedBox(width: 23*widthMultiplier), 
                               Column(
@@ -383,11 +404,11 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                                 children: [
                                   Text(
                                     paymentrequestTransactions[index].receiver,
-                                    style: TextStyle(fontSize: textMultiplier * 14, color: Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontSize: textMultiplier * 14, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
                                   ),
                                   Text(
                                     DateFormat('dd-MM-yyyy').format(paymentrequestTransactions[index].date),
-                                    style: TextStyle(fontSize: textMultiplier * 12, color: Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontSize: textMultiplier * 12, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7), fontWeight: FontWeight.w500),
                                   ),
                                 ],
                               ),

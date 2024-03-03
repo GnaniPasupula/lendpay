@@ -77,7 +77,7 @@ class _AddUserDialogState extends State<AddUserDialog> {
     double textMultiplier = 1;
 
     return Dialog(
-      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       child: SizedBox(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -85,9 +85,9 @@ class _AddUserDialogState extends State<AddUserDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 'Add Person',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Theme.of(context).colorScheme.onSurface),
               ),
               SizedBox(height: 16 * textMultiplier),
               ProfileOption(
@@ -101,8 +101,9 @@ class _AddUserDialogState extends State<AddUserDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,                    
                     ),
                     onPressed: () => addUser(context), 
                     child: Text('Add'),
@@ -135,7 +136,7 @@ class ProfileOption extends StatelessWidget {
       width: screenWidth * 0.9,
       height: MediaQuery.of(context).size.height * 0.06,
       decoration: BoxDecoration(
-        color: Color.fromRGBO(229, 229, 229, 0.3),
+        color: Theme.of(context).colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -144,7 +145,7 @@ class ProfileOption extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: MediaQuery.of(context).size.height * 0.06 * 0.5, color: Color.fromRGBO(0, 0, 0, 1)),
+              Icon(icon, size: MediaQuery.of(context).size.height * 0.06 * 0.5, color: Theme.of(context).colorScheme.onSurfaceVariant,)
             ],
           ),
           SizedBox(width: 16 * widthMultiplier), 
@@ -158,6 +159,9 @@ class ProfileOption extends StatelessWidget {
                     hintText: 'Enter $label',
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(vertical: 16.0),
+                  ),
+                  style: TextStyle( 
+                    color: Theme.of(context).colorScheme.onSurfaceVariant, 
                   ),
                 ),
               ),

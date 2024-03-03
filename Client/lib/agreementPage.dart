@@ -68,12 +68,12 @@ class _AgreementPageState extends State<AgreementPage> {
     User activeUser = userProvider.activeUser;
 
     return Scaffold(
-      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+      backgroundColor: Theme.of(context).colorScheme.background, 
       appBar: AppBar(
-        title: Text('Loan Details', style: TextStyle(fontSize: 18, color: Color.fromRGBO(0, 0, 0, 1))),
-        backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+        title: Text('Loan Details', style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface)),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -86,16 +86,16 @@ class _AgreementPageState extends State<AgreementPage> {
             //   style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
             // ),
             // const SizedBox(height: 8.0),
-            const Text(
+            Text(
               'Customize your loan and EMI details',
-              style: TextStyle(fontSize: 16.0, color: Colors.grey),
+              style: TextStyle(fontSize: 16.0, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
             ),
             const SizedBox(height: 16.0),
-            const Row(
+            Row(
               children: [
                 Text(
                   'Select Loan Amount',
-                  style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSurface),
                 ),
               ],
             ),
@@ -121,7 +121,7 @@ class _AgreementPageState extends State<AgreementPage> {
                           loanAmount = int.tryParse(value) ?? 0;
                         });
                       },
-                      style: const TextStyle(fontSize: 64.0),
+                      style: TextStyle(fontSize: 64.0,color: Theme.of(context).colorScheme.onSurfaceVariant),
                       textAlign: TextAlign.center,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
@@ -161,8 +161,8 @@ class _AgreementPageState extends State<AgreementPage> {
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade200),
-                borderRadius: BorderRadius.circular(0.0),
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: BorderRadius.circular(8.0), 
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -194,8 +194,8 @@ class _AgreementPageState extends State<AgreementPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(children: [
-                  Text("\$ $totalAmount ", style: const TextStyle(fontSize: 16.0, color: Colors.black, fontWeight: FontWeight.bold)),
-                  Text("( \$ $breakdownAmount/Month)", style: const TextStyle(fontSize: 12.0, color: Colors.black)),
+                  Text("\$ $totalAmount ", style: TextStyle(fontSize: 16.0, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                  Text("( \$ $breakdownAmount/Month)", style: TextStyle(fontSize: 12.0, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7))),
                 ]),
                 Container(
                   width: 150,
@@ -210,8 +210,15 @@ class _AgreementPageState extends State<AgreementPage> {
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: const Text("Confirm Transaction Request"),
-                            content: const Text("Are you sure you want to send the transaction request?"),
+                            backgroundColor: Theme.of(context).colorScheme.surface,
+                            title:  Text("Confirm Transaction Request",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface
+                              )),
+                            content: Text("Are you sure you want to send the transaction request?",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface 
+                              )),
                             actions: [
                               TextButton(
                                 onPressed: () {
@@ -237,10 +244,10 @@ class _AgreementPageState extends State<AgreementPage> {
                         },
                       );
                     },
-                    child: const Text("Request", style: TextStyle(color: Colors.white)),
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                      backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary ),
                     ),
+                    child: Text("Request", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
                   ),
                 ),
               ],
@@ -271,9 +278,9 @@ class _AgreementPageState extends State<AgreementPage> {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14.0,
-            color: Colors.black,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         Flexible(
@@ -282,14 +289,14 @@ class _AgreementPageState extends State<AgreementPage> {
             child: Text(
               value.toString(),
               style: onPressed != null
-                  ? const TextStyle(
+                  ? TextStyle(
                       fontSize: 14.0,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.secondary,
                       decoration: TextDecoration.underline,
                     )
-                  : const TextStyle(
+                  : TextStyle(
                       fontSize: 14.0,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
             ),
           ),
@@ -309,8 +316,8 @@ class _AgreementPageState extends State<AgreementPage> {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(color: Colors.grey.shade200),
-          color: Colors.grey[100],
+          border: Border.all(color: Theme.of(context).colorScheme.outline), 
+          color: Theme.of(context).colorScheme.surfaceVariant,
         ),
         child: Center(
           child: Column(
@@ -340,7 +347,7 @@ class _AgreementPageState extends State<AgreementPage> {
                     FilteringTextInputFormatter.digitsOnly,
                     LengthLimitingTextInputFormatter(3),
                   ],
-                  style: const TextStyle(fontSize: 16.0, color: Colors.black),
+                  style: TextStyle(fontSize: 16.0, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   textAlign: TextAlign.center,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
@@ -350,9 +357,9 @@ class _AgreementPageState extends State<AgreementPage> {
               ),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16.0,
-                  color: Colors.black,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],

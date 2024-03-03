@@ -84,6 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return AlertDialog(
             title: Text('Change Password'),
             content: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   onChanged: (value) {
@@ -131,12 +132,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     
     return Scaffold(
-      backgroundColor: Color.fromRGBO(255, 255, 255, 1), 
+      backgroundColor: Theme.of(context).colorScheme.background, 
       appBar: AppBar(
-        title: Text('Profile', style: TextStyle(fontSize: 18,color: Color.fromRGBO(0, 0, 0, 1))),
-        backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+        title: Text('Profile', style: TextStyle(fontSize: 18,color: Theme.of(context).colorScheme.onBackground)),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: Center(
         child: Container(
@@ -237,8 +238,16 @@ class ProfileOption extends StatelessWidget {
         width: screenWidth * 0.9,
         height: screenHeight* 0.06,
         decoration: BoxDecoration(
-          color: Color.fromRGBO(229, 229, 229, 0.3),
-          borderRadius: BorderRadius.circular(10),
+          color: Theme.of(context).colorScheme.surfaceVariant,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.15),
+              spreadRadius: 0,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween, 
@@ -249,7 +258,7 @@ class ProfileOption extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(icon, size: MediaQuery.of(context).size.height * 0.06 * 0.5, color: Color.fromRGBO(0, 0, 0, 1)),
+                    Icon(icon, size: MediaQuery.of(context).size.height * 0.06 * 0.5, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ],
                 ),
                 SizedBox(width: 16 * widthMultiplier), 
@@ -259,12 +268,12 @@ class ProfileOption extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: TextStyle(fontSize: textMultiplier * 14, color: Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: textMultiplier * 14, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
                     ),
                     if (value.isNotEmpty)
                       Text(
                         value,
-                        style: TextStyle(fontSize: textMultiplier * 12, color: Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
+                        style: TextStyle(fontSize: textMultiplier * 12,color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7),fontWeight: FontWeight.w500),
                       )
                     else
                       SizedBox(), 
@@ -281,7 +290,7 @@ class ProfileOption extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 9.0, right: 9.0),
                   child: Text(
                     "Change",
-                    style: TextStyle(fontSize: textMultiplier * 14, color: Color.fromRGBO(37, 113, 240, 1), fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: textMultiplier * 14, color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w600),
                   ),
                 ) 
               ],

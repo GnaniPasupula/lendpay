@@ -56,7 +56,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
     try {
       await ApiHelper.deleteTransaction(transactionID: widget.viewAgreement.id);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Transaction deleted successfully'),
         ),
       );
@@ -65,7 +65,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
     } catch (e) {
       print("Error deleting transaction: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Failed to delete transaction. Please try again.'),
         ),
       );
@@ -107,20 +107,20 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Loan Agreement', style: TextStyle(fontSize: 18,color: Color.fromRGBO(0, 0, 0, 1))),
-        backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+        title: Text('Loan Agreement', style: TextStyle(fontSize: 18,color: Theme.of(context).colorScheme.onSurface)),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 16,left: 16,right: 16),
+            Padding(
+              padding: const EdgeInsets.only(top: 16,left: 16,right: 16),
                 child: Text(
                 'Loan Details',
-                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSurface),
               ),
             ),
             const SizedBox(height: 8.0),
@@ -129,8 +129,16 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
               child:Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade200),
-                  borderRadius: BorderRadius.circular(0.0),
+                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  borderRadius: BorderRadius.circular(10.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 0,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
                 ),
                   child:Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -170,11 +178,11 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                         children: [
                           Text(
                             "\$ ${widget.viewAgreement.totalAmount} ",
-                            style: const TextStyle(fontSize: 16.0, color: Colors.black, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 16.0, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
                           ),
                           Text(
                             "( \$ ${widget.viewAgreement.subAmount}/Month)",
-                            style: const TextStyle(fontSize: 12.0, color: Colors.black),
+                            style: TextStyle(fontSize: 12.0, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
                           ),
                         ],
                       ),
@@ -187,8 +195,15 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                               context: context,
                               builder: (BuildContext context) {
                                 return widget.viewAgreement.type != "req" ? AlertDialog(
+                                  backgroundColor: Theme.of(context).colorScheme.surface,
                                   title: const Text('Add Monthly Payment'),
-                                  content: !widget.viewAgreement.receiver.contains('@')?const Text("Are you sure you want to add the monthly payment?"):const Text("Are you sure you want to send the payment request?"),
+                                  content: !widget.viewAgreement.receiver.contains('@')?Text("Are you sure you want to add the monthly payment?",
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurface
+                                  )):Text("Are you sure you want to send the payment request?",
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurface
+                                  )),
                                   actions: [
                                     TextButton(
                                       onPressed: () {
@@ -225,15 +240,16 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                             context: context,
                                             builder: (BuildContext context) {
                                               return AlertDialog(
-                                                title: const Text('Success'),
-                                                content: !widget.viewAgreement.receiver.contains('@')?const Text('Payment added successfully.'):const Text('Payment request sent successfully.'),
+                                                backgroundColor: Theme.of(context).colorScheme.surface, 
+                                                title: Text('Success',style: TextStyle(color: Theme.of(context).colorScheme.onSurface) ),
+                                                content: !widget.viewAgreement.receiver.contains('@')? Text('Payment added successfully.',style: TextStyle(color: Theme.of(context).colorScheme.onSurface)):Text('Payment request sent successfully.',style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                                                 actions: [
                                                   TextButton(
                                                     onPressed: () {
                                                       Navigator.of(context).pop(); // Close the current dialog
                                                       Navigator.of(context).pop(); // Close the current page
                                                     },
-                                                    child: const Text('OK'),
+                                                    child: Text('OK',style: TextStyle(color: Theme.of(context).colorScheme.primary)),
                                                   ),
                                                 ],
                                               );
@@ -265,9 +281,9 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                             );
                           },
                           style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                            backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary ),
                           ),
-                          child: const Text("Pay", style: TextStyle(color: Colors.white)),
+                          child: Text("Pay", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
                         ),
                       ),
                     ],
@@ -317,12 +333,20 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                         //       DateFormat.jm().format(transactionDate);
                         // }
                         return Padding(
-                          padding: EdgeInsets.only(left: 14,right: 14),
+                          padding: const EdgeInsets.only(left: 14,right: 14),
                           child: Container(
-                            margin: EdgeInsets.only(top: 8.0),
+                            margin: const EdgeInsets.only(top: 8.0),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Color.fromRGBO(229, 229, 229, 0.3),
+                              borderRadius: BorderRadius.circular(8),
+                              color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.7),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.15),
+                                  spreadRadius: 0,
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
                             ),
                             child: SizedBox(
                               height: screenHeight * 0.07,
@@ -332,7 +356,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                   Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleTransactionsPage(subTransaction:subTransaction)));                      
                                 },
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 12), 
+                                  padding: const EdgeInsets.symmetric(horizontal: 12), 
                                   decoration: BoxDecoration(
                                     color: Colors.transparent, 
                                     borderRadius: BorderRadius.circular(10),
@@ -341,8 +365,8 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                     children: [
                                       CircleAvatar(
                                         radius: screenHeight * 0.07 * 0.75 * 0.5,
-                                        backgroundColor: Color.fromRGBO(218, 218, 218, 1),
-                                        child: Icon(Icons.person, color: const Color.fromARGB(255, 0, 0, 0), size: screenHeight * 0.07 * 0.75),
+                                        backgroundColor: Theme.of(context).colorScheme.surfaceVariant, 
+                                        child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant, size: screenHeight * 0.07 * 0.75),
                                       ),
                                       SizedBox(width: 23*widthMultiplier),
                                       Expanded(
@@ -355,17 +379,17 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                               children: [
                                                 Text(
                                                   subTransaction.sender,
-                                                  style: TextStyle(fontSize: textMultiplier * 14, color: Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
+                                                  style: TextStyle(fontSize: textMultiplier * 14, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w500),
                                                 ),
                                                 Text(
                                                   DateFormat('dd-MM-yyyy').format(subTransaction.date),
-                                                  style: TextStyle(fontSize: textMultiplier * 12, color: Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
+                                                  style: TextStyle(fontSize: textMultiplier * 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), fontWeight: FontWeight.w500),
                                                 ),
                                               ],
                                             ),
                                             Text(
                                               subTransaction.amount.toString(),
-                                              style: TextStyle(fontSize: textMultiplier * 16, color: Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w600),
+                                              style: TextStyle(fontSize: textMultiplier * 16, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600),
                                             ),
                                           ],
                                         ),
@@ -390,29 +414,37 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Text("Confirm Delete"),
-                  content: Text("Are you sure you want to delete this Loan?"),
+                  title: Text("Confirm Delete",style: TextStyle(color: Theme.of(context).colorScheme.onError)),
+                  content: const Text("Are you sure you want to delete this Loan?"),
                   actions: [
-                    TextButton(
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.surface, 
+                        foregroundColor: Theme.of(context).colorScheme.onSurface 
+                      ),
                       onPressed: () {
                         Navigator.of(context).pop(); 
                       },
-                      child: Text("Cancel"),
+                      child: const Text("Cancel"),
                     ),
-                    TextButton(
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.error,  
+                        foregroundColor: Theme.of(context).colorScheme.onError 
+                      ), 
                       onPressed: () {
                         _deleteTransaction();
                         Navigator.of(context).pop(); 
                       },
-                      child: Text("Delete"),
+                      child: const Text("Delete"),
                     ),
                   ],
                 );
               }
             );
           },
-          child: Icon(Icons.delete),
-          backgroundColor: Colors.black,
+          backgroundColor: Theme.of(context).colorScheme.surface, 
+          child: const Icon(Icons.delete),
         ),
       );
   }
@@ -422,18 +454,18 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14.0,
-            color: Colors.black,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const Spacer(),
         Flexible(
           child: Text(
             value.toString(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14.0,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
         ),

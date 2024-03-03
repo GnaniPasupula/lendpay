@@ -78,7 +78,7 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
         subtransactionID: widget.subTransaction.id,
       );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Payment deleted successfully'),
         ),
       );
@@ -86,7 +86,7 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
     } catch (error) {
       print('Error deleting transaction: $error');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Failed to delete payment. Please try again.'),
         ),
       );
@@ -102,36 +102,38 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
     return Screenshot(
         controller: screenshotController,
         child: Scaffold(
-            backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+            backgroundColor: Theme.of(context).colorScheme.background, 
             appBar: AppBar(
               title: Text('Payment',
                   style: TextStyle(
-                      fontSize: 18, color: Color.fromRGBO(0, 0, 0, 1))),
-              backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+                      fontSize: 18, color: Theme.of(context).colorScheme.onBackground,)),
+              backgroundColor: Theme.of(context).colorScheme.surface, 
               elevation: 0,
-              iconTheme: IconThemeData(color: Colors.black),
+              iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
             ),
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 50,
-                    backgroundColor: Color.fromRGBO(218, 218, 218, 1),
+                    backgroundColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.8),
                     child: Icon(Icons.person,
-                        color: const Color.fromARGB(255, 0, 0, 0), size: 50),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant, 
+                        size: 50
+                        ),
                   ),
                   const SizedBox(height: 10.0),
                   Text(
                     widget.subTransaction.sender,
                     style:
-                        TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                        TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold,color: Theme.of(context).colorScheme.onBackground,)
                   ),
                   const SizedBox(height: 10.0),
                   Text(
                     '\u20B9' + widget.subTransaction.amount.toString(),
-                    style: TextStyle(fontSize: 16.0),
+                    style: const TextStyle(fontSize: 16.0),
                   ),
                   const SizedBox(height: 10.0),
                   const Text(
@@ -145,15 +147,15 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
                   ),
                   Text(
                     formattedDate + " " + formattedTime,
-                    style: TextStyle(fontSize: 16.0),
+                    style: const TextStyle(fontSize: 16.0),
                   ),
                   // 6th to 10th row: Card with border outline
                   Card(
                     margin: const EdgeInsets.all(20.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
-                      side: const BorderSide(color: Colors.black),
                     ),
+                    elevation: 2,
                     child: Padding(
                       padding: const EdgeInsets.all(15.0),
                       child: Column(
@@ -194,20 +196,20 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
                                   builder: (context) => SingleAgreementPage(
                                       viewAgreement: loan)));
                         },
-                        child: Text('Go to Loan'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          foregroundColor: Colors.white,
+                        style: ElevatedButton.styleFrom( 
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          foregroundColor: Theme.of(context).colorScheme.onPrimary, 
                         ),
+                        child: const Text('Go to Loan'),
                       ),
-                      SizedBox(width: 20.0),
+                      const SizedBox(width: 20.0),
                       ElevatedButton(
                         onPressed: _takeScreenshotAndShare,
-                        child: Text('Share'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          foregroundColor: Colors.white,
+                        style: ElevatedButton.styleFrom( 
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          foregroundColor: Theme.of(context).colorScheme.onPrimary, 
                         ),
+                        child: const Text('Share'),
                       ),
                     ],
                   ),
@@ -220,29 +222,38 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text("Confirm Delete"),
-                          content: Text("Are you sure you want to delete this transaction?"),
+                          title: Text("Confirm Delete",style: TextStyle(color: Theme.of(context).colorScheme.onError)),
+                          content: const Text("Are you sure you want to delete this transaction?"),
+                          backgroundColor: Theme.of(context).colorScheme.surface,
                           actions: [
-                            TextButton(
-                              onPressed: () {
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).colorScheme.surface, 
+                                foregroundColor: Theme.of(context).colorScheme.onSurface 
+                              ), 
+                              onPressed: () { 
                                 Navigator.of(context).pop(); 
                               },
-                              child: Text("Cancel"),
+                              child: const Text("Cancel"),
                             ),
-                            TextButton(
-                              onPressed: () {
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).colorScheme.error,  
+                                foregroundColor: Theme.of(context).colorScheme.onError 
+                              ), 
+                              onPressed: () { 
                                 Navigator.of(context).pop(); 
-                                _deletePayment();
+                                _deletePayment(); 
                               },
-                              child: Text("Delete"),
+                              child: const Text("Delete"),
                             ),
                           ],
                         );
                       }
                     );
               },
-              child: Icon(Icons.delete),
-              backgroundColor: Colors.black,
+              backgroundColor: Theme.of(context).colorScheme.surface, 
+              child: const Icon(Icons.delete),
             ),
           )
         );      

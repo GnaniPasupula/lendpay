@@ -116,28 +116,37 @@ class _AuthScreenState extends State<AuthScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Enter OTP'),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: Text('Enter OTP',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
         content: TextField(
           controller: _otpController,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration
-                      (labelText: 'OTP',    
-                        labelStyle: TextStyle(color: Colors.black), 
-                        focusedBorder: UnderlineInputBorder
-                        (borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
-                      ),),
+          decoration: InputDecoration(
+            labelText: 'OTP',
+            labelStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            focusedBorder: UnderlineInputBorder(
+              borderSide:
+                  BorderSide(color: Theme.of(context).colorScheme.primary),
+            ),
+          ),
         ),
         actions: [
           ElevatedButton(
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+              backgroundColor: MaterialStateProperty.all<Color>(
+                Theme.of(context).colorScheme.primary 
+              ),
             ),
             onPressed: () {
               Navigator.of(ctx).pop();
               _validateOTP();
             },
-            child: Text('Submit'),
-            
+            child: Text(
+              'Submit', 
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary) 
+            ),          
           ),
         ],
       ),
@@ -183,31 +192,31 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(255, 255, 255, 1), 
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 'Welcome',
                 style: TextStyle(
-                  color: Color.fromARGB(255, 0, 0, 0),
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 20), // Add some spacing
               ToggleButtons(
-                constraints: const BoxConstraints.tightFor(height: 30), 
+                constraints: const BoxConstraints.tightFor(height: 30),
                 isSelected: [_isSignIn, !_isSignIn],
                 onPressed: (index) {
                   setState(() {
                     _isSignIn = index == 0; // Toggle the state
                   });
-                },
-                fillColor: Color.fromARGB(255, 0, 0, 0),
+                }, 
+                fillColor: Theme.of(context).colorScheme.primary, 
                 borderRadius: BorderRadius.circular(10),
                 children: [
                   Padding(
@@ -215,7 +224,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     child: Text(
                       'Sign In',
                       style: TextStyle(
-                        color: _isSignIn ? Colors.white : Colors.black,
+                        color: _isSignIn ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 16,
                       ),
                     ),
@@ -225,7 +234,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     child: Text(
                       'Sign Up',
                       style: TextStyle(
-                        color: !_isSignIn ? Colors.white : Colors.black,
+                        color: !_isSignIn ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 16,
                       ),
                     ),
@@ -240,22 +249,22 @@ class _AuthScreenState extends State<AuthScreen> {
                     TextField(
                       controller: _signInEmailController,
                       style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Email',
-                        labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant), 
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                         ),
                       ),
                     ),
                     TextField(
                       controller: _signInPasswordController,
                       style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
-                      decoration: const InputDecoration(
+                      decoration:  InputDecoration(
                         labelText: 'Password',
-                        labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                         ),
                       ),
                       obscureText: true,
@@ -270,9 +279,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                         ),
                         errorText: _emailErrorText,
                       ),
@@ -289,9 +298,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                         ),
                         errorText: _passwordErrorText,
                       ),
@@ -308,9 +317,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                       decoration: InputDecoration(
                         labelText: 'Confirm Password',
-                        labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                         ),
                         errorText: _confirmPasswordErrorText,
                       ),
@@ -330,7 +339,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 child: ElevatedButton(
                   onPressed: (_isSignIn ? _signin : _signup),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     padding: EdgeInsets.symmetric(horizontal: 50),
                   ),
                   child: IgnorePointer(
@@ -340,7 +349,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       child: Text(
                         _isSignIn ? 'Sign In' : 'Sign Up',
                         style: TextStyle(
-                          color: const Color.fromARGB(255, 255, 255, 255),
+                          color: Theme.of(context).colorScheme.onPrimary, 
                         ),
                       ),
                     ),

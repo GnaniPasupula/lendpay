@@ -41,8 +41,9 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
     // print(activeUser.email +"," + widget.requestTransaction.receiver);
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background, 
       appBar: AppBar(
-        title: const Text('Loan Request'),
+        title: Text('payment Request', style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -50,16 +51,16 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Payment',
-              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            Text(
+              'Payment Details',
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold,color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
             ),
             const SizedBox(height: 8.0),
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade200),
-                borderRadius: BorderRadius.circular(0.0),
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: BorderRadius.circular(10.0),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -85,7 +86,7 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                       children: [
                         Text(
                           "\$ ${widget.paymentrequestTransaction.amount} ",
-                          style: const TextStyle(fontSize: 16.0, color: Colors.black, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 16.0, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -105,8 +106,14 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: const Text("Accept Transaction Request"),
-                                      content: const Text("Are you sure you want to accept the transaction request?"),
+                                      title: Text("Accept Payment Request",
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurface
+                                      )),
+                                      content: Text("Are you sure you want to accept the payment request?",
+                                       style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurface
+                                      )),
                                       actions: [
                                         TextButton(
                                           onPressed: () {
@@ -128,12 +135,11 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                                   },
                                 );
                               }
-                            : null, // Set onPressed to null if condition is not met
-                        child: const Text("Confirm", style: TextStyle(color: Colors.white)),
+                            : null,
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(activeUser.email != widget.paymentrequestTransaction.sender ? Colors.black : Colors.grey),
-                          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                        ),
+                          backgroundColor: MaterialStateProperty.all<Color>(activeUser.email != widget.paymentrequestTransaction.sender ? Theme.of(context).colorScheme.primary : Colors.grey),
+                        ), // Set onPressed to null if condition is not met
+                        child: Text("Confirm", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
                       ),
                     ),
                     SizedBox(
@@ -145,8 +151,15 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: const Text("Decline Transaction Request"),
-                                content: const Text("Are you sure you want to decline the transaction request?"),
+                                title:  Text("Decline Payment Request",
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurface
+                                  )),
+                                content: Text("Are you sure you want to decline the payment request?",
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurface
+                                  )
+                                ),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
@@ -167,10 +180,10 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                             },
                           );
                         },
-                        child: const Text("Decline", style: TextStyle(color: Colors.white)),
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                          backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary),
                         ),
+                        child: Text("Decline", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
                       ),
                     ),
                   ],
@@ -188,18 +201,18 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style:  TextStyle(
             fontSize: 14.0,
-            color: Colors.black,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const Spacer(),
         Flexible(
           child: Text(
             value.toString(),
-            style: const TextStyle(
+            style:  TextStyle(
               fontSize: 14.0,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
         ),

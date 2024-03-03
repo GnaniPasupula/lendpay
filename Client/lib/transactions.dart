@@ -154,19 +154,19 @@ class _TransactionsState extends State<TransactionsPage> {
     //H=812 , W=375
 
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
+      backgroundColor: Theme.of(context).colorScheme.background, 
       appBar: AppBar(
         title: Container(
             decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
+            color: Theme.of(context).colorScheme.surface, 
+            borderRadius: BorderRadius.circular(8.0),
             ),
             child: Row(
               children: [
                 CircleAvatar(
                   radius: screenHeight * 0.07 * 0.75 * 0.5,
-                  backgroundColor: const Color.fromRGBO(218, 218, 218, 1),
-                  child: Icon(Icons.person, color: const Color.fromARGB(255, 0, 0, 0), size: screenHeight * 0.07 * 0.75),
+                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant, 
+                  child: Icon(Icons.person,color: Theme.of(context).colorScheme.onSurfaceVariant, size: screenHeight * 0.07 * 0.75),
                 ),
                 SizedBox(width: 23 * widthMultiplier),
                 Column(
@@ -175,20 +175,19 @@ class _TransactionsState extends State<TransactionsPage> {
                   children: [
                     Text(
                       widget.otheruser.name,
-                      style: TextStyle(fontSize: textMultiplier * 14, color: const Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: textMultiplier * 14, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w500),
                     ),
                     Text(
                       widget.otheruser.email??'',
-                      style: TextStyle(fontSize: textMultiplier * 12, color: const Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: textMultiplier * 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
               ],
             ),
           ),        
-        backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        backgroundColor: Theme.of(context).colorScheme.background,
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
@@ -196,6 +195,7 @@ class _TransactionsState extends State<TransactionsPage> {
                 _deleteUser(widget.otheruser.id);
               }
             },
+            color:  Theme.of(context).colorScheme.surface, 
             itemBuilder: (BuildContext context) {
               return [
                 PopupMenuItem<String>(
@@ -203,16 +203,17 @@ class _TransactionsState extends State<TransactionsPage> {
                   child: Container(
                     width: 112, 
                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12), 
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.delete, size: 24), 
-                        SizedBox(width: 12), 
+                        Icon(Icons.delete, size: 24, color: Theme.of(context).colorScheme.error), 
+                        const SizedBox(width: 12), 
                         Expanded(
                           child: Text(
                             'Delete',
                             textAlign: TextAlign.start, 
                             style: TextStyle(
-                              fontSize: 16, 
+                              fontSize: 16,
+                              color: Theme.of(context).colorScheme.onError 
                             ),
                           ),
                         ),
@@ -243,7 +244,7 @@ class _TransactionsState extends State<TransactionsPage> {
             height: searchBarHeight,
             margin: const EdgeInsets.only(bottom: 10), 
             decoration: BoxDecoration(
-              color: const Color.fromRGBO(229, 229, 229, 1),
+              color: Theme.of(context).colorScheme.surfaceVariant, 
               borderRadius: BorderRadius.circular(5),
             ),
             child: Row(
@@ -255,20 +256,20 @@ class _TransactionsState extends State<TransactionsPage> {
                     controller: messageController,
                     style: TextStyle(
                       fontSize: textMultiplier * 12,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Enter amount',
                       hintStyle: TextStyle(
                         fontSize: textMultiplier * 12,
-                        color: const Color.fromRGBO(107, 114, 120, 1),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7), 
                         fontWeight: FontWeight.w500,
                       ),
                       prefixIcon: widget.otheruser.fCMToken.contains(widget.otheruser.name)?IconButton(
                         icon: isCredit 
-                          ? Icon(Icons.add_circle_outline_outlined, color: Colors.green)
-                          : Icon(Icons.remove_circle_outline_outlined, color: Colors.red),
+                          ? const Icon(Icons.add_circle_outline_outlined, color: Colors.green)
+                          : const Icon(Icons.remove_circle_outline_outlined, color: Colors.red),
                         onPressed: () {
                           showModalBottomSheet(
                             context: context,
@@ -278,13 +279,13 @@ class _TransactionsState extends State<TransactionsPage> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: <Widget>[
                                     ListTile(
-                                      title: Text('Credit'),
+                                      title: const Text('Credit'),
                                       onTap: () {
                                         Navigator.pop(context, true); 
                                       },
                                     ),
                                     ListTile(
-                                      title: Text('Debit'),
+                                      title: const Text('Debit'),
                                       onTap: () {
                                         Navigator.pop(context, false); 
                                       },
@@ -307,18 +308,25 @@ class _TransactionsState extends State<TransactionsPage> {
                       ignoring: isEmpty,
                       child: Opacity(
                         opacity: !isEmpty ? 1.0 : 0.5,
-                        child: IconButton(
-                          icon: const Icon(Icons.send, color: Color.fromRGBO(0, 0, 0, 1)),
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => AgreementPage(amount: int.parse(messageController.text), otheruser: widget.otheruser, fetchTransactionsFromAPI: fetchTransactionsFromAPI,isCredit: isCredit)));
-                          },
-                        ),
+                        child:Container(
+                          padding: const EdgeInsets.all(4.0), 
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surfaceVariant,
+                            borderRadius: BorderRadius.circular(50), 
+                          ),                       
+                          child: IconButton(
+                            icon: Icon(Icons.send, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => AgreementPage(amount: int.parse(messageController.text), otheruser: widget.otheruser, fetchTransactionsFromAPI: fetchTransactionsFromAPI,isCredit: isCredit)));
+                            },
+                          ),
+                        )
                       ),
                     ),
                       contentPadding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8), 
                       border: InputBorder.none,
                     ),
-                    cursorColor: Colors.black,
+                    cursorColor: Theme.of(context).colorScheme.onSurfaceVariant, 
                   ),
                 ),
               ],
@@ -344,7 +352,7 @@ class _TransactionsState extends State<TransactionsPage> {
             padding: const EdgeInsets.all(8.0),
             margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
             decoration: BoxDecoration(
-              color: transaction.isCredit ? Colors.green : Colors.blue,
+              color: transaction.isCredit ? Colors.green[400] : Colors.blue[400],
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Column(
@@ -352,12 +360,12 @@ class _TransactionsState extends State<TransactionsPage> {
               children: [
                 Text(
                   '${transaction.type=="req" ? "Request":(transaction.isCredit ? "Credit" : "Debit")}: \$${transaction.amount}',
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 ),
                 const SizedBox(height: 8.0),
                 Container(
                   height: 1.0,
-                  color: Colors.white, 
+                  color: Theme.of(context).colorScheme.background,
                 ),
                 const SizedBox(height: 8.0),
                 Row(
@@ -366,7 +374,7 @@ class _TransactionsState extends State<TransactionsPage> {
                     Expanded(
                       child: Text(
                         'Note: ${transaction.note}',
-                        style: const TextStyle(fontSize: 16.0, color: Colors.white),
+                        style: TextStyle(fontSize: 16.0, color: Theme.of(context).colorScheme.onSurface),
                       ),
                     ),
                     const Icon(Icons.arrow_forward, color: Colors.white),
@@ -378,7 +386,7 @@ class _TransactionsState extends State<TransactionsPage> {
                   children: [
                     Text(
                       DateFormat('hh:mm a').format(transaction.time),
-                      style: const TextStyle(fontSize: 12.0, color: Colors.white),
+                      style: TextStyle(fontSize: 12.0, color: Theme.of(context).colorScheme.onSurface),
                     ),
                   ],
                 ),

@@ -150,18 +150,17 @@ Widget build(BuildContext context) {
   //H=812 , W=375
 
   return Scaffold(
-    backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
+    backgroundColor: Theme.of(context).colorScheme.background,
     appBar: AppBar(
       leadingWidth: (screenWidth-searchBarWidth-12)/2,
-      backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
+      backgroundColor: Theme.of(context).colorScheme.surface, 
       elevation: 0,
-      iconTheme: const IconThemeData(color: Colors.black),
       title: 
         Container(
           width: searchBarWidth,
           height: searchBarHeight,
           decoration: BoxDecoration(
-            color: const Color.fromRGBO(229, 229, 229, 1), 
+            color: Theme.of(context).colorScheme.surfaceVariant,
             borderRadius: BorderRadius.circular(5),
           ),
           child: Row(
@@ -171,19 +170,19 @@ Widget build(BuildContext context) {
                   controller: searchController,
                   style: TextStyle( 
                     fontSize: textMultiplier * 12,
-                    color: Colors.black,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                   decoration: InputDecoration(
                     hintText: 'Search with email',
                     hintStyle: TextStyle(
                       fontSize: textMultiplier * 12,
-                      color: const Color.fromRGBO(107, 114, 120, 1),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7),
                       fontWeight: FontWeight.w500,
                     ),
-                    prefixIcon: const Icon(Icons.search, color: Color.fromRGBO(0, 0, 0, 1)),
+                    prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     suffixIcon: IconButton(
-                      icon: const Icon(Icons.done, color: Color.fromRGBO(0, 0, 0, 1)),
+                      icon:  Icon(Icons.done, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       onPressed: handleSearch,
                     ),
                     contentPadding: const EdgeInsets.symmetric(vertical: 7),
@@ -197,7 +196,7 @@ Widget build(BuildContext context) {
         ),
     ),
     body: users.isEmpty
-        ? const Center(child: Text('No Users available.'))
+        ? Center(child: Text('No Users available.',style: TextStyle(color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7))))
         : ListView.builder(
               itemCount: users.length,
               itemBuilder: (context, index) {
@@ -206,8 +205,19 @@ Widget build(BuildContext context) {
                   padding: EdgeInsets.only(left: 14,right: 14,bottom: 5*textMultiplier),
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: const Color.fromRGBO(229, 229, 229, 0.3),
+                      borderRadius: BorderRadius.circular(8),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceVariant
+                          .withOpacity(0.7),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.15),
+                          spreadRadius: 0,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: SizedBox(
                       height: screenHeight * 0.07,
@@ -220,14 +230,14 @@ Widget build(BuildContext context) {
                           padding: const EdgeInsets.symmetric(horizontal: 12), 
                           decoration: BoxDecoration(
                             color: Colors.transparent, 
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
                             children: [
                               CircleAvatar(
                                 radius: screenHeight * 0.07 * 0.75 * 0.5,
-                                backgroundColor: const Color.fromRGBO(218, 218, 218, 1),
-                                child: Icon(Icons.person, color: const Color.fromARGB(255, 0, 0, 0), size: screenHeight * 0.07 * 0.75),
+                                backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                                child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant, size: screenHeight * 0.07 * 0.75),
                               ),
                               SizedBox(width: 23*widthMultiplier), 
                               Column(
@@ -236,11 +246,11 @@ Widget build(BuildContext context) {
                                 children: [
                                   Text(
                                     otheruser.name,
-                                    style: TextStyle(fontSize: textMultiplier * 14, color: const Color.fromRGBO(0, 0, 0, 1), fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontSize: textMultiplier * 14, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
                                   ),
                                   Text(
                                     otheruser.email??'',
-                                    style: TextStyle(fontSize: textMultiplier * 12, color: const Color.fromRGBO(107, 114, 120, 1), fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontSize: textMultiplier * 12, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
                                   ),
                                 ],
                               ),

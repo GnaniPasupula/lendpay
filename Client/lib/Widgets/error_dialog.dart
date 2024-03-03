@@ -8,16 +8,16 @@ class ErrorDialogWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('Error', style: TextStyle(color: Colors.red)),
-        content: Text(message, style: TextStyle(color: Colors.black)),
+        content: Text(message, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)), 
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
             },
-            child: Text('OK', style: TextStyle(color: Colors.red)),
+            child: Text('OK', style: TextStyle(color: Theme.of(context).colorScheme.primary)), 
           ),
         ],
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        backgroundColor: Theme.of(context).colorScheme.surface, 
       ),
     );
   }
