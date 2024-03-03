@@ -2,6 +2,8 @@
 
 A new Flutter project.
 
+firebase_options.dart
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
