@@ -1,14 +1,19 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:lendpay/Models/Transaction.dart';
+import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Models/subTransactions.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Providers/subTransactionsOfTransaction_provider.dart';
 import 'package:lendpay/Providers/transactionsUser_provider.dart';
+import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/singleTransaction.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SingleAgreementPage extends StatefulWidget {
 
@@ -26,6 +31,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
 
   List<subTransactions> allsubTransactions = [];
   bool isManual=false;
+  late SharedPreferences prefs;
 
   late final SubtransactionsOfTransactionProvider subtransactionsOfTransactionProvider;
 
@@ -39,8 +45,28 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
     subtransactionsOfTransactionProvider=Provider.of<SubtransactionsOfTransactionProvider>(context,listen: false);
   }
 
+  handleUpdateSubTransactions(){
+    setState(() {
+      allsubTransactions=subtransactionsOfTransactionProvider.allSubTransactionsOfTransaction;
+      saveTransactionsToPrefs();
+    });
+  }
+
   Future<void> _fetchSubTransactions() async {
     try {
+      prefs = await SharedPreferences.getInstance();
+
+      List<String>? transactionsString = prefs.getStringList('${widget.viewAgreement.sender}/${widget.viewAgreement.receiver}/subtransactions/${widget.viewAgreement.id}');
+
+      if(transactionsString!=null){
+        handleUpdateSubTransactions();
+        transactionsString = prefs.getStringList('${widget.viewAgreement.sender}/${widget.viewAgreement.receiver}/subtransactions/${widget.viewAgreement.id}');
+        allsubTransactions = transactionsString!.map((transactionString) =>subTransactions.fromJson(jsonDecode(transactionString))).toList();
+      }
+
+      if(allsubTransactions.isEmpty){
+        await fetchSubTransactionsFromAPI();
+      }
       final List<subTransactions> transactions = await ApiHelper.fetchSubTransactionsOfTransaction(widget.viewAgreement.id);
       setState(() {
         allsubTransactions=transactions;
@@ -49,6 +75,29 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
     } catch (e) {
       print(e);
       // Handle error and show a proper error message to the user
+    }
+  }
+
+  Future<void> fetchSubTransactionsFromAPI() async {
+    try {
+      List<subTransactions> fetchedTransactions = [];
+
+      if(!isManual){
+        fetchedTransactions = await ApiHelper.fetchSubTransactionsOfTransaction(widget.viewAgreement.id);
+        setState(() {
+          subtransactionsOfTransactionProvider.setAllSubTransactions(fetchedTransactions);
+          allsubTransactions = fetchedTransactions;
+        });
+      }else{
+        fetchedTransactions = await ApiHelper.fetchSubTransactionsOfTransaction(widget.viewAgreement.id);
+        setState(() {
+          allsubTransactions = fetchedTransactions;
+        });
+        saveTransactionsToPrefs();
+      }
+    } catch (e) {
+      ErrorDialogWidget.show(context, "Error fetching transactions from API");
+      print(e);
     }
   }
 
@@ -75,6 +124,14 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
         ),
       );
     }
+  }
+
+  Future<void> saveTransactionsToPrefs() async {
+    final List<String> transactionsString = allsubTransactions
+        .map((subtransaction) => jsonEncode(subtransaction.toJson()))
+        .toList();
+
+    await prefs.setStringList('${widget.viewAgreement.sender}/${widget.viewAgreement.receiver}/subtransactions/${widget.viewAgreement.id}', transactionsString);
   }
 
   @override
@@ -357,8 +414,8 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                               height: screenHeight * 0.07,
                               width: screenWidth * 0.9,
                               child:InkWell(
-                                onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleTransactionsPage(subTransaction:subTransaction)));                      
+                                onTap: ()  {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleTransactionsPage(subTransaction:subTransaction))).then((_) => setState(() {_fetchSubTransactions();}));                     
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12), 

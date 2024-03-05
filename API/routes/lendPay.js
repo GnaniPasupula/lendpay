@@ -762,7 +762,7 @@ router.post('/deletePayment', async (req, res) => {
     await transaction.save();
     await sender.save();
 
-    res.status(200).json({ message: 'Payment deleted successfully' });
+    res.status(200).json(subTransaction);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });

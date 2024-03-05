@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/subTransactions.dart';
+import 'package:lendpay/Providers/subTransactionsOfTransaction_provider.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/singleAgreementPage.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -73,10 +75,13 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
   }
 
   Future<void> _deletePayment() async {
+    final subtransactionsUserProvider = Provider.of<SubtransactionsOfTransactionProvider>(context,listen: false);
+
     try {
-      await ApiHelper.deletePayment(
+      subTransactions subtransactionToDelete=await ApiHelper.deletePayment(
         subtransactionID: widget.subTransaction.id,
       );
+      subtransactionsUserProvider.deletesubTransactionTransactionUser(subtransactionToDelete);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Payment deleted successfully'),
@@ -223,7 +228,7 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: Text("Confirm Delete",style: TextStyle(color: Theme.of(context).colorScheme.onError)),
-                          content: const Text("Are you sure you want to delete this transaction?"),
+                          content: const Text("Are you sure you want to delete this payment?"),
                           backgroundColor: Theme.of(context).colorScheme.surface,
                           actions: [
                             ElevatedButton(

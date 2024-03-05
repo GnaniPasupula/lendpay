@@ -121,7 +121,7 @@ class ApiHelper {
     }
   }
 
-  static Future<void> deletePayment({
+  static Future<subTransactions> deletePayment({
     required String subtransactionID,
   }) async {
     final url = '$baseUrl/deletePayment';
@@ -143,6 +143,9 @@ class ApiHelper {
 
       if (response.statusCode == 200) {
         log('Payment deleted successfully');
+        final dynamic jsonData = json.decode(response.body);
+        final subTransactions payment = subTransactions.fromJson(jsonData);
+        return payment;
       } else {
         throw Exception('Failed to delete payment');
       }

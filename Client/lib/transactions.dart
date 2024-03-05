@@ -356,7 +356,7 @@ class _TransactionsState extends State<TransactionsPage> {
   Widget buildTransactionItem(Transaction transaction) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:transaction))).then((_) => setState(() {_fetchTransactions();}));;
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:transaction))).then((_) => setState(() {_fetchTransactions();}));
       },
       child: Align(
         alignment: transaction.sender==widget.activeuser.email ? Alignment.centerRight : Alignment.centerLeft,
