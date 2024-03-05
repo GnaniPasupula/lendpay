@@ -287,6 +287,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                             
                                             setState(() {
                                               allsubTransactions.add(payment);
+                                              _fetchSubTransactions();
                                             });
 
                                             }else{
@@ -298,24 +299,10 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                             );
                                           }
                                           Navigator.of(context).pop(); 
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                backgroundColor: Theme.of(context).colorScheme.surface, 
-                                                title: Text('Success',style: TextStyle(color: Theme.of(context).colorScheme.onSurface) ),
-                                                content: !widget.viewAgreement.receiver.contains('@')? Text('Payment added successfully.',style: TextStyle(color: Theme.of(context).colorScheme.onSurface)):Text('Payment request sent successfully.',style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.of(context).pop(); // Close the current dialog
-                                                      Navigator.of(context).pop(); // Close the current page
-                                                    },
-                                                    child: Text('OK',style: TextStyle(color: Theme.of(context).colorScheme.primary)),
-                                                  ),
-                                                ],
-                                              );
-                                            },
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Payment added successfully'),
+                                            ),
                                           );
                                         } catch (e) {
                                           // Handle error if the API call fails

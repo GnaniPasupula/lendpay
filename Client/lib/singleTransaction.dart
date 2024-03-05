@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/subTransactions.dart';
+import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/Providers/subTransactionsOfTransaction_provider.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/singleAgreementPage.dart';
@@ -76,12 +77,14 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
 
   Future<void> _deletePayment() async {
     final subtransactionsUserProvider = Provider.of<SubtransactionsOfTransactionProvider>(context,listen: false);
+    final subtransactionsProvider = Provider.of<SubtransactionsProvider>(context,listen: false);
 
     try {
-      subTransactions subtransactionToDelete=await ApiHelper.deletePayment(
+      final subTransactions subtransactionToDelete=await ApiHelper.deletePayment(
         subtransactionID: widget.subTransaction.id,
       );
       subtransactionsUserProvider.deletesubTransactionTransactionUser(subtransactionToDelete);
+      subtransactionsProvider.deletesubTransaction(subtransactionToDelete);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Payment deleted successfully'),

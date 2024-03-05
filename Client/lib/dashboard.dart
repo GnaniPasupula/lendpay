@@ -8,6 +8,7 @@ import 'package:lendpay/Models/subTransactions.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Providers/fCMToken_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
+import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/addUserPage.dart';
 import 'package:lendpay/allAgreementsPage.dart';
 import 'package:lendpay/incomingRequestPage.dart';
@@ -30,50 +31,63 @@ class _DashboardState extends State<Dashboard> {
   List<subTransactions> allsubTransactions = [];
   Transaction? urgentTransaction;
   late User activeUserx;
+  late SharedPreferences prefs;
+
+  late final SubtransactionsProvider subtransactionsProvider;
 
   @override
   void initState() {
     super.initState();
     _getActiveUser();
     _fetchUrgentPayment();
+    subtransactionsProvider = Provider.of<SubtransactionsProvider>(context,listen: false);
   }
 
-  Future<void> _fetchTransactions() async {
+  handleUpdateSubTransactions(){
+    setState(() {
+      allsubTransactions=subtransactionsProvider.allSubTransactions;
+      _saveTransactionsToPrefs();
+    });
+  }
+
+  Future<void> _fetchSubTransactions() async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs = await SharedPreferences.getInstance();
 
-      final List<String>? transactionsString = prefs.getStringList('${activeUserx.email}/subTransactions');
+      List<String>? transactionsString = prefs.getStringList('${activeUserx.email}/subTransactions');
       if (transactionsString != null) {
-        final List<subTransactions> transactions = transactionsString.map(
-            (transactionString) => subTransactions.fromJson(jsonDecode(transactionString))
-        ).toList();
-
-        Provider.of<SubtransactionsProvider>(context, listen: false)
-            .setAllSubTransactions(transactions);
-        setState(() {
-          allsubTransactions = transactions;
-        });
-        return; 
+        handleUpdateSubTransactions();
+        transactionsString = prefs.getStringList('${activeUserx.email}/subTransactions');
+        allsubTransactions=transactionsString!.map((transactionString) =>subTransactions.fromJson(jsonDecode(transactionString))).toList();
       }
 
-      final List<subTransactions> transactions = await ApiHelper.fetchSubTransactions();
-
-      Provider.of<SubtransactionsProvider>(context, listen: false)
-          .setAllSubTransactions(transactions);
-      setState(() {
-        allsubTransactions = transactions;
-      });
-
-      await _saveTransactionsToPrefs(transactions);
+      if (allsubTransactions.isEmpty) {
+        await fetchSubTransactionsFromAPI();
+      }
 
     } catch (e) {
       print(e);
     }
   }
 
-  Future<void> _saveTransactionsToPrefs(List<subTransactions> transactions) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<String> transactionsString = transactions.map(
+  Future<void> fetchSubTransactionsFromAPI() async {
+    try {
+      final List<subTransactions> fetchedSubTransactions= await ApiHelper.fetchSubTransactions();
+      
+      setState(() {
+        subtransactionsProvider.setAllSubTransactions(fetchedSubTransactions);
+        allsubTransactions=fetchedSubTransactions;
+      });
+      
+      _saveTransactionsToPrefs();
+    } catch (e) {
+      ErrorDialogWidget.show(context, "Error fetching subtransactions from API");
+      print(e);
+    }
+  }
+
+  Future<void> _saveTransactionsToPrefs() async {
+    final List<String> transactionsString = allsubTransactions.map(
         (transaction) => jsonEncode(transaction.toJson())
     ).toList();
 
@@ -100,7 +114,7 @@ class _DashboardState extends State<Dashboard> {
           .setActiveUser(activeUser);
       setState(() {
         activeUserx = activeUser;
-        _fetchTransactions();
+        _fetchSubTransactions();
         _getfCMToken();
       });
     } catch (e) {
@@ -154,8 +168,7 @@ class _DashboardState extends State<Dashboard> {
               onPressed: () {
                 Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => IncomingRequestPage()));
+                    MaterialPageRoute(builder: (context) => IncomingRequestPage())).then((_) => setState(() {_fetchSubTransactions();}));
               },
             ),
           ),
@@ -308,7 +321,7 @@ class _DashboardState extends State<Dashboard> {
                                               )
                                             ),
                                             onPressed: () => {
-                                              Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:urgentTransaction!)))
+                                              Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:urgentTransaction!))).then((_) => setState(() {_fetchSubTransactions();}))
                                             },
                                             child: const Text("Details")
                                         )
@@ -338,13 +351,12 @@ class _DashboardState extends State<Dashboard> {
                               icon: Icon(Icons.contacts,
                                   color: Theme.of(context).colorScheme.onPrimary,
                                   size: iconSize * 0.6),
-                              onPressed: () {
-                                // Handle Transfer Money button click
-                                Navigator.push(
+                              onPressed: () async {
+                                await Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            Request(activeUser: activeUserx)));
+                                            Request(activeUser: activeUserx))).then((_) => setState(() {_fetchSubTransactions();}));
                               },
                             ),
                           ),
@@ -377,7 +389,7 @@ class _DashboardState extends State<Dashboard> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => AllAgreementsPage(
-                                            activeUser: activeUserx)));
+                                            activeUser: activeUserx))).then((_) => setState(() {_fetchSubTransactions();}));
                               },
                             ),
                           ),
@@ -397,7 +409,7 @@ class _DashboardState extends State<Dashboard> {
           ),
           Expanded(
             child: allsubTransactions.isEmpty
-                ? Center(child: Text('No transactions available.',style: TextStyle(
+                ? Center(child: Text('No payments available.',style: TextStyle(
                   color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7), fontSize: 16, 
                 ),))
                 : ClipRRect(
@@ -457,14 +469,8 @@ class _DashboardState extends State<Dashboard> {
                                 height: screenHeight * 0.07,
                                 width: screenWidth * 0.9,
                                 child: InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                SingleTransactionsPage(
-                                                    subTransaction:
-                                                        subTransaction)));
+                                  onTap: () async{
+                                    await Navigator.push(context,MaterialPageRoute(builder: (context) =>SingleTransactionsPage(subTransaction:subTransaction))).then((_) => setState(() {_fetchSubTransactions();}));
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
