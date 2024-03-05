@@ -109,7 +109,7 @@ router.post('/deleteUser', async (req, res) => {
 
     await User.findByIdAndDelete(userId);
 
-    return res.status(201).json({ message: 'User and associated transactions deleted successfully' });
+    return res.status(200).json(deletedUser);
   } catch (error) {
     console.error('Error deleting user:', error);
     return res.status(500).json({ error: 'Internal server error' });
@@ -204,7 +204,7 @@ router.post('/deleteTransaction', async (req, res) => {
     await sender.save();
     // await receiver.save();
 
-    res.status(200).json({ message: 'Transaction added successfully'});
+    res.status(200).json(transaction);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'An error occurred' });

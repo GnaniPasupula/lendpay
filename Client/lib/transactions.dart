@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
+import 'package:lendpay/Providers/requestUsers_provider.dart';
+import 'package:lendpay/Providers/transactionsUser_provider.dart';
 import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/agreementPage.dart';
 import 'package:lendpay/api_helper.dart';
+import 'package:lendpay/request.dart';
 import 'package:lendpay/singleAgreementPage.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TransactionsPage extends StatefulWidget {
@@ -26,6 +30,8 @@ class _TransactionsState extends State<TransactionsPage> {
   List<Transaction> allTransactionsUser = [];
   late SharedPreferences prefs;
 
+  late final TransactionsUser transactionsUserProvider;
+
   bool isLoading = true;
   bool isManual = false;
   bool isCredit =true;
@@ -39,6 +45,8 @@ class _TransactionsState extends State<TransactionsPage> {
       isManual=!widget.otheruser.fCMToken.contains((widget.activeuser.id))?false:true;
     });
     messageController.addListener(updateSendButtonState);
+    transactionsUserProvider = Provider.of<TransactionsUser>(context,listen: false);
+    // print("yos");
   }
 
   void updateSendButtonState(){
@@ -47,19 +55,22 @@ class _TransactionsState extends State<TransactionsPage> {
     });
   }
 
+  handleUpdateTransactions(){
+    setState(() {
+      allTransactionsUser=transactionsUserProvider.allTransactionsUser;
+      saveTransactionsToPrefs();
+    });
+  }
+
   Future<void> _fetchTransactions() async {
     try {
       prefs = await SharedPreferences.getInstance();
-      final List<String>? transactionsString =
-          prefs.getStringList('${widget.activeuser.email}/${widget.otheruser.email??widget.otheruser.name}/transactions');
+      List<String>? transactionsString = prefs.getStringList('${widget.activeuser.email}/${widget.otheruser.email??widget.otheruser.name}/transactions');
 
       if (transactionsString != null) {
-        setState(() {
-          allTransactionsUser = transactionsString
-            .map((transactionString) =>
-                Transaction.fromJson(jsonDecode(transactionString)))
-            .toList();
-        });
+          handleUpdateTransactions();
+          transactionsString = prefs.getStringList('${widget.activeuser.email}/${widget.otheruser.email??widget.otheruser.name}/transactions');
+          allTransactionsUser = transactionsString!.map((transactionString) =>Transaction.fromJson(jsonDecode(transactionString))).toList();
       }
 
       if (allTransactionsUser.isEmpty) {
@@ -86,6 +97,7 @@ class _TransactionsState extends State<TransactionsPage> {
       if(!isManual){
         fetchedTransactions = await ApiHelper.fetchUserTransactions(widget.otheruser.email!);
         setState(() {
+          transactionsUserProvider.setAllTransactionUsers(fetchedTransactions);
           allTransactionsUser = fetchedTransactions;
         });
       }else{
@@ -109,15 +121,19 @@ class _TransactionsState extends State<TransactionsPage> {
     await prefs.setStringList('${widget.activeuser.email}/${widget.otheruser.email??widget.otheruser.name}/transactions', transactionsString);
   }
 
-  Future<void> _deleteUser(String userId) async {
-    try {
-      await ApiHelper.deleteUser(userId);
+  Future<void> _deleteUser(String userId, BuildContext context) async {
+    final requestUsersProvider = Provider.of<RequestUsersProvider>(context,listen: false);
+    
+    try { 
+      final deletedUser= await ApiHelper.deleteUser(userId);
+      requestUsersProvider.deleteUser(deletedUser); 
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('User deleted successfully'),
         ),
       );
-      Navigator.of(context).pop();
+      Navigator.pop(context);
     } catch (error) {
       print('Error deleting user: $error');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -192,7 +208,7 @@ class _TransactionsState extends State<TransactionsPage> {
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'delete') {
-                _deleteUser(widget.otheruser.id);
+                _deleteUser(widget.otheruser.id, context);
               }
             },
             color:  Theme.of(context).colorScheme.surface, 
@@ -340,7 +356,7 @@ class _TransactionsState extends State<TransactionsPage> {
   Widget buildTransactionItem(Transaction transaction) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:transaction)));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:transaction))).then((_) => setState(() {_fetchTransactions();}));;
       },
       child: Align(
         alignment: transaction.sender==widget.activeuser.email ? Alignment.centerRight : Alignment.centerLeft,

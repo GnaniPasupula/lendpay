@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lendpay/Models/User.dart';
 
 class RequestUsersProvider extends ChangeNotifier {
-  final List<User> _allrequestUser = [];
+  List<User> _allrequestUser = [];
 
   List<User> get allrequestUser => _allrequestUser;
 
@@ -13,5 +13,10 @@ class RequestUsersProvider extends ChangeNotifier {
       }
     }    
     notifyListeners();
+  }
+
+  void deleteUser(User userToDelete) {
+    _allrequestUser = _allrequestUser.where((user) => user.id != userToDelete.id).toList();
+    notifyListeners();  
   }
 }

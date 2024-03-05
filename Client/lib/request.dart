@@ -46,6 +46,7 @@ class _RequestState extends State<Request>{
   }
 
   Future<void> fetchUsers() async {
+    
     try {
       prefs = await SharedPreferences.getInstance();
       List<String>? usersString= prefs.getStringList('${widget.activeUser.email}/requestUsers');
@@ -195,9 +196,10 @@ Widget build(BuildContext context) {
           ),
         ),
     ),
-    body: users.isEmpty
-        ? Center(child: Text('No Users available.',style: TextStyle(color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7))))
-        : ListView.builder(
+    body: Consumer<RequestUsersProvider>(
+        builder: (context, requestUsersProvider, child) {
+          return users.isEmpty?Center(child: Text('No Users available.',style: TextStyle(color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7))))
+          : ListView.builder(
               itemCount: users.length,
               itemBuilder: (context, index) {
                 final otheruser = users.elementAt(users.length-1-index);
@@ -223,8 +225,8 @@ Widget build(BuildContext context) {
                       height: screenHeight * 0.07,
                       width: screenWidth * 0.9,
                       child:InkWell(
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => TransactionsPage(otheruser: otheruser,activeuser: widget.activeUser,)));
+                        onTap: () async{
+                          await Navigator.push(context, MaterialPageRoute(builder: (context) => TransactionsPage(otheruser: otheruser,activeuser: widget.activeUser,))).then((_) => setState(() {fetchUsers();}));
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12), 
@@ -262,7 +264,10 @@ Widget build(BuildContext context) {
                   ),
                 );
               },
-            ),
+            );
+          }
+      ) 
           );
+  
   }
 }

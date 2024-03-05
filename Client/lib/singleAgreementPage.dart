@@ -5,6 +5,7 @@ import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/subTransactions.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Providers/subTransactionsOfTransaction_provider.dart';
+import 'package:lendpay/Providers/transactionsUser_provider.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/singleTransaction.dart';
 import 'package:provider/provider.dart';
@@ -53,20 +54,24 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
 
   void _deleteTransaction() async {
     // print(widget.viewAgreement.toJson());
+    final transactionsUserProvider = Provider.of<TransactionsUser>(context,listen: false);
+
     try {
-      await ApiHelper.deleteTransaction(transactionID: widget.viewAgreement.id);
+      Transaction deletedTransaction= await ApiHelper.deleteTransaction(transactionID: widget.viewAgreement.id);
+      transactionsUserProvider.deleteTransactionUser(deletedTransaction); 
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Transaction deleted successfully'),
+          content: Text('Loan deleted successfully'),
         ),
       );
       Navigator.of(context).pop();
-      print("Transaction deleted successfully");
+      // print("Transaction deleted successfully");
     } catch (e) {
-      print("Error deleting transaction: $e");
+      print("Error deleting Loan: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Failed to delete transaction. Please try again.'),
+          content: Text('Failed to delete Loan. Please try again.'),
         ),
       );
     }
@@ -294,7 +299,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
             ),
             Expanded(
             child: allsubTransactions.isEmpty
-                ? const Center(child: Text('No transactions available.'))
+                ? const Center(child: Text('No payments available.'))
                 : ClipRRect(
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(24.0), // Top left corner

@@ -50,7 +50,7 @@ class ApiHelper {
   }
 
 
-  static Future<void> deleteUser(String userId) async {
+  static Future<User> deleteUser(String userId) async {
     final url = '$baseUrl/deleteUser';
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -69,8 +69,11 @@ class ApiHelper {
 
       // print(response.body);
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         log('User deleted successfully');
+        final dynamic jsonData = json.decode(response.body);
+        final User user = User.fromJson(jsonData);
+        return user;
       } else {
         throw Exception('Failed to delete user: ${response.statusCode}');
       }
@@ -448,7 +451,7 @@ class ApiHelper {
         }),
       );
 
-      print(response.body);
+      // print(response.body);
 
       if (response.statusCode == 200) {
         print('Transaction added successfully');
@@ -463,7 +466,7 @@ class ApiHelper {
     }
   }
 
-  static Future<void> deleteTransaction({
+  static Future<Transaction> deleteTransaction({
     required String transactionID
   })async {
     final url = '$baseUrl/deleteTransaction';
@@ -479,6 +482,9 @@ class ApiHelper {
 
       if (response.statusCode == 200) {
         print('Transaction deleted successfully');
+        final dynamic jsonData = json.decode(response.body);
+        final Transaction transaction = Transaction.fromJson(jsonData);
+        return transaction;
       } else {
         throw Exception('Failed to delete transaction');
       }

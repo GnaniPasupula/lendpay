@@ -208,7 +208,7 @@ class _AgreementPageState extends State<AgreementPage> {
                       // Show a confirmation dialog
                       showDialog(
                         context: context,
-                        builder: (BuildContext context) {
+                        builder: (BuildContext ctx) {
                           return AlertDialog(
                             backgroundColor: Theme.of(context).colorScheme.surface,
                             title:  Text("Confirm Transaction Request",
@@ -222,7 +222,7 @@ class _AgreementPageState extends State<AgreementPage> {
                             actions: [
                               TextButton(
                                 onPressed: () {
-                                  Navigator.of(context).pop();
+                                  Navigator.of(ctx).pop();
                                 },
                                 child: const Text("Cancel"),
                               ),
@@ -230,12 +230,25 @@ class _AgreementPageState extends State<AgreementPage> {
                                 onPressed: () async {
                                   if (widget.otheruser.fCMToken.contains(widget.otheruser.name)) {
                                     await ApiHelper.addTransaction(receiverUser: widget.otheruser, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount, isCredit:widget.isCredit);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Successfully added Loan'),
+                                          duration: Duration(seconds: 2),
+                                        ),
+                                      );
                                   } else {
                                     await ApiHelper.sendTransactionRequest(receiverEmail: widget.otheruser.email!, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount,isCredit:widget.isCredit);
                                     await FirebaseApi().sendNotificationToUser(receiverToken: widget.otheruser.fCMToken, title: "Loan Request", body: userProvider.activeUser.email!);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Successfully sent Loan request'),
+                                          duration: Duration(seconds: 2),
+                                        ),
+                                      );
                                   }
-                                  widget.fetchTransactionsFromAPI();
+                                  Navigator.of(ctx).pop();
                                   Navigator.of(context).pop();
+                                  widget.fetchTransactionsFromAPI();
                                 },
                                 child: const Text("Confirm"),
                               ),
