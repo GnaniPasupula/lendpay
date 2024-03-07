@@ -192,17 +192,26 @@ router.post('/deleteTransaction', async (req, res) => {
     const amount=transaction.amount;
 
     const sender = await User.findOne({ email: transaction.sender });
+    const receiver = await User.findOne({ fCMToken: sender.id+transaction.receiver});
 
-    sender.totalCredit-=amount;
-    // receiver.totalDebit-=amount;
+    if(transaction.isCredit){
+      sender.totalCredit-=amount;
+      receiver.totalDebit-=amount;
+      
+      sender.creditTransactions.pull(transaction._id);
+      receiver.debitTransactions.pull(transaction._id);
+    }else{
+      sender.totalDebit-=amount;
+      receiver.totalCredit-=amount;
 
-    sender.creditTransactions.pull(transaction._id);
-    // receiver.creditTransactions.push(transaction._id);
+      sender.debitTransactions.pull(transaction._id);
+      receiver.creditTransactions.pull(transaction._id);
+    }
 
     await Transaction.findByIdAndDelete(transactionID);
 
     await sender.save();
-    // await receiver.save();
+    await receiver.save();
 
     res.status(200).json(transaction);
   } catch (error) {
@@ -322,20 +331,28 @@ router.get('/dashboard/urgent', async (req, res) => {
     }
 
     const allTransactions = [...user.creditTransactions, ...user.debitTransactions];
+    const today = new Date();
 
-    if(allTransactions.length==0){
-      res.status(201).json({message: 'No upcoming payments'});
-    }else{
 
-      allTransactions.sort((a, b) => {
-  
-        return a.endDate - b.endDate;
-      });
-  
-      const leastTransaction = allTransactions[0];
+    const urgentTransactions = allTransactions.filter(transaction => {
+      const endDays = transaction.endDate.split("-")[0];
 
-      res.status(200).json(leastTransaction);
-    }
+      if (endDays >= today.getDate()) {
+        let daysToCheck = 7;
+        
+        if ((endDays-today.getDate()) <= daysToCheck) {
+          return true; 
+        }
+
+        return false;
+
+      }
+
+      return false;
+
+    });
+
+    res.status(200).json(urgentTransactions);
 
   } catch (error) {
     console.error('Error:', error);

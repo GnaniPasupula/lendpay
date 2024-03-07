@@ -390,7 +390,7 @@ class ApiHelper {
     }
   }
 
-  static Future<Transaction?> getUrgentTransaction() async {
+  static Future<List<Transaction>> getUrgentTransaction() async {
     final url = '$baseUrl/dashboard/urgent';
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -402,12 +402,12 @@ class ApiHelper {
       );
 
       if (response.statusCode == 200) {
-        final dynamic jsonData = json.decode(response.body);
-        final Transaction transaction = Transaction.fromJson(jsonData);
-        return transaction;
-      } else if (response.statusCode == 201) {
-        return null;
-      }else if (response.statusCode == 404) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        final List<Transaction> transactions = jsonData
+            .map((data) => Transaction.fromJson(data))
+            .toList();
+        return transactions;
+      } else if (response.statusCode == 404) {
         throw Exception('User not found');
       } else {
         throw Exception('Error fetching urgent transaction');
@@ -484,7 +484,7 @@ class ApiHelper {
       );
 
       if (response.statusCode == 200) {
-        print('Transaction deleted successfully');
+        // print('Transaction deleted successfully');
         final dynamic jsonData = json.decode(response.body);
         final Transaction transaction = Transaction.fromJson(jsonData);
         return transaction;

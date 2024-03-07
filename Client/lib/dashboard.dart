@@ -8,6 +8,7 @@ import 'package:lendpay/Models/subTransactions.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Providers/fCMToken_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
+import 'package:lendpay/Providers/urgentTransactions_provider.dart';
 import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/addUserPage.dart';
 import 'package:lendpay/allAgreementsPage.dart';
@@ -29,18 +30,35 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   List<subTransactions> allsubTransactions = [];
-  Transaction? urgentTransaction;
+  List<Transaction> allUrgentTransactions= [];
+  DateTime? adjustedEndDate;
   late User activeUserx;
   late SharedPreferences prefs;
 
   late final SubtransactionsProvider subtransactionsProvider;
-
+  late final UrgentTransactionProvider urgentTransactionProvider;
+  
   @override
   void initState() {
     super.initState();
     _getActiveUser();
-    _fetchUrgentPayment();
     subtransactionsProvider = Provider.of<SubtransactionsProvider>(context,listen: false);
+    urgentTransactionProvider =  Provider.of<UrgentTransactionProvider>(context,listen: false);
+  }
+
+  Future<void> _getActiveUser() async {
+    try {
+      final User activeUser = await ApiHelper.getActiveUser();
+      Provider.of<UserProvider>(context, listen: false).setActiveUser(activeUser);
+      setState(() {
+        activeUserx = activeUser;
+        _fetchSubTransactions();
+        _fetchUrgentPayment();
+        _getfCMToken();
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   handleUpdateSubTransactions(){
@@ -92,34 +110,49 @@ class _DashboardState extends State<Dashboard> {
     ).toList();
 
     await prefs.setStringList('${activeUserx.email}/subTransactions', transactionsString);
-  } 
+  }
 
   Future<void> _fetchUrgentPayment() async {
     try {
-      Transaction? transaction = await ApiHelper.getUrgentTransaction();
+      prefs = await SharedPreferences.getInstance();
+
+      List<String>? transactionsString = prefs.getStringList('${activeUserx.email}/urgentTransactions');
+      if (transactionsString != null) {
+        transactionsString = prefs.getStringList('${activeUserx.email}/urgentTransactions');
+        allUrgentTransactions=transactionsString!.map((transactionString) =>Transaction.fromJson(jsonDecode(transactionString))).toList();
+      }
+
+      if (allUrgentTransactions.isEmpty) {
+        await _fetchUrgentPaymentFromAPI();
+      }
+
+    } catch (e) {
+      print(e);
+    }
+  } 
+
+  Future<void> _fetchUrgentPaymentFromAPI() async {
+    try {
+      List<Transaction> transactions = await ApiHelper.getUrgentTransaction();
       setState(() {
-        urgentTransaction = transaction;
+        urgentTransactionProvider.setAllSubTransactions(transactions);
+        allUrgentTransactions=transactions;
+        // adjustedEndDate=DateTime(urgentTransaction!.startDate.year, urgentTransaction!.startDate.month + 1, urgentTransaction!.startDate.day);;
       });
       // print('all transactions = ${allTransactions}');
+      _saveUrgentTransactionsToPrefs();
     } catch (e) {
       print(e);
       // Handle error and show a proper error message to the user
     }
   }
 
-  Future<void> _getActiveUser() async {
-    try {
-      final User activeUser = await ApiHelper.getActiveUser();
-      Provider.of<UserProvider>(context, listen: false)
-          .setActiveUser(activeUser);
-      setState(() {
-        activeUserx = activeUser;
-        _fetchSubTransactions();
-        _getfCMToken();
-      });
-    } catch (e) {
-      print(e);
-    }
+  Future<void> _saveUrgentTransactionsToPrefs() async {
+    final List<String> transactionsString = allUrgentTransactions.map(
+        (transaction) => jsonEncode(transaction.toJson())
+    ).toList();
+
+    await prefs.setStringList('${activeUserx.email}/urgentTransactions', transactionsString);
   }
 
   Future<void> _getfCMToken() async {
@@ -137,6 +170,7 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
 
+
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
@@ -152,7 +186,7 @@ class _DashboardState extends State<Dashboard> {
     //H=812 , W=375
 
     double cardHeight =
-        MediaQuery.of(context).size.height * 0.25; // Card height
+    MediaQuery.of(context).size.height * 0.25; // Card height
     double iconSize = cardHeight * 0.25; // Adjust the icon size proportionally
 
     return Scaffold(
@@ -205,86 +239,88 @@ class _DashboardState extends State<Dashboard> {
               children: [
                 Container(
                   margin: const EdgeInsets.only(left: 14, right: 14, bottom: 7),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 2,
-                    child: urgentTransaction == null
-                        ? SizedBox(
-                            width: double.infinity,
-                            height: cardHeight,
-                            child: const Center(
-                              child: Text("No payments"),
-                            ),
-                          )
-                        : Padding(
-                            padding: const EdgeInsets.all(14.0),
-                            child: SizedBox(
-                              width: double.infinity,
+                  child:allUrgentTransactions.isEmpty? 
+                    Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                      child: 
+                            SizedBox(
+                              width: screenWidth-42, 
                               height: cardHeight,
+                              child: const Center(
+                                child: Text("No payments"),
+                              ),
+                            ),
+                      ):
+                   SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: allUrgentTransactions.map((transaction) {
+                        return Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                          child: SizedBox(
+                            width: screenWidth-42, 
+                            height: cardHeight,
+                            child: Padding(
+                              padding: const EdgeInsets.all(14.0),
                               child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            const Text(
-                                              "Amount to pay",
-                                              style: TextStyle(
-                                                fontSize: 14.0,
-                                                color: Colors.grey,
-                                              ),
+                                Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            "Amount to pay",
+                                            style: TextStyle(
+                                              fontSize: 14.0,
+                                              color: Colors.grey,
                                             ),
-                                            Text(
-                                              urgentTransaction?.subAmount
-                                                      .toString() ??
-                                                  '',
-                                              style: const TextStyle(
-                                                fontSize: 20.0,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                          ),
+                                          Text(
+                                            transaction.subAmount.toString(),
+                                            style: const TextStyle(
+                                              fontSize: 20.0,
+                                              fontWeight: FontWeight.bold,
                                             ),
-                                          ],
-                                        ),
-                                        Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            const Text(
-                                              "Days remaining",
-                                              style: TextStyle(
-                                                fontSize: 14.0,
-                                                color: Colors.grey,
-                                              ),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            "Days remaining",
+                                            style: TextStyle(
+                                              fontSize: 14.0,
+                                              color: Colors.grey,
                                             ),
-                                            Text(
-                                              urgentTransaction?.endDate
-                                                      .difference(
-                                                          urgentTransaction!
-                                                              .startDate)
-                                                      .inDays
-                                                      .toString() ??
-                                                  '',
-                                              style: const TextStyle(
-                                                fontSize: 20.0,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                          ),
+                                          Text(
+                                            (transaction.endDate.day - DateTime.now().day).toString(),
+                                            style: const TextStyle(
+                                              fontSize: 20.0,
+                                              fontWeight: FontWeight.bold,
                                             ),
-                                          ],
-                                        ),
-                                      ]),
+                                          ),
+                                        ],
+                                      ),
+                                    ]),
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -303,7 +339,7 @@ class _DashboardState extends State<Dashboard> {
                                             ),
                                           ),
                                           Text(
-                                            urgentTransaction?.receiver ?? '',
+                                            transaction.receiver,
                                             style: const TextStyle(
                                               fontSize: 14.0,
                                               color: Colors.grey,
@@ -311,7 +347,6 @@ class _DashboardState extends State<Dashboard> {
                                           ),
                                         ],
                                       ),
-                                      if(urgentTransaction!=null)              
                                         ElevatedButton(
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor: Theme.of(context).colorScheme.primary, 
@@ -321,7 +356,7 @@ class _DashboardState extends State<Dashboard> {
                                               )
                                             ),
                                             onPressed: () => {
-                                              Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:urgentTransaction!))).then((_) => setState(() {_fetchSubTransactions();}))
+                                              Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:transaction))).then((_) => setState(() {_fetchSubTransactions();}))
                                             },
                                             child: const Text("Details")
                                         )
@@ -331,8 +366,12 @@ class _DashboardState extends State<Dashboard> {
                               ),
                             ),
                           ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -461,7 +500,7 @@ class _DashboardState extends State<Dashboard> {
                                     color: Colors.grey.withOpacity(0.15),
                                     spreadRadius: 0,
                                     blurRadius: 4,
-                                    offset: Offset(0, 2),
+                                    offset: const Offset(0, 2),
                                   ),
                                 ],
                               ),

@@ -9,6 +9,7 @@ import 'package:lendpay/Providers/requestUsers_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/Providers/subTransactionsOfTransaction_provider.dart';
 import 'package:lendpay/Providers/transactionsUser_provider.dart';
+import 'package:lendpay/Providers/urgentTransactions_provider.dart';
 import 'package:lendpay/dashboard.dart';
 import 'package:lendpay/firebase_options.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +31,7 @@ void main() async{
         ChangeNotifierProvider(create: (context) => RequestUsersProvider()),
         ChangeNotifierProvider(create: (context) => SubtransactionsOfTransactionProvider()),
         ChangeNotifierProvider(create: (context) => TransactionsUser()),
+        ChangeNotifierProvider(create: (context) => UrgentTransactionProvider()),
       ],
       child: MyApp(),
     ),
