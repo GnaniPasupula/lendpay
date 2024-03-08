@@ -24,8 +24,8 @@ class _RequestState extends State<Request>{
 
   bool foundUser = false;
   late String username;
-  bool isLoading = true; 
-
+  bool isLoading = true;
+  bool shouldUpdate=false;
   List<User> users = [];
   late SharedPreferences prefs;
 
@@ -40,7 +40,12 @@ class _RequestState extends State<Request>{
 
   handleUpdateUser(){
     setState(() {
-      users=requestUsersProvider.allrequestUser;
+      if(shouldUpdate==false){
+        requestUsersProvider.setAllRequestUsers(users);
+        users=requestUsersProvider.allrequestUser;
+      }else{
+        users=requestUsersProvider.allrequestUser;
+      }
       saveUsersToPrefs();
     });
   }
@@ -51,11 +56,13 @@ class _RequestState extends State<Request>{
       prefs = await SharedPreferences.getInstance();
       List<String>? usersString= prefs.getStringList('${widget.activeUser.email}/requestUsers');
       if (usersString != null) {
-        handleUpdateUser();
         usersString= prefs.getStringList('${widget.activeUser.email}/requestUsers');
         users = usersString!.map((userString) => User.fromJson(jsonDecode(userString))).toList();
+        if(requestUsersProvider.allrequestUser!=users){
+          handleUpdateUser();
+        }
       }
-      if (users.isEmpty) {
+      else{
         await fetchUsersFromAPI();
       }
       setState(() {
@@ -226,7 +233,7 @@ Widget build(BuildContext context) {
                       width: screenWidth * 0.9,
                       child:InkWell(
                         onTap: () async{
-                          await Navigator.push(context, MaterialPageRoute(builder: (context) => TransactionsPage(otheruser: otheruser,activeuser: widget.activeUser,))).then((_) => setState(() {fetchUsers();}));
+                          await Navigator.push(context, MaterialPageRoute(builder: (context) => TransactionsPage(otheruser: otheruser,activeuser: widget.activeUser,))).then((_) => setState(() {fetchUsers();shouldUpdate=true;}));
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12), 

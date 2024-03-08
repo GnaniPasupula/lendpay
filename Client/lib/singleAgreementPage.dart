@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:lendpay/Models/Transaction.dart';
-import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Models/subTransactions.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Providers/subTransactionsOfTransaction_provider.dart';
@@ -32,6 +31,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
   List<subTransactions> allsubTransactions = [];
   bool isManual=false;
   late SharedPreferences prefs;
+  bool shouldUpdate=false;
 
   late final SubtransactionsOfTransactionProvider subtransactionsOfTransactionProvider;
 
@@ -47,7 +47,12 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
 
   handleUpdateSubTransactions(){
     setState(() {
-      allsubTransactions=subtransactionsOfTransactionProvider.allSubTransactionsOfTransaction;
+      if(shouldUpdate==false){
+        subtransactionsOfTransactionProvider.setAllSubTransactions(allsubTransactions);
+        allsubTransactions=subtransactionsOfTransactionProvider.allSubTransactionsOfTransaction;
+      }else{
+        allsubTransactions=subtransactionsOfTransactionProvider.allSubTransactionsOfTransaction;
+      }
       saveTransactionsToPrefs();
     });
   }
@@ -59,18 +64,17 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
       List<String>? transactionsString = prefs.getStringList('${widget.viewAgreement.sender}/${widget.viewAgreement.receiver}/subtransactions/${widget.viewAgreement.id}');
 
       if(transactionsString!=null){
-        handleUpdateSubTransactions();
         transactionsString = prefs.getStringList('${widget.viewAgreement.sender}/${widget.viewAgreement.receiver}/subtransactions/${widget.viewAgreement.id}');
         allsubTransactions = transactionsString!.map((transactionString) =>subTransactions.fromJson(jsonDecode(transactionString))).toList();
+
+        if(allsubTransactions!=subtransactionsOfTransactionProvider.allSubTransactionsOfTransaction){
+          handleUpdateSubTransactions();
+        }
       }
 
-      if(allsubTransactions.isEmpty){
+      else{
         await fetchSubTransactionsFromAPI();
       }
-      final List<subTransactions> transactions = await ApiHelper.fetchSubTransactionsOfTransaction(widget.viewAgreement.id);
-      setState(() {
-        allsubTransactions=transactions;
-      });
       // print('all transactions = ${allTransactions}');
     } catch (e) {
       print(e);
@@ -91,6 +95,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
       }else{
         fetchedTransactions = await ApiHelper.fetchSubTransactionsOfTransaction(widget.viewAgreement.id);
         setState(() {
+          subtransactionsOfTransactionProvider.setAllSubTransactions(fetchedTransactions);
           allsubTransactions = fetchedTransactions;
         });
         saveTransactionsToPrefs();
@@ -286,7 +291,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                             /// Add to local storage , update subtransactions
                                             
                                             setState(() {
-                                              allsubTransactions.add(payment);
+                                              subtransactionsOfTransactionProvider.allSubTransactionsOfTransaction.add(payment);
                                               _fetchSubTransactions();
                                             });
 

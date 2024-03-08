@@ -37,13 +37,27 @@ class _DashboardState extends State<Dashboard> {
 
   late final SubtransactionsProvider subtransactionsProvider;
   late final UrgentTransactionProvider urgentTransactionProvider;
-  
+
+  bool shouldUpdate=false;
+
   @override
   void initState() {
     super.initState();
     _getActiveUser();
     subtransactionsProvider = Provider.of<SubtransactionsProvider>(context,listen: false);
     urgentTransactionProvider =  Provider.of<UrgentTransactionProvider>(context,listen: false);
+  }
+
+  handleUpdateEmergency(){
+    setState(() {
+      if(shouldUpdate==false){
+        urgentTransactionProvider.setAllSubTransactions(allUrgentTransactions);
+        allUrgentTransactions=urgentTransactionProvider.allUrgentTransactions;
+      }else{
+        allUrgentTransactions=urgentTransactionProvider.allUrgentTransactions;
+      }
+      _saveUrgentTransactionsToPrefs();
+    });
   }
 
   Future<void> _getActiveUser() async {
@@ -63,7 +77,12 @@ class _DashboardState extends State<Dashboard> {
 
   handleUpdateSubTransactions(){
     setState(() {
-      allsubTransactions=subtransactionsProvider.allSubTransactions;
+      if(shouldUpdate==false){
+        subtransactionsProvider.setAllSubTransactions(allsubTransactions);
+        allsubTransactions=subtransactionsProvider.allSubTransactions;
+      }else{
+        allsubTransactions=subtransactionsProvider.allSubTransactions;
+      }
       _saveTransactionsToPrefs();
     });
   }
@@ -74,12 +93,13 @@ class _DashboardState extends State<Dashboard> {
 
       List<String>? transactionsString = prefs.getStringList('${activeUserx.email}/subTransactions');
       if (transactionsString != null) {
-        handleUpdateSubTransactions();
         transactionsString = prefs.getStringList('${activeUserx.email}/subTransactions');
         allsubTransactions=transactionsString!.map((transactionString) =>subTransactions.fromJson(jsonDecode(transactionString))).toList();
+        if(allsubTransactions!=subtransactionsProvider.allSubTransactions){
+          handleUpdateSubTransactions();
+        }
       }
-
-      if (allsubTransactions.isEmpty) {
+      else{
         await fetchSubTransactionsFromAPI();
       }
 
@@ -120,9 +140,11 @@ class _DashboardState extends State<Dashboard> {
       if (transactionsString != null) {
         transactionsString = prefs.getStringList('${activeUserx.email}/urgentTransactions');
         allUrgentTransactions=transactionsString!.map((transactionString) =>Transaction.fromJson(jsonDecode(transactionString))).toList();
+        if(urgentTransactionProvider.allUrgentTransactions!=allUrgentTransactions){
+          handleUpdateEmergency();
+        }
       }
-
-      if (allUrgentTransactions.isEmpty) {
+      else{
         await _fetchUrgentPaymentFromAPI();
       }
 
@@ -137,13 +159,10 @@ class _DashboardState extends State<Dashboard> {
       setState(() {
         urgentTransactionProvider.setAllSubTransactions(transactions);
         allUrgentTransactions=transactions;
-        // adjustedEndDate=DateTime(urgentTransaction!.startDate.year, urgentTransaction!.startDate.month + 1, urgentTransaction!.startDate.day);;
       });
-      // print('all transactions = ${allTransactions}');
       _saveUrgentTransactionsToPrefs();
     } catch (e) {
       print(e);
-      // Handle error and show a proper error message to the user
     }
   }
 
@@ -202,7 +221,7 @@ class _DashboardState extends State<Dashboard> {
               onPressed: () {
                 Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => IncomingRequestPage())).then((_) => setState(() {_fetchSubTransactions();}));
+                    MaterialPageRoute(builder: (context) => IncomingRequestPage())).then((_) => setState(() {_fetchSubTransactions(); _fetchUrgentPayment();shouldUpdate=true;}));
               },
             ),
           ),
@@ -356,7 +375,7 @@ class _DashboardState extends State<Dashboard> {
                                               )
                                             ),
                                             onPressed: () => {
-                                              Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:transaction))).then((_) => setState(() {_fetchSubTransactions();}))
+                                              Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:transaction))).then((_) => setState(() {_fetchSubTransactions();_fetchUrgentPayment();shouldUpdate=true;}))
                                             },
                                             child: const Text("Details")
                                         )
@@ -395,7 +414,7 @@ class _DashboardState extends State<Dashboard> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            Request(activeUser: activeUserx))).then((_) => setState(() {_fetchSubTransactions();}));
+                                            Request(activeUser: activeUserx))).then((_) => setState(() {_fetchSubTransactions();_fetchUrgentPayment();shouldUpdate=true;}));
                               },
                             ),
                           ),
@@ -428,7 +447,7 @@ class _DashboardState extends State<Dashboard> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => AllAgreementsPage(
-                                            activeUser: activeUserx))).then((_) => setState(() {_fetchSubTransactions();}));
+                                            activeUser: activeUserx))).then((_) => setState(() {_fetchSubTransactions();_fetchUrgentPayment();shouldUpdate=true;}));
                               },
                             ),
                           ),
@@ -509,7 +528,7 @@ class _DashboardState extends State<Dashboard> {
                                 width: screenWidth * 0.9,
                                 child: InkWell(
                                   onTap: () async{
-                                    await Navigator.push(context,MaterialPageRoute(builder: (context) =>SingleTransactionsPage(subTransaction:subTransaction))).then((_) => setState(() {_fetchSubTransactions();}));
+                                    await Navigator.push(context,MaterialPageRoute(builder: (context) =>SingleTransactionsPage(subTransaction:subTransaction))).then((_) => setState(() {_fetchSubTransactions();_fetchUrgentPayment();shouldUpdate=true;}));
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(

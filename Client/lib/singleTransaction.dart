@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SingleTransactionsPage extends StatefulWidget {
   final subTransactions subTransaction;
@@ -29,7 +31,7 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
   late Transaction loan;
   late String tempDirPath;
   late ScreenshotController screenshotController;
-
+  late SharedPreferences prefs;
   bool isManual=false;
 
   @override
@@ -44,15 +46,40 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
 
   Future<void> _fetchLoan() async {
     try {
+      prefs = await SharedPreferences.getInstance();
+      String? transactionsString = prefs.getString('${widget.subTransaction.sender}/${widget.subTransaction.receiver}/subTransaction/${widget.subTransaction.id}');
+
+      if(transactionsString!=null){
+        transactionsString = prefs.getString('${widget.subTransaction.sender}/${widget.subTransaction.receiver}/subTransaction/${widget.subTransaction.id}');
+        loan = Transaction.fromJson(jsonDecode(transactionsString!));
+      }else{
+        await _fetchLoanFromAPI();
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> _fetchLoanFromAPI() async {
+    try {
       final Transaction transaction =
           await ApiHelper.getLoan(widget.subTransaction.transactionID);
 
       setState(() {
         loan = transaction;
       });
+
+      saveSubtransactionsToPrefs();
+
     } catch (e) {
       print(e);
     }
+  }
+  
+  Future<void> saveSubtransactionsToPrefs() async {
+    final String transactionsString = jsonEncode(loan.toJson());
+
+    await prefs.setString('${widget.subTransaction.sender}/${widget.subTransaction.receiver}/subTransaction/${widget.subTransaction.id}', transactionsString);
   }
 
   Future<void> _takeScreenshotAndShare() async {
@@ -100,7 +127,6 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

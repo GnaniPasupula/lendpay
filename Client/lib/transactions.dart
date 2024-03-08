@@ -8,7 +8,6 @@ import 'package:lendpay/Providers/transactionsUser_provider.dart';
 import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/agreementPage.dart';
 import 'package:lendpay/api_helper.dart';
-import 'package:lendpay/request.dart';
 import 'package:lendpay/singleAgreementPage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,6 +35,7 @@ class _TransactionsState extends State<TransactionsPage> {
   bool isManual = false;
   bool isCredit =true;
   bool isEmpty = true;
+  bool shouldUpdate=false;
 
   @override
   void initState() {
@@ -46,7 +46,6 @@ class _TransactionsState extends State<TransactionsPage> {
     });
     messageController.addListener(updateSendButtonState);
     transactionsUserProvider = Provider.of<TransactionsUser>(context,listen: false);
-    // print("yos");
   }
 
   void updateSendButtonState(){
@@ -57,7 +56,12 @@ class _TransactionsState extends State<TransactionsPage> {
 
   handleUpdateTransactions(){
     setState(() {
-      allTransactionsUser=transactionsUserProvider.allTransactionsUser;
+      if(shouldUpdate==false){
+        transactionsUserProvider.setAllTransactionUsers(allTransactionsUser);
+        allTransactionsUser=transactionsUserProvider.allTransactionsUser;
+      }else{
+        allTransactionsUser=transactionsUserProvider.allTransactionsUser;
+      }
       saveTransactionsToPrefs();
     });
   }
@@ -68,12 +72,13 @@ class _TransactionsState extends State<TransactionsPage> {
       List<String>? transactionsString = prefs.getStringList('${widget.activeuser.email}/${widget.otheruser.email??widget.otheruser.name}/transactions');
 
       if (transactionsString != null) {
-          handleUpdateTransactions();
           transactionsString = prefs.getStringList('${widget.activeuser.email}/${widget.otheruser.email??widget.otheruser.name}/transactions');
           allTransactionsUser = transactionsString!.map((transactionString) =>Transaction.fromJson(jsonDecode(transactionString))).toList();
+          if(transactionsUserProvider.allTransactionsUser!=allTransactionsUser){
+            handleUpdateTransactions();
+          }
       }
-
-      if (allTransactionsUser.isEmpty) {
+      else{
         await fetchTransactionsFromAPI();
       }
 
@@ -103,6 +108,7 @@ class _TransactionsState extends State<TransactionsPage> {
       }else{
         fetchedTransactions = await ApiHelper.fetchManualUserTransactions(widget.otheruser.name);
         setState(() {
+          transactionsUserProvider.setAllTransactionUsers(fetchedTransactions);
           allTransactionsUser = fetchedTransactions;
         });
         saveTransactionsToPrefs();
@@ -133,7 +139,7 @@ class _TransactionsState extends State<TransactionsPage> {
           content: Text('User deleted successfully'),
         ),
       );
-      Navigator.pop(context);
+      Navigator.pop(context,true);
     } catch (error) {
       print('Error deleting user: $error');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -356,7 +362,7 @@ class _TransactionsState extends State<TransactionsPage> {
   Widget buildTransactionItem(Transaction transaction) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:transaction))).then((_) => setState(() {_fetchTransactions();}));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:transaction))).then((_) => setState(() {_fetchTransactions();shouldUpdate=true;}));
       },
       child: Align(
         alignment: transaction.sender==widget.activeuser.email ? Alignment.centerRight : Alignment.centerLeft,

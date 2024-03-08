@@ -65,7 +65,6 @@ class _AgreementPageState extends State<AgreementPage> {
     totalAmount = (loanAmount + interestAmount).toDouble();
 
     UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-    User activeUser = userProvider.activeUser;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background, 
