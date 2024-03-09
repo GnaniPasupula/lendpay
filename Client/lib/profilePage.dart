@@ -29,6 +29,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       userName=activeUser.name;
     });
+
+    void showCurrencySelectionPopup() {
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return ListView(
+            children: <Widget>[
+              ListTile(
+                title: Text('₹ - IND Rupee'),
+                onTap: () {
+                  setState(() {
+                    activeUser.currencySymbol = '₹'; 
+                  });
+                  Navigator.pop(context); 
+                },
+              ),
+              ListTile(
+                title: Text('\$ - US Dollar'),
+                onTap: () {
+                  setState(() {
+                    activeUser.currencySymbol = '\$'; 
+                  });
+                  Navigator.pop(context); 
+                },
+              ),
+              ListTile(
+                title: Text('€ - Euro'),
+                onTap: () {
+                  setState(() {
+                    activeUser.currencySymbol = '€'; 
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     
     Future<void> _showChangeNamePopup() async {
       String newName = '';
@@ -178,6 +218,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 7*textMultiplier),
                 ProfileOption(
+                  icon: currencyIcons[activeUser.currencySymbol!]??Icons.attach_money, 
+                  label: 'Currency Symbol',
+                  value: activeUser.currencySymbol!, 
+                  onPressed: () {
+                    showCurrencySelectionPopup(); 
+                  },
+                  editOption: true, 
+                ),
+                SizedBox(height: 7*textMultiplier),
+                ProfileOption(
                   icon: Icons.login_outlined,
                   label: 'Log out',
                   value: '',
@@ -211,6 +261,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+
+Map<String, IconData> currencyIcons = {
+  '\$': Icons.attach_money, 
+  '€': Icons.euro_symbol,   
+  '₹': Icons.currency_rupee,  
+};
+
 
 class ProfileOption extends StatelessWidget {
   final IconData icon;

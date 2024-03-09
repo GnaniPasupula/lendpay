@@ -69,6 +69,7 @@ class _DashboardState extends State<Dashboard> {
         _fetchSubTransactions();
         _fetchUrgentPayment();
         _getfCMToken();
+
       });
     } catch (e) {
       print(e);
@@ -186,9 +187,58 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
+  void _showFirstLoginPopup(BuildContext context) {
+    List<String> currencies = ['\$', '€', '₹']; 
+
+    String selectedCurrency = currencies[2]; 
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Welcome!'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('This is your first login. Please select your preferred currency:'),
+              DropdownButton<String>(
+                value: selectedCurrency,
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    selectedCurrency = newValue;
+                  }
+                },
+                items: currencies.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Save'),
+              onPressed: () {
+                _saveCurrency(selectedCurrency);
+                activeUserx.currencySymbol=selectedCurrency;
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _saveCurrency(String currency) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('${activeUserx.email}/currencySymbol', currency);
+  }
+
   @override
   Widget build(BuildContext context) {
-
 
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
@@ -207,6 +257,15 @@ class _DashboardState extends State<Dashboard> {
     double cardHeight =
     MediaQuery.of(context).size.height * 0.25; // Card height
     double iconSize = cardHeight * 0.25; // Adjust the icon size proportionally
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool isFirstLogin = prefs.getBool('firstLogin') ?? true;
+      if (isFirstLogin) {
+        _showFirstLoginPopup(context);
+        await prefs.setBool('firstLogin', false);
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(

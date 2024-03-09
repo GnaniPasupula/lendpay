@@ -169,6 +169,11 @@ class _AuthScreenState extends State<AuthScreen> {
 
       if (response.statusCode == 201) {
         SucessDialogWidget.show(context, "Account created successfully, sign in to continue");
+        setState(() {
+          _signUpEmailController.text="";
+          _signUpPasswordController.text="";
+          _confirmPasswordController.text="";
+        });
       } else {
         final responseBody = json.decode(response.body);
         final errorMessage = responseBody['message'];

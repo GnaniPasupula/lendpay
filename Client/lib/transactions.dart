@@ -210,7 +210,9 @@ class _TransactionsState extends State<TransactionsPage> {
           ),        
         backgroundColor: Theme.of(context).colorScheme.background,
         iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+        
         actions: [
+          isManual==true?
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'delete') {
@@ -245,8 +247,7 @@ class _TransactionsState extends State<TransactionsPage> {
                 ),
               ];
             },
-          ),
-
+          ):const SizedBox(),
         ],
       ),
       body: Column(
