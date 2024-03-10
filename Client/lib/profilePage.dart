@@ -3,8 +3,13 @@ import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
+  final User activeUser;
+
+  ProfileScreen({required this.activeUser});
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -12,25 +17,12 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   String userName = '';
 
-  @override
-  Widget build(BuildContext context) {
+  void _saveCurrency(String currency) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('${widget.activeUser.email}/currencySymbol', currency);
+  }
 
-    UserProvider userProvider = Provider.of<UserProvider>(context);
-    User activeUser = userProvider.activeUser;
-
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    double textMultiplier = 1;
-    double widthMultiplier = 1;
-    // double textMultiplier = screenHeight/812;
-    // double widthMultiplier = screenWidth/375;
-
-    setState(() {
-      userName=activeUser.name;
-    });
-
-    void showCurrencySelectionPopup() {
+      void showCurrencySelectionPopup() {
       showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
@@ -40,7 +32,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: Text('₹ - IND Rupee'),
                 onTap: () {
                   setState(() {
-                    activeUser.currencySymbol = '₹'; 
+                    widget.activeUser.currencySymbol = '₹'; 
+                    _saveCurrency('₹') ;
                   });
                   Navigator.pop(context); 
                 },
@@ -49,7 +42,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: Text('\$ - US Dollar'),
                 onTap: () {
                   setState(() {
-                    activeUser.currencySymbol = '\$'; 
+                    widget.activeUser.currencySymbol = '\$';
+                    _saveCurrency('\$') ;
                   });
                   Navigator.pop(context); 
                 },
@@ -58,7 +52,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: Text('€ - Euro'),
                 onTap: () {
                   setState(() {
-                    activeUser.currencySymbol = '€'; 
+                    widget.activeUser.currencySymbol = '€';
+                    _saveCurrency('€') ; 
                   });
                   Navigator.pop(context);
                 },
@@ -68,7 +63,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         },
       );
     }
-
     
     Future<void> _showChangeNamePopup() async {
       String newName = '';
@@ -95,9 +89,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: () async {
                   if (newName.isNotEmpty) {
                     try{
-                      await ApiHelper.changeName(newName, activeUser.email!);  
+                      await ApiHelper.changeName(newName, widget.activeUser.email!);  
                       setState(() {
-                        activeUser.name = newName;
+                        widget.activeUser.name = newName;
                       });
                     }catch(e){
                       print(e);
@@ -159,7 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               TextButton(
                 onPressed: () {
                   if (newPassword == confirmNewPassword) {
-                    ApiHelper.changePassword(activeUser.email!, oldPassword, newPassword);
+                    ApiHelper.changePassword(widget.activeUser.email!, oldPassword, newPassword);
                   }
                   Navigator.pop(context);
                 },
@@ -170,6 +164,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
         },
       );
     }
+
+  @override
+  Widget build(BuildContext context) {
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    double textMultiplier = 1;
+    double widthMultiplier = 1;
+    // double textMultiplier = screenHeight/812;
+    // double widthMultiplier = screenWidth/375;
+
+    setState(() {
+      userName=widget.activeUser.name;
+    });
+
+
     
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background, 
@@ -190,7 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ProfileOption(
                   icon: Icons.person_outline,
                   label: 'Name',
-                  value: activeUser.name,
+                  value: widget.activeUser.name,
                   onPressed: () {
                     _showChangeNamePopup();
                   },
@@ -200,7 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ProfileOption(
                   icon: Icons.mail_outline,
                   label: 'Email',
-                  value: activeUser.email!,
+                  value: widget.activeUser.email!,
                   onPressed: () {
                     Null;
                   },
@@ -218,9 +229,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 7*textMultiplier),
                 ProfileOption(
-                  icon: currencyIcons[activeUser.currencySymbol!]??Icons.attach_money, 
+                  icon: currencyIcons[widget.activeUser.currencySymbol!]??Icons.attach_money, 
                   label: 'Currency Symbol',
-                  value: activeUser.currencySymbol!, 
+                  value: widget.activeUser.currencySymbol!, 
                   onPressed: () {
                     showCurrencySelectionPopup(); 
                   },

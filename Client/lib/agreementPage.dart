@@ -4,8 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:lendpay/API/firebase_api.dart';
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
+import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AgreementPage extends StatefulWidget {
   final num amount;
@@ -33,6 +35,11 @@ class _AgreementPageState extends State<AgreementPage> {
   late TextEditingController _cycleAmountController;
 
   String todayDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+  String endDateFormatted = '';
+
+  SharedPreferences? prefs;
+  String? currencySymbol;
+  User? activeUser;
 
   @override
   void initState() {
@@ -43,17 +50,29 @@ class _AgreementPageState extends State<AgreementPage> {
     _periodAmountController = TextEditingController(text: "12");
     _interestAmountController = TextEditingController(text: "12");
     _cycleAmountController = TextEditingController(text: "1");
+
+    period = int.tryParse(_periodAmountController.text) ?? 0;
+    DateTime todayDateString = DateFormat('dd-MM-yyyy').parse(todayDate);
+    DateTime endDate = todayDateString.add(Duration(days: period.toInt() * 30));
+    endDateFormatted = DateFormat('dd-MM-yyyy').format(endDate);
+
+    _initializeActiveUser();
+  }
+
+  Future<void> _initializeActiveUser() async {
+    activeUser = Provider.of<UserProvider>(context, listen: false).activeUser;
+    _initializePrefs();
+    setState(() {}); 
+  }
+
+  Future<void> _initializePrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    currencySymbol = prefs?.getString('${activeUser!.email}/currencySymbol');
+    setState(() {}); 
   }
 
   @override
   Widget build(BuildContext context) {
-
-    period = int.tryParse(_periodAmountController.text) ?? 0;
-
-    DateTime todayDateString = DateFormat('dd-MM-yyyy').parse(todayDate);
-
-    DateTime endDate = todayDateString.add(Duration(days: period.toInt() * 30));
-    String endDateFormatted = DateFormat('dd-MM-yyyy').format(endDate);
 
     interest = int.tryParse(_interestAmountController.text) ?? 0;
 
@@ -171,10 +190,12 @@ class _AgreementPageState extends State<AgreementPage> {
                   _buildTextRow("To", widget.otheruser.email == "No Email" ? widget.otheruser.name : widget.otheruser.email),
                   const SizedBox(height: 8.0),
                   _buildStartDateRow("Start Date", todayDate, onPressed: () {
-                    _selectDate(context);
+                    _selectDate(context, 'todayDate');
                   }),
                   const SizedBox(height: 8.0),
-                  _buildTextRow("End Date", endDateFormatted),
+                  _buildTextRow("End Date", endDateFormatted, onPressed: (){
+                    _selectDate(context, 'endDateFormatted');
+                  }),
                   const SizedBox(height: 8.0),
                   _buildTextRow("Amount", loanAmount),
                   const SizedBox(height: 8.0),
@@ -193,8 +214,8 @@ class _AgreementPageState extends State<AgreementPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(children: [
-                  Text("\$ $totalAmount ", style: TextStyle(fontSize: 16.0, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
-                  Text("( \$ $breakdownAmount/Month)", style: TextStyle(fontSize: 12.0, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7))),
+                  Text("${currencySymbol ?? '\$'} $totalAmount ", style: TextStyle(fontSize: 16.0, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                  Text("( ${currencySymbol ?? '\$'} $breakdownAmount/Month)", style: TextStyle(fontSize: 12.0, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7))),
                 ]),
                 Container(
                   width: 150,
@@ -270,7 +291,7 @@ class _AgreementPageState extends State<AgreementPage> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDate(BuildContext context, String dateToUpdate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -279,10 +300,38 @@ class _AgreementPageState extends State<AgreementPage> {
     );
     if (picked != null) {
       setState(() {
-        todayDate = DateFormat('dd-MM-yyyy').format(picked);
+        DateTime selectedDate = DateFormat('dd-MM-yyyy').parse(DateFormat('dd-MM-yyyy').format(picked));
+
+        if (dateToUpdate == 'todayDate') {
+          if (selectedDate.isAfter(DateFormat('dd-MM-yyyy').parse(endDateFormatted))) {
+            ErrorDialogWidget.show(context, "Start Date cannot be after End Date");
+            return;  
+          }
+          todayDate = DateFormat('dd-MM-yyyy').format(picked);
+          
+        } else if (dateToUpdate == 'endDateFormatted') {
+          if (selectedDate.isBefore(DateFormat('dd-MM-yyyy').parse(todayDate))) {
+            ErrorDialogWidget.show(context, "End Date cannot be before Start Date");
+            return; 
+          } 
+          endDateFormatted = DateFormat('dd-MM-yyyy').format(picked);
+        }
+
+          DateTime startDate = DateFormat('dd-MM-yyyy').parse(todayDate);
+          DateTime endDate = DateFormat('dd-MM-yyyy').parse(endDateFormatted);
+          period = endDate.difference(startDate).inDays ~/ 30; 
+          _periodAmountController.text=period.toString();
+
+          interest = int.tryParse(_interestAmountController.text) ?? 0;
+          cycle = int.tryParse(_cycleAmountController.text) ?? 0;
+          interestAmount = loanAmount * interest * period / (12 * 100).toDouble();
+          interestAmount = double.parse(interestAmount.toStringAsFixed(2));
+          breakdownAmount = double.parse((totalAmount / period).toStringAsFixed(2));
+          totalAmount = (loanAmount + interestAmount).toDouble();
       });
     }
   }
+
 
   Widget _buildTextRow(String label, dynamic value, {VoidCallback? onPressed}) {
     return Row(
@@ -298,24 +347,32 @@ class _AgreementPageState extends State<AgreementPage> {
         Flexible(
           child: InkWell(
             onTap: onPressed,
-            child: Text(
-              value.toString(),
-              style: onPressed != null
-                  ? TextStyle(
-                      fontSize: 14.0,
-                      color: Theme.of(context).colorScheme.secondary,
-                      decoration: TextDecoration.underline,
-                    )
-                  : TextStyle(
-                      fontSize: 14.0,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
+            child: Row( 
+              mainAxisSize: MainAxisSize.min, 
+              children: [
+                Text( 
+                  (label.toLowerCase() == "amount" || label.toLowerCase() == "total interest amount") 
+                    ? "$currencySymbol${value.toString()}" 
+                    : value.toString(),
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                if (onPressed != null) ... [ 
+                  const SizedBox(width: 5), 
+                  Icon(Icons.edit, 
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ],
+              ], 
             ),
           ),
         ),
       ],
     );
   }
+
 
   Widget _buildStartDateRow(String label, String value, {VoidCallback? onPressed}) {
     return _buildTextRow(label, value, onPressed: onPressed);
@@ -344,6 +401,10 @@ class _AgreementPageState extends State<AgreementPage> {
                       switch (variable) {
                         case "period":
                           period = int.tryParse(value) ?? 0;
+
+                          DateTime todayDateString = DateFormat('dd-MM-yyyy').parse(todayDate);
+                          DateTime endDate = todayDateString.add(Duration(days: period.toInt() * 30));
+                          endDateFormatted = DateFormat('dd-MM-yyyy').format(endDate);
                           break;
                         case "cycle":
                           cycle = int.tryParse(value) ?? 0;

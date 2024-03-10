@@ -302,7 +302,7 @@ class _DashboardState extends State<Dashboard> {
             color: Theme.of(context).colorScheme.onSurface,
             onPressed: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ProfileScreen()));
+                  MaterialPageRoute(builder: (context) => ProfileScreen(activeUser:activeUserx)));
             },
           ),
         ),

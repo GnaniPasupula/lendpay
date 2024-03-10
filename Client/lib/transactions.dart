@@ -37,6 +37,8 @@ class _TransactionsState extends State<TransactionsPage> {
   bool isEmpty = true;
   bool shouldUpdate=false;
 
+  String? currencySymbol;
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +48,12 @@ class _TransactionsState extends State<TransactionsPage> {
     });
     messageController.addListener(updateSendButtonState);
     transactionsUserProvider = Provider.of<TransactionsUser>(context,listen: false);
+  }
+
+  Future<void> _initializePrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    currencySymbol = prefs.getString('${widget.activeuser.email}/currencySymbol');
+    setState(() {}); 
   }
 
   void updateSendButtonState(){
@@ -382,7 +390,7 @@ class _TransactionsState extends State<TransactionsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${transaction.type=="req" ? "Request":(transaction.isCredit ? "Credit" : "Debit")}: \$${transaction.amount}',
+                  '${transaction.type=="req" ? "Request":(transaction.isCredit ? "Credit" : "Debit")}: $currencySymbol${transaction.amount}',
                   style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 ),
                 const SizedBox(height: 8.0),
