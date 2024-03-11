@@ -189,44 +189,48 @@ class _DashboardState extends State<Dashboard> {
 
   void _showFirstLoginPopup(BuildContext context) {
     List<String> currencies = ['\$', '€', '₹']; 
-
     String selectedCurrency = currencies[2]; 
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Welcome!'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('This is your first login. Please select your preferred currency:'),
-              DropdownButton<String>(
-                value: selectedCurrency,
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    selectedCurrency = newValue;
-                  }
-                },
-                items: currencies.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
+        return StatefulBuilder( 
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Welcome!'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('This is your first login. Please select your preferred currency:'),
+                  DropdownButton<String>(
+                    value: selectedCurrency,
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        setState(() { 
+                          selectedCurrency = newValue; 
+                        });                        
+                      }
+                    },
+                    items: currencies.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Save'),
-              onPressed: () {
-                _saveCurrency(selectedCurrency);
-                activeUserx.currencySymbol=selectedCurrency;
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
+              actions: <Widget>[
+                TextButton(
+                  child: Text('Save'),
+                  onPressed: () {
+                    _saveCurrency(selectedCurrency);
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          }
         );
       },
     );

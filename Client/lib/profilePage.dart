@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/User.dart';
-import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/api_helper.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -15,14 +13,27 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String userName = '';
+  late String currencySymbol = '';
+  late SharedPreferences prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializePrefs();
+  }
 
   void _saveCurrency(String currency) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs = await SharedPreferences.getInstance();
     await prefs.setString('${widget.activeUser.email}/currencySymbol', currency);
   }
 
-      void showCurrencySelectionPopup() {
+  Future<void> _initializePrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    currencySymbol = prefs.getString('${widget.activeUser.email}/currencySymbol')!;
+    setState(() {}); 
+  }
+
+    void showCurrencySelectionPopup() {
       showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
@@ -32,7 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: Text('₹ - IND Rupee'),
                 onTap: () {
                   setState(() {
-                    widget.activeUser.currencySymbol = '₹'; 
+                    currencySymbol = '₹'; 
                     _saveCurrency('₹') ;
                   });
                   Navigator.pop(context); 
@@ -42,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: Text('\$ - US Dollar'),
                 onTap: () {
                   setState(() {
-                    widget.activeUser.currencySymbol = '\$';
+                    currencySymbol = '\$';
                     _saveCurrency('\$') ;
                   });
                   Navigator.pop(context); 
@@ -52,7 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: Text('€ - Euro'),
                 onTap: () {
                   setState(() {
-                    widget.activeUser.currencySymbol = '€';
+                    currencySymbol = '€';
                     _saveCurrency('€') ; 
                   });
                   Navigator.pop(context);
@@ -175,12 +186,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     double widthMultiplier = 1;
     // double textMultiplier = screenHeight/812;
     // double widthMultiplier = screenWidth/375;
-
-    setState(() {
-      userName=widget.activeUser.name;
-    });
-
-
     
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background, 
@@ -229,9 +234,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 7*textMultiplier),
                 ProfileOption(
-                  icon: currencyIcons[widget.activeUser.currencySymbol!]??Icons.attach_money, 
+                  icon: currencyIcons[currencySymbol]??Icons.attach_money, 
                   label: 'Currency Symbol',
-                  value: widget.activeUser.currencySymbol!, 
+                  value: currencySymbol, 
                   onPressed: () {
                     showCurrencySelectionPopup(); 
                   },

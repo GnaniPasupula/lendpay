@@ -48,6 +48,7 @@ class _TransactionsState extends State<TransactionsPage> {
     });
     messageController.addListener(updateSendButtonState);
     transactionsUserProvider = Provider.of<TransactionsUser>(context,listen: false);
+    _initializePrefs();
   }
 
   Future<void> _initializePrefs() async {
@@ -207,10 +208,11 @@ class _TransactionsState extends State<TransactionsPage> {
                       widget.otheruser.name,
                       style: TextStyle(fontSize: textMultiplier * 14, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w500),
                     ),
+                    !widget.otheruser.email!.contains(widget.activeuser.id)?
                     Text(
                       widget.otheruser.email??'',
                       style: TextStyle(fontSize: textMultiplier * 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), fontWeight: FontWeight.w500),
-                    ),
+                    ):const SizedBox(),
                   ],
                 ),
               ],

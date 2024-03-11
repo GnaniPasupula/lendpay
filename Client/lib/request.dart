@@ -257,10 +257,11 @@ Widget build(BuildContext context) {
                                     otheruser.name,
                                     style: TextStyle(fontSize: textMultiplier * 14, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
                                   ),
+                                  !otheruser.email!.contains(widget.activeUser.id)?
                                   Text(
                                     otheruser.email??'',
                                     style: TextStyle(fontSize: textMultiplier * 12, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
-                                  ),
+                                  ):const SizedBox(),
                                 ],
                               ),
                             ],

@@ -25,14 +25,14 @@ class _AgreementPageState extends State<AgreementPage> {
   late num loanAmount;
   late num period;
   late num interest;
-  late num cycle;
+  // late num cycle;
   late num totalAmount;
   late num interestAmount;
   late num breakdownAmount;
   late TextEditingController _loanAmountController;
   late TextEditingController _periodAmountController;
   late TextEditingController _interestAmountController;
-  late TextEditingController _cycleAmountController;
+  // late TextEditingController _cycleAmountController;
 
   String todayDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
   String endDateFormatted = '';
@@ -49,7 +49,7 @@ class _AgreementPageState extends State<AgreementPage> {
     _loanAmountController = TextEditingController(text: loanAmount.toString());
     _periodAmountController = TextEditingController(text: "12");
     _interestAmountController = TextEditingController(text: "12");
-    _cycleAmountController = TextEditingController(text: "1");
+    // _cycleAmountController = TextEditingController(text: "1");
 
     period = int.tryParse(_periodAmountController.text) ?? 0;
     DateTime todayDateString = DateFormat('dd-MM-yyyy').parse(todayDate);
@@ -76,7 +76,7 @@ class _AgreementPageState extends State<AgreementPage> {
 
     interest = int.tryParse(_interestAmountController.text) ?? 0;
 
-    cycle = int.tryParse(_cycleAmountController.text) ?? 0;
+    // cycle = int.tryParse(_cycleAmountController.text) ?? 0;
     interestAmount = loanAmount * interest * period / (12 * 100).toDouble();
     interestAmount = double.parse(interestAmount.toStringAsFixed(2));
     breakdownAmount = double.parse((totalAmount / period).toStringAsFixed(2));
@@ -159,19 +159,19 @@ class _AgreementPageState extends State<AgreementPage> {
               ],
             ),
             const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Text('Choose tenor', style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
-                Text('Payment cycle', style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
+                // Text('Payment cycle', style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
                 Text('Choose interest', style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
               ],
             ),
             const SizedBox(height: 8.0),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildFormBox(_periodAmountController, "Months", "period"),
-                _buildFormBox(_cycleAmountController, "Months", "cycle"),
+                // _buildFormBox(_cycleAmountController, "Months", "cycle"),
                 _buildFormBox(_interestAmountController, "Interest", "interest")
               ],
             ),
@@ -201,8 +201,8 @@ class _AgreementPageState extends State<AgreementPage> {
                   const SizedBox(height: 8.0),
                   _buildTextRow("Interest", "$interest%"),
                   const SizedBox(height: 8.0),
-                  _buildTextRow("Payment cycle", "$cycle Months"),
-                  const SizedBox(height: 8.0),
+                  // _buildTextRow("Payment cycle", "$cycle Months"),
+                  // const SizedBox(height: 8.0),
                   _buildTextRow("Loan Period", "$period Months"),
                   const SizedBox(height: 8.0),
                   _buildTextRow("Total interest amount", interestAmount),
@@ -249,7 +249,7 @@ class _AgreementPageState extends State<AgreementPage> {
                               TextButton(
                                 onPressed: () async {
                                   if (widget.otheruser.fCMToken.contains(widget.otheruser.name)) {
-                                    await ApiHelper.addTransaction(receiverUser: widget.otheruser, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount, isCredit:widget.isCredit);
+                                    await ApiHelper.addTransaction(receiverUser: widget.otheruser, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: 0, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount, isCredit:widget.isCredit);
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
                                           content: Text('Successfully added Loan'),
@@ -257,7 +257,7 @@ class _AgreementPageState extends State<AgreementPage> {
                                         ),
                                       );
                                   } else {
-                                    await ApiHelper.sendTransactionRequest(receiverEmail: widget.otheruser.email!, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: cycle, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount,isCredit:widget.isCredit);
+                                    await ApiHelper.sendTransactionRequest(receiverEmail: widget.otheruser.email!, amount: loanAmount, startDate: todayDate, endDate: endDateFormatted, interestRate: interest, paymentCycle: 0, subAmount: breakdownAmount, loanPeriod: period, interestAmount: interestAmount, totalAmount: totalAmount,isCredit:widget.isCredit);
                                     await FirebaseApi().sendNotificationToUser(receiverToken: widget.otheruser.fCMToken, title: "Loan Request", body: userProvider.activeUser.email!);
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
@@ -323,7 +323,7 @@ class _AgreementPageState extends State<AgreementPage> {
           _periodAmountController.text=period.toString();
 
           interest = int.tryParse(_interestAmountController.text) ?? 0;
-          cycle = int.tryParse(_cycleAmountController.text) ?? 0;
+          // cycle = int.tryParse(_cycleAmountController.text) ?? 0;
           interestAmount = loanAmount * interest * period / (12 * 100).toDouble();
           interestAmount = double.parse(interestAmount.toStringAsFixed(2));
           breakdownAmount = double.parse((totalAmount / period).toStringAsFixed(2));
@@ -406,9 +406,9 @@ class _AgreementPageState extends State<AgreementPage> {
                           DateTime endDate = todayDateString.add(Duration(days: period.toInt() * 30));
                           endDateFormatted = DateFormat('dd-MM-yyyy').format(endDate);
                           break;
-                        case "cycle":
-                          cycle = int.tryParse(value) ?? 0;
-                          break;
+                        // case "cycle":
+                        //   cycle = int.tryParse(value) ?? 0;
+                        //   break;
                         case "interest":
                           interest = int.tryParse(value) ?? 0;
                           break;

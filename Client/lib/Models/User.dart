@@ -3,7 +3,6 @@ class User {
   String? email;
   String password;
   String name;
-  String? currencySymbol;
   List<String> creditTransactions;
   List<String> debitTransactions;
   List<String> requests;
@@ -19,7 +18,6 @@ class User {
     this.email,
     required this.password,
     required this.name,
-    this.currencySymbol='\$',
     required this.creditTransactions,
     required this.debitTransactions,
     required this.requests,
@@ -37,7 +35,6 @@ class User {
       email: json['email'],
       password: json['password'],
       name: json['name'],
-      currencySymbol: json['currencySymbol'],
       creditTransactions: List<String>.from(json['creditTransactions']),
       debitTransactions: List<String>.from(json['debitTransactions']),
       requests: List<String>.from(json['requests']),
@@ -56,7 +53,6 @@ class User {
       'email': email,
       'password': password,
       'name': name,
-      'currencySymbol': currencySymbol,
       'creditTransactions': creditTransactions,
       'debitTransactions': debitTransactions,
       'requests': requests,
