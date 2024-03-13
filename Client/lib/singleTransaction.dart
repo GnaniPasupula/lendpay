@@ -110,8 +110,9 @@ class _SingleTransactionsState extends State<SingleTransactionsPage> {
       final subTransactions subtransactionToDelete=await ApiHelper.deletePayment(
         subtransactionID: widget.subTransaction.id,
       );
-      subtransactionsUserProvider.deletesubTransactionTransactionUser(subtransactionToDelete);
-      subtransactionsProvider.deletesubTransaction(subtransactionToDelete);
+      final subTransactions temp = subtransactionToDelete;
+      subtransactionsUserProvider.deletesubTransactionTransactionUser(temp);
+      subtransactionsProvider.deletesubTransaction(temp);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Payment deleted successfully'),

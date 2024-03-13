@@ -440,7 +440,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                               width: screenWidth * 0.9,
                               child:InkWell(
                                 onTap: ()  {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleTransactionsPage(subTransaction:subTransaction))).then((_) => setState(() {_fetchSubTransactions();}));                     
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleTransactionsPage(subTransaction:subTransaction))).then((_) => setState(() {_fetchSubTransactions();shouldUpdate=true;}));                     
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12), 
