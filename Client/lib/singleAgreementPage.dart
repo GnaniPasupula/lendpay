@@ -27,13 +27,15 @@ class SingleAgreementPage extends StatefulWidget {
 }
 
 class _SingleAgreementState extends State<SingleAgreementPage> {
+  late num payAmount;
+  String? amountErrorMessage;
 
   List<subTransactions> allsubTransactions = [];
   bool isManual=false;
   late SharedPreferences prefs;
   bool shouldUpdate=false;
-
-  late final SubtransactionsOfTransactionProvider subtransactionsOfTransactionProvider;
+  late SubtransactionsOfTransactionProvider subtransactionsOfTransactionProvider;
+  late TextEditingController _amountController; 
 
   @override
   void initState() {
@@ -43,6 +45,8 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
       isManual=(!widget.viewAgreement.sender.contains("@") || !widget.viewAgreement.receiver.contains("@"))?true:false;
     });
     subtransactionsOfTransactionProvider=Provider.of<SubtransactionsOfTransactionProvider>(context,listen: false);
+    payAmount=widget.viewAgreement.interestAmount;
+    _amountController=TextEditingController(text: widget.viewAgreement.interestAmount.toString());
   }
 
   handleUpdateSubTransactions(){
@@ -203,7 +207,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                       color: Colors.grey.withOpacity(0.5),
                       spreadRadius: 0,
                       blurRadius: 4,
-                      offset: Offset(0, 2),
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
@@ -261,77 +265,106 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
-                                return widget.viewAgreement.type != "req" ? AlertDialog(
-                                  backgroundColor: Theme.of(context).colorScheme.surface,
-                                  title: const Text('Add Monthly Payment'),
-                                  content: !widget.viewAgreement.receiver.contains('@')?Text("Are you sure you want to add the monthly payment?",
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurface
-                                  )):Text("Are you sure you want to send the payment request?",
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurface
-                                  )),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text("Cancel"),
-                                    ),
-                                    TextButton(
-                                      onPressed: () async {
-                                        try {
-                                          if(!widget.viewAgreement.receiver.contains('@')){
-                                            subTransactions payment= await ApiHelper.addPayment(
-                                              transactionID: widget.viewAgreement.id,
-                                              paidAmount: widget.viewAgreement.interestAmount,
-                                              date: date,
-                                              isCredit: widget.viewAgreement.isCredit
-                                            );
-                                            /// Add to local storage , update subtransactions
-                                            
+                                return StatefulBuilder(
+                                  builder: (context, setState) { 
+                                  return widget.viewAgreement.type != "req" ? AlertDialog(
+                                    backgroundColor: Theme.of(context).colorScheme.surface,
+                                    title: const Text('Add Monthly Payment'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        !widget.viewAgreement.receiver.contains('@')?Text("Are you sure you want to add the monthly payment?",
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onSurface
+                                        )):Text("Are you sure you want to send the payment request?",
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onSurface
+                                        )),
+                                        const SizedBox(height: 10), 
+                                        TextField(
+                                          controller: _amountController,  
+                                          keyboardType: TextInputType.number, 
+                                          decoration: InputDecoration(
+                                            labelText: 'Payment Amount',
+                                            labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                            hintText: widget.viewAgreement.interestAmount.toString(),
+                                            errorText: amountErrorMessage,
+                                          ),
+                                          onChanged: (value) {
+                                            num remainingBalance = widget.viewAgreement.totalAmount - widget.viewAgreement.amountPaid;
+                                            num newValue = num.tryParse(value) ?? 0;
                                             setState(() {
-                                              subtransactionsOfTransactionProvider.allSubTransactionsOfTransaction.add(payment);
-                                              _fetchSubTransactions();
+                                              amountErrorMessage = (newValue > remainingBalance) ? "Amount cannot exceed remaining balance" : null;
+                                              payAmount = newValue;
                                             });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text("Cancel"),
+                                      ),
+                                      TextButton(
+                                        onPressed: amountErrorMessage == null ?() async {
+                                          try {
+                                            if(!widget.viewAgreement.receiver.contains('@')){
+                                              subTransactions payment= await ApiHelper.addPayment(
+                                                transactionID: widget.viewAgreement.id,
+                                                paidAmount: payAmount,
+                                                date: date,
+                                                isCredit: widget.viewAgreement.isCredit
+                                              );
+                                              /// Add to local storage , update subtransactions
+                                              
+                                              setState(() {
+                                                subtransactionsOfTransactionProvider.allSubTransactionsOfTransaction.add(payment);
+                                                _fetchSubTransactions();
+                                              });
 
-                                            }else{
-                                            await ApiHelper.sendTransactionPaymentRequest(
-                                              transactionID: widget.viewAgreement.id,
-                                              paidAmount: widget.viewAgreement.interestAmount,
-                                              date: date,
-                                              isCredit: widget.viewAgreement.isCredit
+                                              }else{
+                                              await ApiHelper.sendTransactionPaymentRequest(
+                                                transactionID: widget.viewAgreement.id,
+                                                paidAmount: payAmount,
+                                                date: date,
+                                                isCredit: widget.viewAgreement.isCredit
+                                              );
+                                            }
+                                            Navigator.of(context).pop(); 
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                content: Text('Payment added successfully'),
+                                              ),
                                             );
+                                          } catch (e) {
+                                            // Handle error if the API call fails
+                                            print('Error: $e');
+                                            // You can show an error popup or handle it based on your requirements
                                           }
+                                        }: null,
+                                        child: const Text("Confirm"),
+                                      ),
+                                    ]
+                                  ) : AlertDialog(
+                                    title: const Text('Notice'),
+                                    content: const Text('Your loan request is not accepted yet'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
                                           Navigator.of(context).pop(); 
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(
-                                              content: Text('Payment added successfully'),
-                                            ),
-                                          );
-                                        } catch (e) {
-                                          // Handle error if the API call fails
-                                          print('Error: $e');
-                                          // You can show an error popup or handle it based on your requirements
-                                        }
-                                      },
-                                      child: const Text("Confirm"),
-                                    ),
-                                  ],
-                                ) : AlertDialog(
-                                  title: const Text('Notice'),
-                                  content: const Text('Your loan request is not accepted yet'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop(); 
-                                        Navigator.pushReplacementNamed(context, '/dashboard');
-                                      },
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                );                              
-                              }
+                                          Navigator.pushReplacementNamed(context, '/dashboard');
+                                        },
+                                        child: const Text('OK'),
+                                      ),
+                                    ],
+                                  );
+                                  }
+                                  );
+                                }                              
+                              
                             );
                           },
                           style: ButtonStyle(
@@ -398,7 +431,7 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                   color: Colors.grey.withOpacity(0.15),
                                   spreadRadius: 0,
                                   blurRadius: 4,
-                                  offset: Offset(0, 2),
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
