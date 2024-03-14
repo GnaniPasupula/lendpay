@@ -24,11 +24,16 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController(); 
   final TextEditingController _otpController = TextEditingController(); 
 
+  bool isLoading=false;
   bool _isSignIn = true; 
   bool passwordsMatch = false;
   String? _emailErrorText;
   String? _passwordErrorText;
   String? _confirmPasswordErrorText;
+
+  bool _showConfirmPassword=false;
+  bool _showPasswordSignIn=false;
+  bool _showPasswordSignUp=false;
 
   String apiUrl = dotenv.env['API_BASE_URL']!;
   // String apiUrl='http://localhost:3000';
@@ -70,7 +75,7 @@ class _AuthScreenState extends State<AuthScreen> {
           await prefs.setString('authToken', authToken);
 
           // await getActiveUserDetails();
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>Dashboard()));
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>const Dashboard()));
 
         } else {
           final responseBody = json.decode(response.body);
@@ -87,7 +92,9 @@ class _AuthScreenState extends State<AuthScreen> {
   Future<void> _signup() async {
     final url = '$apiUrl/auth/signup';
     // const url = 'http://192.168.0.103:3000/auth/signup';
-
+    setState(() {
+      isLoading=true;
+    });
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -99,6 +106,10 @@ class _AuthScreenState extends State<AuthScreen> {
       );
 
       // print(response.body);
+
+      setState(() {
+        isLoading=false;
+      });
 
       if (response.statusCode == 200) {
         _showOtpDialog();
@@ -187,7 +198,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Future<void> getActiveUserDetails() async{
     try{
-      final User? activeUser = await ApiHelper.getActiveUser();
+      final User activeUser = await ApiHelper.getActiveUser();
       Provider.of<UserProvider>(context, listen: false).setActiveUser(activeUser!);
     }catch(e){ 
       print('Error fetching active user details: $e');
@@ -196,6 +207,14 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       body: Center(
@@ -247,13 +266,13 @@ class _AuthScreenState extends State<AuthScreen> {
                 ],
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               if (_isSignIn) // Display Sign In fields
                 Column(
                   children: [
                     TextField(
                       controller: _signInEmailController,
-                      style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+                      style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                       decoration: InputDecoration(
                         labelText: 'Email',
                         labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant), 
@@ -264,12 +283,23 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                     TextField(
                       controller: _signInPasswordController,
-                      style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+                      style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                       decoration:  InputDecoration(
                         labelText: 'Password',
                         labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _showPasswordSignIn ? Icons.visibility : Icons.visibility_off,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _showPasswordSignIn = !_showPasswordSignIn;
+                            });
+                          },
                         ),
                       ),
                       obscureText: true,
@@ -281,7 +311,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   children: [
                     TextField(
                       controller: _signUpEmailController,
-                      style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+                      style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                       decoration: InputDecoration(
                         labelText: 'Email',
                         labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -300,7 +330,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                     TextField(
                       controller: _signUpPasswordController,
-                      style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+                      style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                       decoration: InputDecoration(
                         labelText: 'Password',
                         labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -308,8 +338,20 @@ class _AuthScreenState extends State<AuthScreen> {
                           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                         ),
                         errorText: _passwordErrorText,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _showPasswordSignUp ? Icons.visibility : Icons.visibility_off,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _showPasswordSignUp = !_showPasswordSignUp;
+                              _showConfirmPassword = !_showConfirmPassword;
+                            });
+                          },
+                        ),
                       ),
-                      obscureText: true,
+                      obscureText: !_showPasswordSignUp,
                       onChanged: (value) {
                         setState(() {
                           bool isValid = value.length >= 6;
@@ -319,7 +361,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                     TextField(
                       controller: _confirmPasswordController,
-                      style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+                      style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                       decoration: InputDecoration(
                         labelText: 'Confirm Password',
                         labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -328,7 +370,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                         errorText: _confirmPasswordErrorText,
                       ),
-                      obscureText: true,
+                      obscureText: !_showConfirmPassword, 
                       onChanged: (value) {
                         setState(() {
                           bool isValid = value == _signUpPasswordController.text;
@@ -338,14 +380,14 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                   ],
                 ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               AbsorbPointer(
                 absorbing: _isSignIn ? false : !passwordsMatch,
                 child: ElevatedButton(
                   onPressed: (_isSignIn ? _signin : _signup),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
-                    padding: EdgeInsets.symmetric(horizontal: 50),
+                    padding: const EdgeInsets.symmetric(horizontal: 50),
                   ),
                   child: IgnorePointer(
                     ignoring: (!_isSignIn && !passwordsMatch),

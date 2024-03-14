@@ -40,7 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return ListView(
             children: <Widget>[
               ListTile(
-                title: Text('₹ - IND Rupee'),
+                title: const Text('₹ - IND Rupee'),
                 onTap: () {
                   setState(() {
                     currencySymbol = '₹'; 
@@ -50,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
               ListTile(
-                title: Text('\$ - US Dollar'),
+                title: const Text('\$ - US Dollar'),
                 onTap: () {
                   setState(() {
                     currencySymbol = '\$';
@@ -60,7 +60,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
               ListTile(
-                title: Text('€ - Euro'),
+                title: const Text('€ - Euro'),
                 onTap: () {
                   setState(() {
                     currencySymbol = '€';
@@ -82,19 +82,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Name'),
+            title: const Text('Name'),
             content: TextField(
               onChanged: (value) {
                 newName = value;
               },
-              decoration: InputDecoration(labelText: 'New Name'),
+              decoration: const InputDecoration(labelText: 'New Name'),
             ),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text('Cancel'),
+                child: const Text('Cancel'),
               ),
               TextButton(
                 onPressed: () async {
@@ -110,7 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }
                   Navigator.pop(context);
                 },
-                child: Text('Save'),
+                child: const Text('Save'),
               ),
             ],
           );
@@ -127,7 +127,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Change Password'),
+            title: const Text('Change Password'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -135,21 +135,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onChanged: (value) {
                     oldPassword = value;
                   },
-                  decoration: InputDecoration(labelText: 'Old Password'),
+                  decoration: const InputDecoration(labelText: 'Old Password'),
                   obscureText: true,
                 ),
                 TextField(
                   onChanged: (value) {
                     newPassword = value;
                   },
-                  decoration: InputDecoration(labelText: 'New Password'),
+                  decoration: const InputDecoration(labelText: 'New Password'),
                   obscureText: true,
                 ),
                 TextField(
                   onChanged: (value) {
                     confirmNewPassword = value;
                   },
-                  decoration: InputDecoration(labelText: 'Confirm New Password'),
+                  decoration: const InputDecoration(labelText: 'Confirm New Password'),
                   obscureText: true,
                 ),
               ],
@@ -159,7 +159,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text('Cancel'),
+                child: const Text('Cancel'),
               ),
               TextButton(
                 onPressed: () {
@@ -168,7 +168,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }
                   Navigator.pop(context);
                 },
-                child: Text('Save'),
+                child: const Text('Save'),
               ),
             ],
           );
@@ -262,7 +262,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                   editOption: false,
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 // ElevatedButton(
                 //   onPressed: () {
                 //     ApiHelper.logout(context);
@@ -318,7 +318,7 @@ class ProfileOption extends StatelessWidget {
               color: Colors.grey.withOpacity(0.15),
               spreadRadius: 0,
               blurRadius: 4,
-              offset: Offset(0, 2),
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -349,7 +349,7 @@ class ProfileOption extends StatelessWidget {
                         style: TextStyle(fontSize: textMultiplier * 12,color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7),fontWeight: FontWeight.w500),
                       )
                     else
-                      SizedBox(), 
+                      const SizedBox(), 
                   ],
                 ),
 
@@ -367,7 +367,7 @@ class ProfileOption extends StatelessWidget {
                   ),
                 ) 
               ],
-              ): SizedBox(),             
+              ): const SizedBox(),             
           ],
         ),
 
