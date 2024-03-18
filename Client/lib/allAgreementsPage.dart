@@ -3,9 +3,11 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
+import 'package:lendpay/Providers/allTransactions_provider.dart';
 import 'package:lendpay/Widgets/error_dialog.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/singleAgreementPage.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:provider/provider.dart';
 
@@ -24,11 +26,27 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
 
   late SharedPreferences prefs;
   bool isLoading = true;
+  bool shouldUpdate=false;
+
+  late final TransactionsAllProvider transactionsAllProvider;
 
   @override
   void initState() {
     super.initState();
     _fetchAllTransactions();
+    transactionsAllProvider = Provider.of<TransactionsAllProvider>(context,listen: false);
+  }
+
+  handleUpdateUser(){
+    setState(() {
+      if(shouldUpdate==false){
+        transactionsAllProvider.setAllTransaction(allTransactions);
+        allTransactions=transactionsAllProvider.allTransactions;
+      }else{
+        allTransactions=transactionsAllProvider.allTransactions;
+      }
+      saveTransactionsToPrefs();
+    });
   }
 
   Future<void> _fetchAllTransactions() async {
@@ -38,13 +56,13 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
           prefs.getStringList('${widget.activeUser.email}/alltransactions');
 
       if (transactionsString != null) {
-        allTransactions = transactionsString
-            .map((transactionString) =>
-                Transaction.fromJson(jsonDecode(transactionString)))
-            .toList();
-      }
+        allTransactions = transactionsString.map((transactionString) =>Transaction.fromJson(jsonDecode(transactionString))).toList();
 
-      if (allTransactions.isEmpty) {
+        if(transactionsAllProvider.allTransactions!=allTransactions){
+          handleUpdateUser();
+        }
+      }
+      else{
         await fetchAllTransactionsFromAPI();
       }
 
@@ -61,13 +79,13 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
     }
   }
 
-
   Future<void> fetchAllTransactionsFromAPI() async {
     try {
       final List<Transaction> fetchedTransactions = await ApiHelper.fetchUserLoans();
 
       setState(() {
-        allTransactions = fetchedTransactions;
+        transactionsAllProvider.setAllTransaction(fetchedTransactions);
+        allTransactions = transactionsAllProvider.allTransactions;
       });
 
       saveTransactionsToPrefs();
@@ -76,7 +94,6 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
       print(e);
     }
   }
-
 
   Future<void> saveTransactionsToPrefs() async {
     final List<String> transactionsString = allTransactions
@@ -176,7 +193,7 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
                       icon: Icon(Icons.done, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       onPressed: handleSearch,
                     ),
-                    contentPadding: EdgeInsets.symmetric(vertical: 7),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 7),
                     border: InputBorder.none,
                   ),
                   cursorColor: Colors.black,
@@ -203,7 +220,7 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
                           color: Colors.grey.withOpacity(0.15),
                           spreadRadius: 0,
                           blurRadius: 4,
-                          offset: Offset(0, 2),
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
@@ -212,10 +229,10 @@ class _AllAgreementsPageState extends State<AllAgreementsPage> {
                       width: screenWidth * 0.9,
                       child:InkWell(
                         onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:allTransactions[index])));
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleAgreementPage(viewAgreement:allTransactions[index]))).then((_) => setState(() {_fetchAllTransactions();shouldUpdate=true;}));
                         },
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12), 
+                          padding: const EdgeInsets.symmetric(horizontal: 12), 
                           decoration: BoxDecoration(
                             color: Colors.transparent, 
                             borderRadius: BorderRadius.circular(10),

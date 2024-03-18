@@ -4,7 +4,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lendpay/API/firebase_api.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
+import 'package:lendpay/Providers/allTransactions_provider.dart';
 import 'package:lendpay/Providers/fCMToken_provider.dart';
+import 'package:lendpay/Providers/incomingPaymentRequest_provider.dart';
+import 'package:lendpay/Providers/incomingRequest_provider.dart';
 import 'package:lendpay/Providers/requestUsers_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/Providers/subTransactionsOfTransaction_provider.dart';
@@ -32,6 +35,9 @@ void main() async{
         ChangeNotifierProvider(create: (context) => SubtransactionsOfTransactionProvider()),
         ChangeNotifierProvider(create: (context) => TransactionsUser()),
         ChangeNotifierProvider(create: (context) => UrgentTransactionProvider()),
+        ChangeNotifierProvider(create: (context) => TransactionsAllProvider()),
+        ChangeNotifierProvider(create: (context) => IncomingRequestProvider()),
+        ChangeNotifierProvider(create: (context) => IncomingPaymentRequestProvider()),
       ],
       child: MyApp(),
     ),

@@ -5,6 +5,8 @@ import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Models/subTransactions.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
+import 'package:lendpay/Providers/incomingPaymentRequest_provider.dart';
+import 'package:lendpay/Providers/incomingRequest_provider.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:lendpay/incomingPaymentRequest.dart';
 import 'package:lendpay/incomingRequest.dart';
@@ -27,15 +29,38 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
   late String username;
 
   bool isLoading = true;
-  late SharedPreferences prefs;
+  bool shouldUpdate=false;
 
-  late User activeUser; 
+  late SharedPreferences prefs;
+  late User activeUser;
+
+  late final IncomingRequestProvider incomingRequestProvider;
+  late final IncomingPaymentRequestProvider incomingPaymentRequestProvider; 
 
   @override
   void initState() {
     super.initState();
     activeUser = Provider.of<UserProvider>(context, listen: false).activeUser;
+    incomingRequestProvider = Provider.of<IncomingRequestProvider>(context,listen: false);
+    incomingPaymentRequestProvider = Provider.of<IncomingPaymentRequestProvider>(context,listen: false);
     fetchRequests();
+  }
+
+  handleUpdateUser(){
+    setState(() {
+      if(shouldUpdate==false){
+        incomingRequestProvider.setAllRequests(requestTransactions);
+        requestTransactions=incomingRequestProvider.allTransactions;
+
+        incomingPaymentRequestProvider.setAllRequests(paymentrequestTransactions);
+        paymentrequestTransactions=incomingPaymentRequestProvider.allTransactions;
+      }else{
+        requestTransactions=incomingRequestProvider.allTransactions;
+        paymentrequestTransactions=incomingPaymentRequestProvider.allTransactions;
+      }
+      saveRequestsToPrefs('${activeUser.email}/requestTransactions', requestTransactions);
+      saveRequestsToPrefs('${activeUser.email}/paymentrequestTransactions', paymentrequestTransactions);
+    });
   }
 
   Future<void> fetchRequests() async {
@@ -45,18 +70,22 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
       final List<String>? requestTransactionsString = prefs.getStringList('${activeUser.email}/requestTransactions');
       if (requestTransactionsString != null) {
         requestTransactions = requestTransactionsString.map((requestString) => Transaction.fromJson(jsonDecode(requestString))).toList();
+
+        if(incomingRequestProvider.allTransactions!=requestTransactions){
+          handleUpdateUser();
+        }
+      }else{
+        await fetchRequestTransactionsFromAPI();
       }
 
       final List<String>? paymentrequestTransactionsString = prefs.getStringList('${activeUser.email}/paymentrequestTransactions');
       if (paymentrequestTransactionsString != null) {
         paymentrequestTransactions = paymentrequestTransactionsString.map((requestString) => subTransactions.fromJson(jsonDecode(requestString))).toList();
-      }
 
-      if (requestTransactions.isEmpty) {
-        await fetchRequestTransactionsFromAPI();
-      }
-
-      if (paymentrequestTransactions.isEmpty) {
+        if(incomingPaymentRequestProvider.allTransactions!=paymentrequestTransactions){
+          handleUpdateUser();
+        }
+      }else{
         await fetchPaymentRequestTransactionsFromAPI();
       }
 
@@ -289,8 +318,8 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                                   requestTransaction:
                                       requestTransactions[index],fetchRequestTransactionsFromAPI:fetchRequestTransactionsFromAPI
                                 ),
-                              ),
-                            );                        
+                              )
+                            ).then((_) => setState(() {fetchRequests();shouldUpdate=true;}));                        
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12), 
@@ -382,7 +411,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                                       paymentrequestTransactions[index],fetchPaymentRequestTransactionsFromAPI:fetchPaymentRequestTransactionsFromAPI
                                 ),
                               ),
-                            );                        
+                            ).then((_) => setState(() {fetchRequests();shouldUpdate=true;}));                        
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12), 

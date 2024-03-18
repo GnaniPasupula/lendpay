@@ -4,6 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
+import 'package:lendpay/Providers/allTransactions_provider.dart';
+import 'package:lendpay/Providers/incomingPaymentRequest_provider.dart';
+import 'package:lendpay/Providers/incomingRequest_provider.dart';
+import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/api_helper.dart';
 import 'package:provider/provider.dart';
 
@@ -23,10 +27,18 @@ class IncomingRequest extends StatefulWidget {
 
 class _IncomingRequestState extends State<IncomingRequest> {
 
+  late final TransactionsAllProvider transactionsAllProvider;
+  late final SubtransactionsProvider subtransactionsProvider;
+  late final IncomingRequestProvider incomingRequestProvider;
+  late final IncomingPaymentRequestProvider incomingPaymentRequestProvider;
 
   @override
   void initState() {
     super.initState();
+    transactionsAllProvider = Provider.of<TransactionsAllProvider>(context,listen: false);
+    subtransactionsProvider = Provider.of<SubtransactionsProvider>(context,listen: false);
+    incomingRequestProvider = Provider.of<IncomingRequestProvider>(context,listen: false);
+    incomingPaymentRequestProvider = Provider.of<IncomingPaymentRequestProvider>(context,listen: false);
   }
 
   @override
@@ -156,9 +168,12 @@ class _IncomingRequestState extends State<IncomingRequest> {
                                               totalAmount: widget.requestTransaction.totalAmount,
                                             );
 
+                                            transactionsAllProvider.addTransaction(newTransaction);
+                                            incomingRequestProvider.deleteRequest(newTransaction);
                                             widget.fetchRequestTransactionsFromAPI();
                                             Navigator.of(context).pop();
                                           },
+
                                           child: const Text("Confirm"),
                                         ),
                                       ],
