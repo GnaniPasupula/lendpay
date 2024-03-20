@@ -511,7 +511,7 @@ class ApiHelper {
     required bool isCredit
   }) async {
     final url = '$baseUrl/request';
-    final socket = IO.io("http://localhost:3000", <String, dynamic>{ 
+    final socket = IO.io(apiUrl, <String, dynamic>{ 
       'transports': ['websocket'],
     });
 

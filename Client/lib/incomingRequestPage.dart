@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
@@ -12,6 +13,7 @@ import 'package:lendpay/incomingPaymentRequest.dart';
 import 'package:lendpay/incomingRequest.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class IncomingRequestPage extends StatefulWidget {
 
@@ -37,6 +39,10 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
   late final IncomingRequestProvider incomingRequestProvider;
   late final IncomingPaymentRequestProvider incomingPaymentRequestProvider; 
 
+  late IO.Socket socket;
+  
+  static String apiUrl = dotenv.env['API_BASE_URL']!;
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +50,28 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
     incomingRequestProvider = Provider.of<IncomingRequestProvider>(context,listen: false);
     incomingPaymentRequestProvider = Provider.of<IncomingPaymentRequestProvider>(context,listen: false);
     fetchRequests();
+
+    socket = IO.io(apiUrl, <String, dynamic>{ 
+      'transports': ['websocket'],
+    });
+
+    socket.onConnect((_) {
+      print('Connected to server');
+    });
+
+    socket.on('transactionRequest', (data) {
+      print('Received transaction request: $data');
+      Transaction transaction = Transaction.fromJson(Map<String, dynamic>.from(data));
+      if (mounted) { 
+        setState(() {
+          requestTransactions.add(transaction);
+        });
+      }
+    });
+
+    socket.onDisconnect((_) {
+      print('Disconnected from server');
+    });
   }
 
   handleUpdateUser(){
