@@ -8,6 +8,7 @@ import 'package:lendpay/Models/subTransactions.dart';
 import 'package:lendpay/auth_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lendpay/Models/Transaction.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class ApiHelper {
   static String apiUrl = dotenv.env['API_BASE_URL']!;
@@ -510,6 +511,9 @@ class ApiHelper {
     required bool isCredit
   }) async {
     final url = '$baseUrl/request';
+    final socket = IO.io("http://localhost:3000", <String, dynamic>{ 
+      'transports': ['websocket'],
+    });
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -536,6 +540,9 @@ class ApiHelper {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         final transaction = Transaction.fromJson(responseData['transaction']);
+        
+        socket.emit('transactionRequest', transaction.toJson());
+
         return transaction;
       } else if (response.statusCode == 404) {
         log('Sender or receiver not found');

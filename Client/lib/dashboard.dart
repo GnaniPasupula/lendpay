@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:lendpay/API/firebase_api.dart';
 import 'package:lendpay/Models/Transaction.dart';

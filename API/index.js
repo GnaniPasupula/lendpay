@@ -7,6 +7,7 @@ const authRouter = require('./routes/auth');
 const lendPay = require('./routes/lendPay');
 const { authenticateUser } = require('./Middleware/authMiddleware');
 const { sendFcmMessage } = require('./fcmService');
+const socketIo = require('socket.io');
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
@@ -21,7 +22,7 @@ mongoose.connect(process.env.MONGO_URI, {
 function startServer() {
   const app = express();
   const server = http.createServer(app);
-  // const io = socketIO(server);
+  const io = socketIo(server); 
 
   app.use(express.json());
   app.use(cors());
@@ -44,6 +45,20 @@ function startServer() {
       console.error('Error sending notification:', error);
       res.status(500).send('Error sending notification');
     }
+  });
+
+  io.on('connection', (socket) => {
+    console.log('New client connected');
+
+    socket.on('transactionRequest', (data) => {
+      console.log('Transaction request received:', data);
+
+      io.emit('transactionRequest', data);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Client disconnected');
+    });
   });
 
   const PORT = process.env.PORT || 3000;

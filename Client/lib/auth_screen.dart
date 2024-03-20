@@ -302,7 +302,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           },
                         ),
                       ),
-                      obscureText: true,
+                      obscureText: !_showPasswordSignIn,
                     ),
                   ],
                 ),
