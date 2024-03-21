@@ -36,7 +36,6 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _showPasswordSignUp=false;
 
   String apiUrl = dotenv.env['API_BASE_URL']!;
-  // String apiUrl='http://localhost:3000';
 
    @override
   void initState() {
@@ -57,7 +56,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Future<void> _signin() async {
     final url = '$apiUrl/auth/signin';
-    // const url = 'http://192.168.0.103:3000/auth/signin';
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -91,7 +89,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Future<void> _signup() async {
     final url = '$apiUrl/auth/signup';
-    // const url = 'http://192.168.0.103:3000/auth/signup';
     setState(() {
       isLoading=true;
     });
@@ -166,8 +163,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Future<void> _validateOTP() async {
     final url = '$apiUrl/auth/verify-otp';
-    // const url = 'http://192.168.0.103:3000/auth/verify-otp';
-
     try {
       final response = await http.post(
         Uri.parse(url),

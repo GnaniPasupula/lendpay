@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:lendpay/API/firebase_api.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Models/subTransactions.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Providers/fCMToken_provider.dart';
+import 'package:lendpay/Providers/incomingRequest_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/Providers/urgentTransactions_provider.dart';
 import 'package:lendpay/Widgets/error_dialog.dart';
@@ -20,6 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'api_helper.dart';
 import 'package:intl/intl.dart';
 import 'request.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class Dashboard extends StatefulWidget {
   const Dashboard();
@@ -39,12 +42,50 @@ class _DashboardState extends State<Dashboard> {
 
   bool shouldUpdate=false;
 
+  late IO.Socket socket;
+  
+  static String apiUrl = dotenv.env['API_BASE_URL']!;
+
   @override
   void initState() {
     super.initState();
     _getActiveUser();
     subtransactionsProvider = Provider.of<SubtransactionsProvider>(context,listen: false);
     urgentTransactionProvider =  Provider.of<UrgentTransactionProvider>(context,listen: false);
+  }
+
+  Future<void> _getActiveUser() async {
+    try {
+      final User activeUser = await ApiHelper.getActiveUser();
+      Provider.of<UserProvider>(context, listen: false).setActiveUser(activeUser);
+      setState(() {
+        activeUserx = activeUser;
+        _fetchSubTransactions();
+        _fetchUrgentPayment();
+        _getfCMToken();
+      });
+    } catch (e) {
+      print(e);
+    } finally{
+      _initializeSocket();
+    }
+  }
+
+  void _initializeSocket(){
+
+    socket = IO.io(apiUrl, <String, dynamic>{ 
+      'transports': ['websocket'],
+    });
+
+    socket.onConnect((_) {
+      socket.emit('joinRoom', activeUserx.email);
+      print('Connected to server');
+    });
+
+    socket.onDisconnect((_) {
+      print('Disconnected from server');
+    });
+
   }
 
   handleUpdateEmergency(){
@@ -57,22 +98,6 @@ class _DashboardState extends State<Dashboard> {
       }
       _saveUrgentTransactionsToPrefs();
     });
-  }
-
-  Future<void> _getActiveUser() async {
-    try {
-      final User activeUser = await ApiHelper.getActiveUser();
-      Provider.of<UserProvider>(context, listen: false).setActiveUser(activeUser);
-      setState(() {
-        activeUserx = activeUser;
-        _fetchSubTransactions();
-        _fetchUrgentPayment();
-        _getfCMToken();
-
-      });
-    } catch (e) {
-      print(e);
-    }
   }
 
   handleUpdateSubTransactions(){

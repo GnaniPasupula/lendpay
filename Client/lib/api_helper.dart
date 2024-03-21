@@ -14,7 +14,6 @@ class ApiHelper {
   static String apiUrl = dotenv.env['API_BASE_URL']!;
   static String baseUrl='$apiUrl/lendpay';
 
-  // static final String baseUrl = 'http://192.168.0.103:3000/lendpay';
 
   static Future<User> addUser(String name) async {
     final url = '$baseUrl/addUser';
@@ -541,7 +540,10 @@ class ApiHelper {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         final transaction = Transaction.fromJson(responseData['transaction']);
         
-        socket.emit('transactionRequest', transaction.toJson());
+        socket.emit('transactionRequest', {
+          'receiverEmail': receiverEmail,
+          'transaction': transaction.toJson(),
+        });
 
         return transaction;
       } else if (response.statusCode == 404) {

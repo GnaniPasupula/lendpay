@@ -50,17 +50,24 @@ function startServer() {
   io.on('connection', (socket) => {
     console.log('New client connected');
 
+    socket.on('joinRoom', (roomID) => {
+      socket.join(roomID);
+    })
+  
     socket.on('transactionRequest', (data) => {
-      console.log('Transaction request received:', data);
-
-      io.emit('transactionRequest', data);
+      console.log('Server: Transaction request received:', data);
+  
+      const roomID = data.receiverEmail;
+        
+      io.to(roomID).emit('transactionRequest', data);
     });
-
+  
     socket.on('disconnect', () => {
       console.log('Client disconnected');
     });
   });
-
+  
+  
   const PORT = process.env.PORT || 3000;
 
   server.listen(PORT, () => {

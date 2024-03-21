@@ -37,11 +37,10 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
   late User activeUser;
 
   late final IncomingRequestProvider incomingRequestProvider;
-  late final IncomingPaymentRequestProvider incomingPaymentRequestProvider; 
+  late final IncomingPaymentRequestProvider incomingPaymentRequestProvider;
 
-  late IO.Socket socket;
-  
   static String apiUrl = dotenv.env['API_BASE_URL']!;
+  late IO.Socket socket;
 
   @override
   void initState() {
@@ -55,22 +54,13 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
       'transports': ['websocket'],
     });
 
-    socket.onConnect((_) {
-      print('Connected to server');
-    });
-
     socket.on('transactionRequest', (data) {
-      print('Received transaction request: $data');
-      Transaction transaction = Transaction.fromJson(Map<String, dynamic>.from(data));
-      if (mounted) { 
+      Transaction transaction =
+          Transaction.fromJson(Map<String, dynamic>.from(data['transaction']));
         setState(() {
-          requestTransactions.add(transaction);
+          incomingRequestProvider.addRequest(transaction);
+          requestTransactions=incomingRequestProvider.allTransactions;
         });
-      }
-    });
-
-    socket.onDisconnect((_) {
-      print('Disconnected from server');
     });
   }
 
@@ -164,25 +154,6 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
     setState(() {
       username = searchController.text;
     });
-  }
-
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Error', style: TextStyle(color: Colors.red)),
-        content: Text(message, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)), 
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-            child: Text('OK', style: TextStyle(color: Theme.of(context).colorScheme.primary)), 
-          ),
-        ],
-        backgroundColor: Theme.of(context).colorScheme.surface, 
-      ),
-    );
   }
 
   @override
@@ -313,10 +284,10 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
     // double widthMultiplier = screenWidth/375;
     //H=812 , W=375
 
-    return requestTransactions.isEmpty
+    return incomingRequestProvider.allTransactions.isEmpty
         ? const Center(child: Text('No loan requests available.',style: TextStyle(color: Colors.grey)))
         : ListView.builder(
-              itemCount: requestTransactions.length,
+              itemCount: incomingRequestProvider.allTransactions.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.only(left: 14,right: 14),
@@ -344,7 +315,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                               MaterialPageRoute(
                                 builder: (context) => IncomingRequest(
                                   requestTransaction:
-                                      requestTransactions[index],fetchRequestTransactionsFromAPI:fetchRequestTransactionsFromAPI
+                                      incomingRequestProvider.allTransactions[index],fetchRequestTransactionsFromAPI:fetchRequestTransactionsFromAPI
                                 ),
                               )
                             ).then((_) => setState(() {fetchRequests();shouldUpdate=true;}));                        
@@ -368,11 +339,11 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    requestTransactions[index].receiver,
+                                    incomingRequestProvider.allTransactions[index].receiver,
                                     style: TextStyle(fontSize: textMultiplier * 14, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
                                   ),
                                   Text(
-                                    DateFormat('dd-MM-yyyy').format(requestTransactions[index].startDate),
+                                    DateFormat('dd-MM-yyyy').format(incomingRequestProvider.allTransactions[index].startDate),
                                     style: TextStyle(fontSize: textMultiplier * 12, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7), fontWeight: FontWeight.w500),
                                   ),
                                 ],
