@@ -39,6 +39,7 @@ class _DashboardState extends State<Dashboard> {
 
   late final SubtransactionsProvider subtransactionsProvider;
   late final UrgentTransactionProvider urgentTransactionProvider;
+  late final IncomingRequestProvider incomingRequestProvider;
 
   bool shouldUpdate=false;
 
@@ -52,6 +53,7 @@ class _DashboardState extends State<Dashboard> {
     _getActiveUser();
     subtransactionsProvider = Provider.of<SubtransactionsProvider>(context,listen: false);
     urgentTransactionProvider =  Provider.of<UrgentTransactionProvider>(context,listen: false);
+    incomingRequestProvider = Provider.of<IncomingRequestProvider>(context,listen: false);
   }
 
   Future<void> _getActiveUser() async {
@@ -80,6 +82,14 @@ class _DashboardState extends State<Dashboard> {
     socket.onConnect((_) {
       socket.emit('joinRoom', activeUserx.email);
       print('Connected to server');
+    });
+
+    socket.on('transactionRequest', (data) {
+      Transaction transaction =
+          Transaction.fromJson(Map<String, dynamic>.from(data['transaction']));
+        setState(() {
+            incomingRequestProvider.addRequest(transaction);         
+        });
     });
 
     socket.onDisconnect((_) {

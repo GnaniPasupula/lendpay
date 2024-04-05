@@ -9,6 +9,10 @@ const { authenticateUser } = require('./Middleware/authMiddleware');
 const { sendFcmMessage } = require('./fcmService');
 const socketIo = require('socket.io');
 
+let pendingIncomingRequests = {};
+let userSocketMapping={};
+let io;
+
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -22,7 +26,7 @@ mongoose.connect(process.env.MONGO_URI, {
 function startServer() {
   const app = express();
   const server = http.createServer(app);
-  const io = socketIo(server); 
+  io = socketIo(server); 
 
   app.use(express.json());
   app.use(cors());
@@ -52,25 +56,53 @@ function startServer() {
 
     socket.on('joinRoom', (roomID) => {
       socket.join(roomID);
-    })
-  
+      userSocketMapping[roomID] = socket.id;
+      processPendingIncomingRequests(roomID);
+    });
+
     socket.on('transactionRequest', (data) => {
       console.log('Server: Transaction request received:', data);
-  
+
       const roomID = data.receiverEmail;
-        
-      io.to(roomID).emit('transactionRequest', data);
+
+      if (userSocketMapping[roomID]!=null) {
+        io.to(roomID).emit('transactionRequest', data);
+      } else {
+        console.log(`Client with roomID ${roomID} is offline. Saving the transaction request for later.`);
+        if (!pendingIncomingRequests[roomID]) {
+          pendingIncomingRequests[roomID] = [];
+        }
+        pendingIncomingRequests[roomID].push(data);
+      }
     });
-  
+
     socket.on('disconnect', () => {
       console.log('Client disconnected');
+
+      const disconnectedSocketId = socket.id;
+      for (const roomID in userSocketMapping) {
+          if (userSocketMapping[roomID] === disconnectedSocketId) {
+              delete userSocketMapping[roomID];
+              console.log(`Removed socket.id ${disconnectedSocketId} from userSocketMapping`);
+              break; 
+          }
+      }
     });
   });
-  
-  
+
   const PORT = process.env.PORT || 3000;
 
   server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
+}
+
+function processPendingIncomingRequests(roomID) {
+  if (pendingIncomingRequests[roomID]) {
+    const requests = pendingIncomingRequests[roomID];
+    requests.forEach((request) => {
+      io.to(roomID).emit('transactionRequest', request);
+    });
+    delete pendingIncomingRequests[roomID];
+  }
 }
