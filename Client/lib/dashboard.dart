@@ -323,7 +323,7 @@ class _DashboardState extends State<Dashboard> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 10.0), 
+            padding: const EdgeInsets.only(right: 16.0), 
             child: IconButton(
               icon: const Icon(Icons.notifications),
               color: Theme.of(context).colorScheme.onSurface,
@@ -334,7 +334,7 @@ class _DashboardState extends State<Dashboard> {
         backgroundColor: Theme.of(context).colorScheme.surface, 
         leading: Padding(
           padding: const EdgeInsets.only(
-              left: 10.0), // Add left padding to the logout button
+              left: 16.0), // Add left padding to the logout button
           child: IconButton(
             icon: const Icon(Icons.person),
             color: Theme.of(context).colorScheme.onSurface,
@@ -354,7 +354,7 @@ class _DashboardState extends State<Dashboard> {
             child: Column(
               children: [
                 Container(
-                  margin: const EdgeInsets.only(left: 14, right: 14, bottom: 7),
+                  margin: const EdgeInsets.only(left: 16, right: 16, bottom: 7),
                   child:allUrgentTransactions.isEmpty? 
                     Card(
                       shape: RoundedRectangleBorder(

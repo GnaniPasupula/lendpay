@@ -13,6 +13,7 @@ import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/Providers/subTransactionsOfTransaction_provider.dart';
 import 'package:lendpay/Providers/transactionsUser_provider.dart';
 import 'package:lendpay/Providers/urgentTransactions_provider.dart';
+import 'package:lendpay/Widgets/bottom_networkBar.dart';
 import 'package:lendpay/dashboard.dart';
 import 'package:lendpay/firebase_options.dart';
 import 'package:provider/provider.dart';
@@ -38,6 +39,7 @@ void main() async{
         ChangeNotifierProvider(create: (context) => TransactionsAllProvider()),
         ChangeNotifierProvider(create: (context) => IncomingRequestProvider()),
         ChangeNotifierProvider(create: (context) => IncomingPaymentRequestProvider()),
+        Provider(create: (context) => BottomBar()),
       ],
       child: MyApp(),
     ),
@@ -48,27 +50,32 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Your App Title',
+      title: 'LendPay',
       theme: ThemeData( 
         fontFamily: GoogleFonts.inter().fontFamily,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.black ),
       ),
-      home: FutureBuilder(
-        future: checkAuthToken(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.data == true) {
-              return const Dashboard();
+      home: Scaffold(
+        body: FutureBuilder(
+          future: checkAuthToken(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.data == true) {
+                return const Dashboard();
+              } else {
+                return AuthScreen();
+              }
             } else {
-              return AuthScreen();
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
             }
-          } else {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-        },
+          },
+        ),
+        bottomNavigationBar: Consumer<BottomBar>( 
+          builder: (context, bottomBar, _) => bottomBar,
+        ),
       ),
     );
   }
