@@ -557,6 +557,53 @@ class ApiHelper {
     }
   }
 
+  static Future<subTransactions> sendTransactionPaymentRequest({
+    required String transactionID,
+    required num paidAmount,
+    required String date,
+    required bool isCredit
+    }) async {
+    final url = '$baseUrl/requestpayment';
+    final socket = IO.io(apiUrl, <String, dynamic>{ 
+      'transports': ['websocket'],
+    });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'transactionID': transactionID,
+          'paidAmount': paidAmount,
+          'date': date,
+          'isCredit': isCredit
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final subTransaction = subTransactions.fromJson(responseData['subTransaction']);
+        
+        socket.emit('transactionPaymentRequest', {
+          'receiverEmail': subTransaction.sender,
+          'subTransaction': subTransaction.toJson(),
+        });
+
+        return subTransaction;
+      } else {
+        throw Exception('Failed to send payment request');
+      }
+    } catch (e) {
+      throw Exception('Error sending payment request: $e');
+    }
+  }
+
   static Future<Transaction> acceptTransactionRequest({
     required String requestTransactionID,
     required String senderEmail,
@@ -641,42 +688,6 @@ class ApiHelper {
       }
     } catch (e) {
       throw Exception('Error rejecting transaction request: $e');
-    }
-  }
-
-  static Future<void> sendTransactionPaymentRequest({
-    required String transactionID,
-    required num paidAmount,
-    required String date,
-    required bool isCredit
-    }) async {
-    final url = '$baseUrl/requestpayment';
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final authToken = prefs.getString('authToken');
-
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer $authToken',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'transactionID': transactionID,
-          'paidAmount': paidAmount,
-          'date': date,
-          'isCredit': isCredit
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        log('Payment confirmed successfully');
-      } else {
-        throw Exception('Failed to confirm payment');
-      }
-    } catch (e) {
-      throw Exception('Error confirming payment: $e');
     }
   }
 

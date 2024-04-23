@@ -10,6 +10,7 @@ const { sendFcmMessage } = require('./fcmService');
 const socketIo = require('socket.io');
 
 let pendingIncomingRequests = {};
+let pendingIncomingPaymentRequests = {};
 let userSocketMapping={};
 let io;
 
@@ -68,11 +69,27 @@ function startServer() {
       if (userSocketMapping[roomID]!=null) {
         io.to(roomID).emit('transactionRequest', data);
       } else {
-        console.log(`Client with roomID ${roomID} is offline. Saving the transaction request for later.`);
+        console.log(`Client with roomID ${roomID} is offline. Saving the loan request for later.`);
         if (!pendingIncomingRequests[roomID]) {
           pendingIncomingRequests[roomID] = [];
         }
         pendingIncomingRequests[roomID].push(data);
+      }
+    });
+
+    socket.on('transactionPaymentRequest', (data) => {
+      console.log('Server: Payment request received:', data);
+
+      const roomID = data.receiverEmail;
+
+      if (userSocketMapping[roomID]!=null) {
+        io.to(roomID).emit('transactionPaymentRequest', data);
+      } else {
+        console.log(`Client with roomID ${roomID} is offline. Saving the payment request for later.`);
+        if (!pendingIncomingPaymentRequests[roomID]) {
+          pendingIncomingPaymentRequests[roomID] = [];
+        }
+        pendingIncomingPaymentRequests[roomID].push(data);
       }
     });
 

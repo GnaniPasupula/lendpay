@@ -7,6 +7,7 @@ import 'package:lendpay/Models/User.dart';
 import 'package:lendpay/Models/subTransactions.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
 import 'package:lendpay/Providers/fCMToken_provider.dart';
+import 'package:lendpay/Providers/incomingPaymentRequest_provider.dart';
 import 'package:lendpay/Providers/incomingRequest_provider.dart';
 import 'package:lendpay/Providers/subTransaction_provider.dart';
 import 'package:lendpay/Providers/urgentTransactions_provider.dart';
@@ -40,6 +41,7 @@ class _DashboardState extends State<Dashboard> {
   late final SubtransactionsProvider subtransactionsProvider;
   late final UrgentTransactionProvider urgentTransactionProvider;
   late final IncomingRequestProvider incomingRequestProvider;
+  late final IncomingPaymentRequestProvider incomingPaymentRequestProvider;
 
   bool shouldUpdate=false;
 
@@ -54,6 +56,7 @@ class _DashboardState extends State<Dashboard> {
     subtransactionsProvider = Provider.of<SubtransactionsProvider>(context,listen: false);
     urgentTransactionProvider =  Provider.of<UrgentTransactionProvider>(context,listen: false);
     incomingRequestProvider = Provider.of<IncomingRequestProvider>(context,listen: false);
+    incomingPaymentRequestProvider = Provider.of<IncomingPaymentRequestProvider>(context,listen: false);
   }
 
   Future<void> _getActiveUser() async {
@@ -89,6 +92,14 @@ class _DashboardState extends State<Dashboard> {
           Transaction.fromJson(Map<String, dynamic>.from(data['transaction']));
         setState(() {
             incomingRequestProvider.addRequest(transaction);         
+        });
+    });
+
+    socket.on('transactionPaymentRequest', (data) {
+      subTransactions subtransaction =
+          subTransactions.fromJson(Map<String, dynamic>.from(data['subTransaction']));
+        setState(() {
+            incomingPaymentRequestProvider.addPaymentRequest(subtransaction);         
         });
     });
 

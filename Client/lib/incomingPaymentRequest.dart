@@ -137,7 +137,7 @@ class _IncomingRequestState extends State<IncomingPaymentRequest> {
                               }
                             : null,
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(activeUser.email != widget.paymentrequestTransaction.sender ? Theme.of(context).colorScheme.primary : Colors.grey),
+                          backgroundColor: MaterialStateProperty.all<Color>(activeUser.email == widget.paymentrequestTransaction.sender ? Theme.of(context).colorScheme.primary : Colors.grey),
                         ), // Set onPressed to null if condition is not met
                         child: Text("Confirm", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
                       ),

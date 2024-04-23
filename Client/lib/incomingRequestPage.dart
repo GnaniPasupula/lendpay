@@ -43,31 +43,27 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
     activeUser = Provider.of<UserProvider>(context, listen: false).activeUser;
     incomingRequestProvider = Provider.of<IncomingRequestProvider>(context,listen: false);
     incomingPaymentRequestProvider = Provider.of<IncomingPaymentRequestProvider>(context,listen: false);
-    fetchRequests();
+    fetchLoanRequests();
+    fetchPaymentRequests();
   }
 
   handleUpdateUser(){
     setState(() {
       if(shouldUpdate==false){
         incomingRequestProvider.setAllRequests(requestTransactions);
-        requestTransactions=incomingRequestProvider.allTransactions;
-
         incomingPaymentRequestProvider.setAllRequests(paymentrequestTransactions);
-        paymentrequestTransactions=incomingPaymentRequestProvider.allTransactions;
       }else{
         requestTransactions=incomingRequestProvider.allTransactions;
         paymentrequestTransactions=incomingPaymentRequestProvider.allTransactions;
       }
-      saveRequestsToPrefs('${activeUser.email}/requestTransactions', requestTransactions);
-      saveRequestsToPrefs('${activeUser.email}/paymentrequestTransactions', paymentrequestTransactions);
     });
   }
 
-  Future<void> fetchRequests() async {
+  Future<void> fetchLoanRequests() async {
     try {
       prefs = await SharedPreferences.getInstance();
 
-      final List<String>? requestTransactionsString = prefs.getStringList('${activeUser.email}/requestTransactions');
+      List<String>? requestTransactionsString = prefs.getStringList('${activeUser.email}/requestTransactions');
       if (requestTransactionsString != null) {
         requestTransactions = requestTransactionsString.map((requestString) => Transaction.fromJson(jsonDecode(requestString))).toList();
 
@@ -78,9 +74,25 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
         await fetchRequestTransactionsFromAPI();
       }
 
-      final List<String>? paymentrequestTransactionsString = prefs.getStringList('${activeUser.email}/paymentrequestTransactions');
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print(e);
+    }
+  }
+
+  Future<void> fetchPaymentRequests() async {
+    try {
+      prefs = await SharedPreferences.getInstance();
+      
+      List<String>? paymentrequestTransactionsString = prefs.getStringList('${activeUser.email}/paymentrequestTransactions');
       if (paymentrequestTransactionsString != null) {
-        paymentrequestTransactions = paymentrequestTransactionsString.map((requestString) => subTransactions.fromJson(jsonDecode(requestString))).toList();
+        paymentrequestTransactionsString = prefs.getStringList('${activeUser.email}/paymentrequestTransactions');
+        paymentrequestTransactions = paymentrequestTransactionsString!.map((requestString) => subTransactions.fromJson(jsonDecode(requestString))).toList();
 
         if(incomingPaymentRequestProvider.allTransactions!=paymentrequestTransactions){
           handleUpdateUser();
@@ -97,7 +109,6 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
         isLoading = false;
       });
       print(e);
-      // Handle error and show a proper error message to the user
     }
   }
 
@@ -300,7 +311,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                                       incomingRequestProvider.allTransactions[index],fetchRequestTransactionsFromAPI:fetchRequestTransactionsFromAPI
                                 ),
                               )
-                            ).then((_) => setState(() {fetchRequests();shouldUpdate=true;}));                        
+                            ).then((_) => setState(() {fetchLoanRequests();shouldUpdate=true;}));                        
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12), 
@@ -392,7 +403,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
                                       paymentrequestTransactions[index],fetchPaymentRequestTransactionsFromAPI:fetchPaymentRequestTransactionsFromAPI
                                 ),
                               ),
-                            ).then((_) => setState(() {fetchRequests();shouldUpdate=true;}));                        
+                            ).then((_) => setState(() {fetchPaymentRequests();shouldUpdate=true;}));                        
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12), 

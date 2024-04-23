@@ -42,7 +42,6 @@ class _RequestState extends State<Request>{
     setState(() {
       if(shouldUpdate==false){
         requestUsersProvider.setAllRequestUsers(users);
-        users=requestUsersProvider.allrequestUser;
       }else{
         users=requestUsersProvider.allrequestUser;
       }
@@ -51,7 +50,6 @@ class _RequestState extends State<Request>{
   }
 
   Future<void> fetchUsers() async {
-    
     try {
       prefs = await SharedPreferences.getInstance();
       List<String>? usersString= prefs.getStringList('${widget.activeUser.email}/requestUsers');

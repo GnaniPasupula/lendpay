@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:lendpay/API/firebase_api.dart';
 import 'package:lendpay/Models/Transaction.dart';
 import 'package:lendpay/Models/subTransactions.dart';
 import 'package:lendpay/Providers/activeUser_provider.dart';
@@ -325,13 +326,15 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                                               });
 
                                               }else{
-                                              await ApiHelper.sendTransactionPaymentRequest(
-                                                transactionID: widget.viewAgreement.id,
-                                                paidAmount: payAmount,
-                                                date: date,
-                                                isCredit: widget.viewAgreement.isCredit
-                                              );
-                                            }
+                                                if(widget.viewAgreement.sender==userProvider.activeUser.email){
+                                                  await ApiHelper.sendTransactionPaymentRequest(
+                                                    transactionID: widget.viewAgreement.id,
+                                                    paidAmount: payAmount,
+                                                    date: date,
+                                                    isCredit: widget.viewAgreement.isCredit
+                                                  );                                                
+                                                }
+                                              }
                                             Navigator.of(context).pop(); 
                                             ScaffoldMessenger.of(context).showSnackBar(
                                               const SnackBar(
@@ -367,9 +370,19 @@ class _SingleAgreementState extends State<SingleAgreementPage> {
                             );
                           },
                           style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary ),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                widget.viewAgreement.sender != userProvider.activeUser.email
+                                    ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
+                                    : Theme.of(context).colorScheme.primary),
                           ),
-                          child: Text("Pay", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+                          child: Text(
+                            "Pay",
+                            style: TextStyle(
+                              color: widget.viewAgreement.sender != userProvider.activeUser.email
+                                  ? Theme.of(context).colorScheme.onSurface.withOpacity(0.5)
+                                  : Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
                         ),
                       ),
                     ],

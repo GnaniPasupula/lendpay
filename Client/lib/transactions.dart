@@ -120,8 +120,8 @@ class _TransactionsState extends State<TransactionsPage> {
           transactionsUserProvider.setAllTransactionUsers(fetchedTransactions);
           allTransactionsUser = fetchedTransactions;
         });
-        saveTransactionsToPrefs();
       }
+      saveTransactionsToPrefs();
     } catch (e) {
       ErrorDialogWidget.show(context, "Error fetching transactions from API");
       print(e);
@@ -267,7 +267,7 @@ class _TransactionsState extends State<TransactionsPage> {
               itemCount: allTransactionsUser.length,
               reverse: true,
               itemBuilder: (context, index) {
-                final transaction = allTransactionsUser[index];
+                final transaction = allTransactionsUser[allTransactionsUser.length-index-1];
                 return buildTransactionItem(transaction);
               },
             ),
